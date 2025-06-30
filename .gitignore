@@ -78,9 +78,8 @@ output/
 *.jsonl
 *.parquet
 
-# Generated data files from pipeline (elizaOS-inspired structure)
-data/**/*.json
-sources/**/*.json
+# Note: data/ and sources/ JSON files are intentionally tracked
+# to build up historical knowledge collection via GitHub Actions
 
 # Development tools
 .clinerules/
