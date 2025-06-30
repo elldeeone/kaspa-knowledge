@@ -143,17 +143,13 @@ def run_full_pipeline():
 def run_ingestion_only():
     """Run only the data ingestion steps."""
     print("\n🔄 Running ingestion-only pipeline")
-    return run_command(
-        "python -m scripts.medium_ingest", "Medium Articles Ingestion"
-    )
+    return run_command("python -m scripts.medium_ingest", "Medium Articles Ingestion")
 
 
 def run_aggregation_only():
     """Run only the raw aggregation step."""
     print("\n🔄 Running aggregation-only pipeline")
-    return run_command(
-        "python -m scripts.aggregate_sources", "Raw Sources Aggregation"
-    )
+    return run_command("python -m scripts.aggregate_sources", "Raw Sources Aggregation")
 
 
 def run_ai_processing_only():

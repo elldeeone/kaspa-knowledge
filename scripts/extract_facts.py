@@ -54,10 +54,10 @@ class FactsExtractor:
             try:
                 prompt = prompt_loader.format_prompt(
                     "extract_kaspa_facts",
-                    title=article['title'],
-                    author=article['author'],
-                    url=article['link'],
-                    content=article['summary'][:4000] + "..."
+                    title=article["title"],
+                    author=article["author"],
+                    url=article["link"],
+                    content=article["summary"][:4000] + "...",
                 )
 
                 system_prompt = prompt_loader.get_system_prompt("extract_kaspa_facts")

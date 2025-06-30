@@ -58,13 +58,15 @@ class BriefingGenerator:
             try:
                 prompt = prompt_loader.format_prompt(
                     "generate_article_summary",
-                    title=article['title'],
-                    author=article['author'],
-                    url=article['link'],
-                    content=article['summary'][:4000] + "..."
+                    title=article["title"],
+                    author=article["author"],
+                    url=article["link"],
+                    content=article["summary"][:4000] + "...",
                 )
 
-                system_prompt = prompt_loader.get_system_prompt("generate_article_summary")
+                system_prompt = prompt_loader.get_system_prompt(
+                    "generate_article_summary"
+                )
                 summary = self.llm.call_llm(
                     prompt=prompt,
                     system_prompt=system_prompt,
@@ -104,7 +106,7 @@ class BriefingGenerator:
         briefing_prompt = prompt_loader.format_prompt(
             "generate_daily_briefing",
             article_count=len(articles),
-            articles_list=titles_and_authors
+            articles_list=titles_and_authors,
         )
 
         try:

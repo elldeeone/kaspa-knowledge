@@ -21,7 +21,7 @@ class PromptLoader:
             return self._prompt_cache[prompt_name]
 
         prompt_path = self.prompts_dir / f"{prompt_name}.txt"
-        
+
         if not prompt_path.exists():
             raise FileNotFoundError(f"Prompt file not found: {prompt_path}")
 
@@ -52,4 +52,4 @@ class PromptLoader:
 
 
 # Global instance for convenience
-prompt_loader = PromptLoader() 
+prompt_loader = PromptLoader()
