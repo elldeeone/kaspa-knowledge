@@ -7,7 +7,6 @@ making the system more maintainable and flexible.
 """
 
 from pathlib import Path
-from typing import Dict, Any
 
 
 class PromptLoader:
