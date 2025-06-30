@@ -32,8 +32,7 @@ anthropic>=0.7.0
 python-dotenv>=1.0.0
 pyyaml>=6.0
 
-# Async and concurrency
-asyncio
+# Async file operations
 aiofiles>=23.2.0
 
 # Rate limiting
@@ -55,9 +54,6 @@ playwright>=1.40.0
 # Data validation and cleaning
 validators>=0.22.0
 
-# File and path utilities
-pathlib2>=2.3.7
-
 # Markdown processing
 markdown>=3.5.0
 
@@ -66,4 +62,4 @@ pytest>=7.4.0
 pytest-asyncio>=0.21.0
 
 # OpenRouter API client and supporting libraries
-tenacity 
+tenacity>=8.2.0 
