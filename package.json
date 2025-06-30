@@ -1,0 +1,63 @@
+{
+  "name": "kaspa-knowledge-hub",
+  "version": "1.0.0",
+  "description": "Automated knowledge aggregation and processing system for the Kaspa cryptocurrency ecosystem",
+  "main": "scripts/main.js",
+  "scripts": {
+    "start": "node scripts/main.js",
+    "test": "jest",
+    "lint": "eslint scripts/**/*.js",
+    "dev": "nodemon scripts/main.js",
+    "setup": "npm install && python -m pip install -r requirements.txt",
+    "scrape": "node scripts/web-scraper.js",
+    "github-sync": "node scripts/github-integration.js",
+    "discord-bot": "node scripts/discord-bot.js"
+  },
+  "keywords": [
+    "kaspa",
+    "cryptocurrency",
+    "knowledge-management",
+    "automation",
+    "ai",
+    "blockchain",
+    "data-aggregation"
+  ],
+  "author": "Kaspa Knowledge Hub Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/kaspa-knowledge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/kaspa-knowledge/issues"
+  },
+  "homepage": "https://github.com/your-username/kaspa-knowledge#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "puppeteer": "^21.5.0",
+    "discord.js": "^14.14.0",
+    "@octokit/rest": "^20.0.0",
+    "rss-parser": "^3.13.0",
+    "dotenv": "^16.3.0",
+    "winston": "^3.11.0",
+    "node-cron": "^3.0.3",
+    "sharp": "^0.32.0",
+    "canvas": "^2.11.0",
+    "moment": "^2.29.0",
+    "lodash": "^4.17.0",
+    "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0",
+    "nodemon": "^3.0.0",
+    "@types/node": "^20.10.0"
+  }
+} 

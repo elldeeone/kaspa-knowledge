@@ -1,0 +1,242 @@
+name: Daily Knowledge Sync
+
+on:
+  schedule:
+    # Run daily at 6:00 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+    inputs:
+      force_full_sync:
+        description: 'Force full sync of all sources'
+        required: false
+        default: false
+        type: boolean
+      skip_ai_processing:
+        description: 'Skip AI processing and only collect raw data'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.9'
+  NODE_VERSION: '18'
+
+jobs:
+  data-ingestion:
+    name: Data Ingestion
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install Node.js dependencies
+      run: npm ci
+      
+    - name: Install Playwright browsers
+      run: python -m playwright install --with-deps chromium
+      
+    - name: Run Medium RSS ingestion
+      run: python scripts/ingest_medium.py
+      env:
+        MEDIUM_RSS_FEEDS: ${{ secrets.MEDIUM_RSS_FEEDS }}
+        
+    - name: Run GitHub activity sync
+      run: python scripts/ingest_github.py
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOS: ${{ secrets.GITHUB_REPOS }}
+        
+    - name: Run Discord channel logging
+      run: python scripts/ingest_discord.py
+      env:
+        DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        DISCORD_CHANNELS: ${{ secrets.DISCORD_CHANNELS }}
+        
+    - name: Run research forum scraping
+      run: python scripts/ingest_forum.py
+      env:
+        FORUM_BASE_URL: "https://research.kas.pa/"
+        
+    - name: Run on-chain data collection
+      run: python scripts/ingest_onchain.py
+      env:
+        KASPA_API_KEY: ${{ secrets.KASPA_API_KEY }}
+        KASPA_API_ENDPOINT: ${{ secrets.KASPA_API_ENDPOINT }}
+        
+    - name: Run documentation sync
+      run: python scripts/ingest_docs.py
+      env:
+        KASPA_WIKI_URL: ${{ secrets.KASPA_WIKI_URL }}
+        
+    - name: Upload raw data artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: raw-data-${{ github.run_number }}
+        path: |
+          discord/
+          github/
+          forum/
+          news/
+          onchain/
+          docs/
+        retention-days: 7
+
+  ai-processing:
+    name: AI Processing
+    runs-on: ubuntu-latest
+    needs: data-ingestion
+    timeout-minutes: 45
+    if: ${{ !inputs.skip_ai_processing }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Download raw data
+      uses: actions/download-artifact@v3
+      with:
+        name: raw-data-${{ github.run_number }}
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run data aggregation
+      run: python scripts/aggregate_data.py
+      env:
+        AGGREGATION_CONFIG: ${{ secrets.AGGREGATION_CONFIG }}
+        
+    - name: Run factual extraction
+      run: python scripts/extract_facts.py
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        EXTRACTION_MODEL: ${{ secrets.EXTRACTION_MODEL }}
+        
+    - name: Generate strategic briefing
+      run: python scripts/generate_briefing.py
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        BRIEFING_MODEL: ${{ secrets.BRIEFING_MODEL }}
+        
+    - name: Optimize for RAG
+      run: python scripts/optimize_for_rag.py
+      env:
+        RAG_CONFIG: ${{ secrets.RAG_CONFIG }}
+        
+    - name: Upload processed knowledge
+      uses: actions/upload-artifact@v3
+      with:
+        name: processed-knowledge-${{ github.run_number }}
+        path: |
+          kaspa-insights/
+          hackmd/
+        retention-days: 30
+
+  publish-results:
+    name: Publish Results
+    runs-on: ubuntu-latest
+    needs: [data-ingestion, ai-processing]
+    timeout-minutes: 15
+    if: always() && (needs.data-ingestion.result == 'success')
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Download processed knowledge
+      uses: actions/download-artifact@v3
+      with:
+        name: processed-knowledge-${{ github.run_number }}
+      continue-on-error: true
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Post to Discord
+      run: python scripts/post_to_discord.py
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      continue-on-error: true
+        
+    - name: Update HackMD
+      run: python scripts/update_hackmd.py
+      env:
+        HACKMD_API_KEY: ${{ secrets.HACKMD_API_KEY }}
+        HACKMD_TEAM: ${{ secrets.HACKMD_TEAM }}
+      continue-on-error: true
+        
+    - name: Generate social media posters
+      run: python scripts/generate_posters.py
+      env:
+        POSTER_CONFIG: ${{ secrets.POSTER_CONFIG }}
+      continue-on-error: true
+        
+    - name: Commit and push updates
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --staged --quiet || git commit -m "Daily knowledge sync: $(date -u +%Y-%m-%d)"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [data-ingestion, ai-processing, publish-results]
+    if: always()
+    
+    steps:
+    - name: Delete artifacts
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            run_id: context.runId,
+          });
+          
+          for (const artifact of artifacts.data.artifacts) {
+            await github.rest.actions.deleteArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: artifact.id,
+            });
+          } 

@@ -1,0 +1,95 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS specific
+.DS_Store
+
+# GitHub instructions (but allow workflows)
+.github/instructions/
+
+# Python specific
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Data and output files
+output/
+*.csv
+# *.json  # Commented out - we need package.json, book.json, etc.
+*.jsonl
+*.parquet
+
+# Generated data files from pipeline (elizaOS-inspired structure)
+data/**/*.json
+sources/**/*.json
+
+# Development tools
+.clinerules/
+.cursor/
+.github/instructions/  # Ignore instructions but allow workflows
+.github/instructions/*  # Ignore all files in instructions directory
+.roo/
+.roomodes
+.taskmaster/
+.trae/
+AGENTS.md
+CLAUDE.md

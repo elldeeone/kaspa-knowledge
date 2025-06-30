@@ -1,0 +1,42 @@
+{
+  "title": "Kaspa Knowledge Hub",
+  "description": "State management for HackMD notes and knowledge organization",
+  "version": "1.0.0",
+  "lastUpdated": "2025-06-30",
+  "hackmd": {
+    "categories": {
+      "dev": {
+        "title": "Development",
+        "description": "Technical development insights and progress",
+        "notes": []
+      },
+      "community": {
+        "title": "Community",
+        "description": "Community discussions and engagement",
+        "notes": []
+      },
+      "strategy": {
+        "title": "Strategy",
+        "description": "Strategic insights and analysis",
+        "notes": []
+      },
+      "facts": {
+        "title": "Daily Facts",
+        "description": "Extracted facts and key information",
+        "notes": []
+      }
+    },
+    "links": {},
+    "config": {
+      "baseUrl": "https://hackmd.io/",
+      "teamName": "kaspa-knowledge",
+      "autoSync": true,
+      "syncInterval": "daily"
+    }
+  },
+  "metadata": {
+    "totalNotes": 0,
+    "lastSync": null,
+    "syncStatus": "pending"
+  }
+} 
