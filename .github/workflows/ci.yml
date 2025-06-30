@@ -29,17 +29,17 @@ jobs:
         pip install black flake8 pylint mypy
         
     - name: Check Python formatting with Black
-      run: black --check --diff processing/
+      run: black --check --diff scripts/
       
     - name: Lint Python code with flake8
-      run: flake8 processing/ --max-line-length=88 --extend-ignore=E203,W503
+      run: flake8 scripts/ --max-line-length=88 --extend-ignore=E203,W503
       
     - name: Lint Python code with pylint
-      run: pylint processing/ --disable=C0114,C0116,R0903
+      run: pylint scripts/ --disable=C0114,C0116,R0903
       continue-on-error: true
       
     - name: Type check Python code
-      run: mypy processing/ --ignore-missing-imports
+      run: mypy scripts/ --ignore-missing-imports
       continue-on-error: true
 
   test-python:
@@ -68,13 +68,14 @@ jobs:
       run: |
         python -c "
         import sys
-        sys.path.append('processing')
+        sys.path.append('scripts')
         try:
           import medium_ingest
-          import data_aggregator
+          import aggregate_sources
           import extract_facts
           import generate_briefing
-          print('✓ All processing modules can be imported successfully')
+          import prompt_loader
+          print('✓ All scripts modules can be imported successfully')
         except ImportError as e:
           print(f'✗ Import error: {e}')
           sys.exit(1)
@@ -82,7 +83,7 @@ jobs:
         
     - name: Test pipeline components
       run: |
-        cd processing
+        cd scripts
         # Test that the main pipeline scripts can be run with --help
         python run_pipeline.py --help || echo "Pipeline help not available"
         python medium_ingest.py --help || echo "Medium ingest help not available"
@@ -110,7 +111,7 @@ jobs:
       continue-on-error: true
       
     - name: Run Python security analysis
-      run: bandit -r processing/ -f json
+      run: bandit -r scripts/ -f json
       continue-on-error: true
 
   validate-config:

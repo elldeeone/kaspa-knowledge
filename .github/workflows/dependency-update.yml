@@ -91,7 +91,7 @@ jobs:
         echo "" >> security-report.md
         
         echo "### Bandit Check (Code Analysis)" >> security-report.md
-        bandit -r processing/ -f json | jq -r '.results[] | "- **\(.filename)**: \(.issue_text) (Severity: \(.issue_severity))"' >> security-report.md || echo "No issues found" >> security-report.md
+        bandit -r scripts/ -f json | jq -r '.results[] | "- **\(.filename)**: \(.issue_text) (Severity: \(.issue_severity))"' >> security-report.md || echo "No issues found" >> security-report.md
         
     - name: Create security issue if vulnerabilities found
       uses: actions/github-script@v6

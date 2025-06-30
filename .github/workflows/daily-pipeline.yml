@@ -32,17 +32,17 @@ jobs:
 
       - name: Run Medium Processing Pipeline
         run: |
-          python processing/run_pipeline.py ingest
+          python -m scripts.run_pipeline ingest
           echo "✅ Medium ingestion completed"
 
       - name: Run Data Aggregation
         run: |
-          python processing/run_pipeline.py aggregate
+          python -m scripts.run_pipeline aggregate
           echo "✅ Data aggregation completed"
 
       - name: Run AI Processing
         run: |
-          python processing/run_pipeline.py ai
+          python -m scripts.run_pipeline ai
           echo "✅ AI processing completed"
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
