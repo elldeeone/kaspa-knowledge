@@ -56,7 +56,7 @@ def run_full_pipeline():
     # Step 1: Ingest raw data from sources
     steps = [
         {
-            "command": "python -m processing.medium_ingest",
+            "command": "python -m scripts.medium_ingest",
             "description": "Medium Articles Ingestion",
             "required": True,
         },
@@ -85,7 +85,7 @@ def run_full_pipeline():
     print("=" * 60)
 
     total_steps += 1
-    if run_command("python -m processing.aggregate_sources", "Raw Sources Aggregation"):
+    if run_command("python -m scripts.aggregate_sources", "Raw Sources Aggregation"):
         success_count += 1
     else:
         print("\n❌ Raw aggregation failed")
@@ -95,12 +95,12 @@ def run_full_pipeline():
     # Step 3: AI Processing (separate outputs)
     ai_steps = [
         {
-            "command": "python -m processing.generate_briefing",
+            "command": "python -m scripts.generate_briefing",
             "description": "Daily Briefing Generation",
             "required": False,
         },
         {
-            "command": "python -m processing.extract_facts",
+            "command": "python -m scripts.extract_facts",
             "description": "Daily Facts Extraction",
             "required": False,
         },
@@ -144,7 +144,7 @@ def run_ingestion_only():
     """Run only the data ingestion steps."""
     print("\n🔄 Running ingestion-only pipeline")
     return run_command(
-        "python -m processing.medium_ingest", "Medium Articles Ingestion"
+        "python -m scripts.medium_ingest", "Medium Articles Ingestion"
     )
 
 
@@ -152,7 +152,7 @@ def run_aggregation_only():
     """Run only the raw aggregation step."""
     print("\n🔄 Running aggregation-only pipeline")
     return run_command(
-        "python -m processing.aggregate_sources", "Raw Sources Aggregation"
+        "python -m scripts.aggregate_sources", "Raw Sources Aggregation"
     )
 
 
@@ -161,8 +161,8 @@ def run_ai_processing_only():
     print("\n🔄 Running AI processing pipeline")
 
     steps = [
-        ("python -m processing.generate_briefing", "Daily Briefing Generation"),
-        ("python -m processing.extract_facts", "Daily Facts Extraction"),
+        ("python -m scripts.generate_briefing", "Daily Briefing Generation"),
+        ("python -m scripts.extract_facts", "Daily Facts Extraction"),
     ]
 
     success_count = 0

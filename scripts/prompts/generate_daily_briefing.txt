@@ -1,0 +1,12 @@
+Based on {article_count} articles, create a briefing:
+
+Articles:
+{articles_list}
+
+Please provide:
+1. A brief overview of the main themes and topics
+2. Key technical developments mentioned
+3. Important insights for the Kaspa ecosystem
+4. Any notable trends or patterns
+
+Keep the briefing concise but comprehensive. 

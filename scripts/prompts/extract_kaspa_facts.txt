@@ -1,0 +1,15 @@
+Extract key technical facts from this Kaspa Medium article:
+
+Title: {title}
+Author: {author}
+URL: {url}
+
+Content: {content}
+
+Please extract and list technical facts, announcements, or insights. Format each as:
+- FACT: [specific technical fact or announcement]
+- CATEGORY: [technical|governance|development|security|mining|consensus|other]
+- IMPACT: [high|medium|low]
+- CONTEXT: [brief explanation of why this matters]
+
+Only include factual, verifiable information. Skip opinions or speculation. 

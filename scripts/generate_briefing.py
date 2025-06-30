@@ -12,7 +12,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
-from processing.llm_interface import LLMInterface
+from scripts.llm_interface import LLMInterface
+from scripts.prompt_loader import prompt_loader
 
 
 class BriefingGenerator:
@@ -55,26 +56,15 @@ class BriefingGenerator:
             print(f"  {i}/{len(articles)} - {article['title'][:60]}...")
 
             try:
-                prompt = f"""Summarize this Kaspa article for a technical briefing:
-
-Title: {article['title']}
-Author: {article['author']}
-URL: {article['link']}
-
-Content: {article['summary'][:4000]}...
-
-Please provide a concise technical summary highlighting:
-1. Key points and technical concepts
-2. Important developments or announcements
-3. Relevance to Kaspa's ecosystem
-
-Keep it brief but informative."""
-
-                system_prompt = (
-                    "You are a technical analyst creating concise summaries for a "
-                    "daily briefing. Focus on actionable insights and technical "
-                    "developments."
+                prompt = prompt_loader.format_prompt(
+                    "generate_article_summary",
+                    title=article['title'],
+                    author=article['author'],
+                    url=article['link'],
+                    content=article['summary'][:4000] + "..."
                 )
+
+                system_prompt = prompt_loader.get_system_prompt("generate_article_summary")
                 summary = self.llm.call_llm(
                     prompt=prompt,
                     system_prompt=system_prompt,
@@ -111,24 +101,14 @@ Keep it brief but informative."""
             [f"- {art['title']} (by {art['author']})" for art in articles]
         )
 
-        briefing_prompt = f"""Based on {len(articles)} articles, create a briefing:
-
-Articles:
-{titles_and_authors}
-
-Please provide:
-1. A brief overview of the main themes and topics
-2. Key technical developments mentioned
-3. Important insights for the Kaspa ecosystem
-4. Any notable trends or patterns
-
-Keep the briefing concise but comprehensive."""
+        briefing_prompt = prompt_loader.format_prompt(
+            "generate_daily_briefing",
+            article_count=len(articles),
+            articles_list=titles_and_authors
+        )
 
         try:
-            system_prompt = (
-                "You are creating a high-level briefing for Kaspa stakeholders. "
-                "Focus on strategic insights and technical developments."
-            )
+            system_prompt = prompt_loader.get_system_prompt("generate_daily_briefing")
             overall_summary = self.llm.call_llm(
                 prompt=briefing_prompt,
                 system_prompt=system_prompt,

@@ -1,0 +1,14 @@
+Summarize this Kaspa article for a technical briefing:
+
+Title: {title}
+Author: {author}
+URL: {url}
+
+Content: {content}
+
+Please provide a concise technical summary highlighting:
+1. Key points and technical concepts
+2. Important developments or announcements
+3. Relevance to Kaspa's ecosystem
+
+Keep it brief but informative. 

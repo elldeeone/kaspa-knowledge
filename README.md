@@ -27,7 +27,7 @@ kaspa-knowledge/
 │   ├── aggregated/           # Raw combined daily data (no AI)
 │   ├── briefings/            # AI-generated executive briefings
 │   └── facts/                # AI-extracted technical facts
-├── processing/               # Pipeline processing scripts
+├── scripts/                  # Pipeline processing scripts
 │   ├── medium_ingest.py      # Medium RSS ingestion
 │   ├── aggregate_sources.py  # Raw data aggregation
 │   ├── generate_briefing.py  # AI briefing generation
@@ -66,6 +66,26 @@ kaspa-knowledge/
 - **Research Forum**: Discussions from https://research.kas.pa/
 - **On-Chain Data**: Daily network statistics (hashrate, BPS, transaction volume)
 - **News Sources**: Industry news and announcements
+
+### 🎯 Externalized Prompt System
+
+The system uses a clean separation between application logic and AI prompts:
+
+```
+scripts/prompts/
+├── extract_kaspa_facts.txt         # Main facts extraction prompt
+├── extract_kaspa_facts_system.txt  # System prompt for facts extraction
+├── generate_article_summary.txt    # Article summarization prompt
+├── generate_article_summary_system.txt
+├── generate_daily_briefing.txt     # Daily briefing generation prompt
+└── generate_daily_briefing_system.txt
+```
+
+**Benefits:**
+- **Maintainability**: Prompts can be modified without touching code
+- **Flexibility**: Easy experimentation with different prompt strategies
+- **Version Control**: Track prompt changes independently from code changes
+- **Collaboration**: Non-technical users can contribute to prompt optimization
 
 ## 🚀 Features
 
@@ -130,7 +150,7 @@ Configuration is managed through:
 
 - **Environment variables** (`.env` file): OpenRouter API keys and RSS feed URLs
 - **Script parameters**: Configurable within individual processing scripts  
-- **Pipeline settings**: Located in `processing/run_pipeline.py`
+- **Pipeline settings**: Located in `scripts/run_pipeline.py`
 
 ## 🏃‍♂️ Usage
 
@@ -138,22 +158,22 @@ Configuration is managed through:
 
 **Run the complete pipeline:**
 ```bash
-python -m processing.run_pipeline
+python -m scripts.run_pipeline
 ```
 
 **Run individual stages:**
 ```bash
 # Stage 1: Ingest raw data
-python -m processing.medium_ingest
+python -m scripts.medium_ingest
 
 # Stage 2: Aggregate raw sources  
-python -m processing.aggregate_sources
+python -m scripts.aggregate_sources
 
 # Stage 3a: Generate briefings
-python -m processing.generate_briefing
+python -m scripts.generate_briefing
 
 # Stage 3b: Extract facts
-python -m processing.extract_facts
+python -m scripts.extract_facts
 ```
 
 ### Automated Execution

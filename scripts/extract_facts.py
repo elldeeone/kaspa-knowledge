@@ -12,7 +12,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
-from processing.llm_interface import LLMInterface
+from scripts.llm_interface import LLMInterface
+from scripts.prompt_loader import prompt_loader
 
 
 class FactsExtractor:
@@ -51,27 +52,15 @@ class FactsExtractor:
             print(f"  {i}/{len(articles)} - {article['title'][:60]}...")
 
             try:
-                prompt = f"""Extract key technical facts from this Kaspa Medium article:
-
-Title: {article['title']}
-Author: {article['author']}
-URL: {article['link']}
-
-Content: {article['summary'][:4000]}...
-
-Please extract and list technical facts, announcements, or insights. Format each as:
-- FACT: [specific technical fact or announcement]
-- CATEGORY: [technical|governance|development|security|mining|consensus|other]
-- IMPACT: [high|medium|low]
-- CONTEXT: [brief explanation of why this matters]
-
-Only include factual, verifiable information. Skip opinions or speculation."""
-
-                system_prompt = (
-                    "You are a technical fact extractor. Focus on verifiable "
-                    "technical facts, developments, and announcements. "
-                    "Be precise and factual."
+                prompt = prompt_loader.format_prompt(
+                    "extract_kaspa_facts",
+                    title=article['title'],
+                    author=article['author'],
+                    url=article['link'],
+                    content=article['summary'][:4000] + "..."
                 )
+
+                system_prompt = prompt_loader.get_system_prompt("extract_kaspa_facts")
                 facts_response = self.llm.call_llm(
                     prompt=prompt,
                     system_prompt=system_prompt,
