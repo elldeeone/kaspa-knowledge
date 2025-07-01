@@ -14,6 +14,7 @@ jobs:
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       MEDIUM_RSS_URL: ${{ secrets.MEDIUM_RSS_URL }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     
     steps:
       - name: Checkout repository
@@ -36,6 +37,7 @@ jobs:
           echo "✅ Smart pipeline completed"
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Commit and Push Results
         run: |
