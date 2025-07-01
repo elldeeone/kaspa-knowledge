@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from telethon.sync import TelegramClient
 from telethon.tl.functions.channels import GetForumTopicsRequest
 from telethon.tl.types import Message, User
+from telethon.errors import FloodWaitError
 
 # --- Configuration ---
 load_dotenv()
@@ -134,61 +135,89 @@ async def fetch_messages(full_history=False):
 
 
 async def fetch_topic_messages(client, group, topic, last_id):
-    """Fetch new messages from a specific topic."""
+    """Fetch new messages from a specific topic with rate limiting."""
     messages_data = []
     new_last_id = last_id
-    async for message in client.iter_messages(group, reply_to=topic.id, min_id=last_id):
-        if isinstance(message, Message) and message.text:
-            sender = await message.get_sender()
-            sender_username = "Unknown"
-            if isinstance(sender, User):
-                sender_username = (
-                    sender.username
-                    or f"{sender.first_name} {sender.last_name or ''}".strip()
-                )
 
-            messages_data.append(
-                {
-                    "message_id": message.id,
-                    "topic_id": topic.id,
-                    "topic_title": topic.title,
-                    "text": message.text,
-                    "date": message.date.isoformat(),
-                    "sender_username": sender_username,
-                    "group": group.title,
-                }
-            )
-            new_last_id = max(new_last_id, message.id)
+    try:
+        async for message in client.iter_messages(
+            group, reply_to=topic.id, min_id=last_id
+        ):
+            if isinstance(message, Message) and message.text:
+                sender = await message.get_sender()
+                sender_username = "Unknown"
+                if isinstance(sender, User):
+                    sender_username = (
+                        sender.username
+                        or f"{sender.first_name} {sender.last_name or ''}".strip()
+                    )
+
+                messages_data.append(
+                    {
+                        "message_id": message.id,
+                        "topic_id": topic.id,
+                        "topic_title": topic.title,
+                        "text": message.text,
+                        "date": message.date.isoformat(),
+                        "sender_username": sender_username,
+                        "group": group.title,
+                    }
+                )
+                new_last_id = max(new_last_id, message.id)
+    except FloodWaitError as e:
+        print(
+            f"     ⏳ Rate limit hit for topic '{topic.title}', "
+            f"waiting {e.seconds} seconds..."
+        )
+        await asyncio.sleep(e.seconds)
+        # Retry the operation after waiting
+        return await fetch_topic_messages(client, group, topic, last_id)
+    except Exception as e:
+        print(f"     ❌ Error fetching topic '{topic.title}': {e}")
+
     print(f"     - Topic '{topic.title}': Fetched {len(messages_data)} new messages.")
     return messages_data, new_last_id
 
 
 async def fetch_group_messages(client, group, last_id):
-    """Fetch new messages from a regular group or channel."""
+    """Fetch new messages from a regular group or channel with rate limiting."""
     messages_data = []
     new_last_id = last_id
-    async for message in client.iter_messages(group, min_id=last_id):
-        if isinstance(message, Message) and message.text:
-            sender = await message.get_sender()
-            sender_username = "Unknown"
-            if isinstance(sender, User):
-                sender_username = (
-                    sender.username
-                    or f"{sender.first_name} {sender.last_name or ''}".strip()
-                )
 
-            messages_data.append(
-                {
-                    "message_id": message.id,
-                    "topic_id": None,
-                    "topic_title": None,
-                    "text": message.text,
-                    "date": message.date.isoformat(),
-                    "sender_username": sender_username,
-                    "group": group.title,
-                }
-            )
-            new_last_id = max(new_last_id, message.id)
+    try:
+        async for message in client.iter_messages(group, min_id=last_id):
+            if isinstance(message, Message) and message.text:
+                sender = await message.get_sender()
+                sender_username = "Unknown"
+                if isinstance(sender, User):
+                    sender_username = (
+                        sender.username
+                        or f"{sender.first_name} {sender.last_name or ''}".strip()
+                    )
+
+                messages_data.append(
+                    {
+                        "message_id": message.id,
+                        "topic_id": None,
+                        "topic_title": None,
+                        "text": message.text,
+                        "date": message.date.isoformat(),
+                        "sender_username": sender_username,
+                        "group": group.title,
+                    }
+                )
+                new_last_id = max(new_last_id, message.id)
+    except FloodWaitError as e:
+        print(
+            f"     ⏳ Rate limit hit for group '{group.title}', "
+            f"waiting {e.seconds} seconds..."
+        )
+        await asyncio.sleep(e.seconds)
+        # Retry the operation after waiting
+        return await fetch_group_messages(client, group, last_id)
+    except Exception as e:
+        print(f"     ❌ Error fetching group '{group.title}': {e}")
+
     print(f"     - Fetched {len(messages_data)} new messages.")
     return messages_data, new_last_id
 
