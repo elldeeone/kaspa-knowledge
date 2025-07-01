@@ -193,9 +193,7 @@ def scrape_individual_article(article_url):
         article = {
             "title": title,
             "link": article_url,
-            "summary": (
-                content[:5000] + "..." if len(content) > 5000 else content
-            ),  # Limit size
+            "summary": content,  # Full article content
             "author": author,
             "published": pub_date,
             "ingested_at": datetime.now().isoformat(),
