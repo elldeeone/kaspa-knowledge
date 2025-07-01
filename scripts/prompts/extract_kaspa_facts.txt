@@ -1,15 +1,18 @@
-Extract key technical facts from this Kaspa Medium article:
+Extract key technical facts from this Kaspa-related content:
 
-Title: {title}
-Author: {author}
-URL: {url}
+Source Type: {source_type}
+Title/Summary: {title}
+Author/Source: {author}
+URL/Reference: {url}
+Date: {date}
 
 Content: {content}
 
-Please extract and list technical facts, announcements, or insights. Format each as:
+Please extract and list technical facts, announcements, or insights related to Kaspa. Format each as:
 - FACT: [specific technical fact or announcement]
-- CATEGORY: [technical|governance|development|security|mining|consensus|other]
+- CATEGORY: [technical|governance|development|security|mining|consensus|community|performance|other]
 - IMPACT: [high|medium|low]
-- CONTEXT: [brief explanation of why this matters]
+- CONTEXT: [brief explanation of why this matters to Kaspa]
 
 Only include factual, verifiable information. Skip opinions or speculation. 
+Focus on information that is technically relevant to Kaspa's development, ecosystem, or technology. 

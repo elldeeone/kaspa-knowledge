@@ -1,0 +1,1143 @@
+{
+  "date": "2025-07-02",
+  "generated_at": "2025-07-02T08:02:14.063499",
+  "facts": [
+    {
+      "fact": "The temporary dust prevention mechanism has been removed from the Kaspa Rust codebase.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "The removal of the temporary dust prevention mechanism indicates a change in how small-value outputs (\"dust\") are handled by the Kaspa protocol, which may reflect protocol maturity or readiness for a longer-term dust management solution.",
+      "source": {
+        "type": "github_commit",
+        "title": "Remove temporary dust prevention mechanism (#698)",
+        "author": "Ori Newman",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+        "date": "2025-06-30T10:18:30+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:16.386939"
+    },
+    {
+      "fact": "The workspace lints are now applied to all crates in the Kaspa Rust codebase.",
+      "category": "development",
+      "impact": "low",
+      "context": "Ensuring code linter rules apply to all crates helps maintain code quality and consistency across the entire codebase.",
+      "source": {
+        "type": "github_commit",
+        "title": "Remove temporary dust prevention mechanism (#698)",
+        "author": "Ori Newman",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+        "date": "2025-06-30T10:18:30+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:16.386967"
+    },
+    {
+      "fact": "The uninlined_format_args lint has been disabled in the Kaspa Rust codebase.",
+      "category": "development",
+      "impact": "low",
+      "context": "Adjusting linter settings (such as disabling specific lints) can improve developer experience and streamline development workflows.",
+      "source": {
+        "type": "github_commit",
+        "title": "Remove temporary dust prevention mechanism (#698)",
+        "author": "Ori Newman",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+        "date": "2025-06-30T10:18:30+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:16.386975"
+    },
+    {
+      "fact": "The commit includes significant changes across 53 files, with 155 additions and 26 deletions.",
+      "category": "development",
+      "impact": "medium",
+      "context": "The scale of changes reflects an active and ongoing effort to refactor, clean, or update core parts of the Kaspa Rust implementation.",
+      "source": {
+        "type": "github_commit",
+        "title": "Remove temporary dust prevention mechanism (#698)",
+        "author": "Ori Newman",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+        "date": "2025-06-30T10:18:30+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:16.386981"
+    },
+    {
+      "fact": "A new IBD (Initial Block Download) type called pruning_catchup has been introduced to handle node/network synchronization in cases where pruning points diverge between the syncer and the node.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "This addresses synchronization scenarios where a node's pruning point is behind the syncer's, ensuring correct catch-up without full chain download, which is vital for efficient node operation and blockchain size management.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "IBD Handle Syncer Pruning Movement",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+        "date": "2025-06-27T19:26:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:37.148437"
+    },
+    {
+      "fact": "The pruning_catchup IBD mode is triggered if (1) pruning points between syncer and node differ, (2) the node recognizes the syncer's pruning point as being in its future, and (3) the node is missing the block body for the syncer's pruning point.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "These conditions enable more precise handling of sync scenarios during network upgrades or after long offline periods, improving chain security and correctness during IBD.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "IBD Handle Syncer Pruning Movement",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+        "date": "2025-06-27T19:26:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:37.148463"
+    },
+    {
+      "fact": "Before any destructive action (such as moving pruning points), the node must (1) validate that the syncer’s pruning point is a valid sample, (2) ensure enough headers are built on top with blue_score greater than P.b_score+pruning_depth, and (3) ensure pruning points on the path are consistent.",
+      "category": "security",
+      "impact": "high",
+      "context": "Enforcing these checks enhances the safety and robustness of pruning point movement, preventing state corruption or malicious syncing attacks.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "IBD Handle Syncer Pruning Movement",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+        "date": "2025-06-27T19:26:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:37.148468"
+    },
+    {
+      "fact": "The code introduces explicit transitional states during pruning_catchup IBD, tracked via internal flags, to handle cases where stores are updated but the new pruning UTXO set or anticone block bodies are not yet fully processed.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Transitional state management reduces risk of chain inconsistency and enables nodes to safely resume interrupted syncing processes.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "IBD Handle Syncer Pruning Movement",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+        "date": "2025-06-27T19:26:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:37.148472"
+    },
+    {
+      "fact": "The anticone of a new pruning point is calculated and kept during pruning point movement, and all bodies in this anticone must undergo trusted validation, as their parent blocks’ bodies are permanently missing.",
+      "category": "security",
+      "impact": "medium",
+      "context": "This design allows for correct network operation and block validation without losing chain history assurance.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "IBD Handle Syncer Pruning Movement",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+        "date": "2025-06-27T19:26:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:37.148480"
+    },
+    {
+      "fact": "Unlike \"IBD with headers proof,\" which acts atomically, pruning_catchup builds upon current node consensus, performing stages stepwise with robust tracking to enable both performance and reliability improvements.",
+      "category": "performance",
+      "impact": "medium",
+      "context": "This staged approach reduces sync overhead for nodes catching up with a pruned tip, optimizing resource use and supporting fast chain state initialization.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "IBD Handle Syncer Pruning Movement",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+        "date": "2025-06-27T19:26:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:37.148484"
+    },
+    {
+      "fact": "The implemented mechanisms depend on the honest majority security assumption for pruning—requiring the syncer's DAG (and its pruning point) to reflect honest behavior, despite incompletely validated blocks at certain sync stages.",
+      "category": "security",
+      "impact": "high",
+      "context": "This security model is foundational for Kaspa's pruning and sync approach, balancing trust assumptions with network efficiency.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "IBD Handle Syncer Pruning Movement",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+        "date": "2025-06-27T19:26:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:37.148488"
+    },
+    {
+      "fact": "The temporary dust prevention mechanism introduced in September 2023 via kaspad PR #2223 has been removed from the codebase.",
+      "category": "security | development",
+      "impact": "medium",
+      "context": "The mechanism was originally implemented to mitigate a dust attack but is now considered too restrictive for legitimate multi-output transaction use.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Remove temporary dust prevention mechanism",
+        "author": "someone235",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+        "date": "2025-06-26T07:38:52+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:40.826416"
+    },
+    {
+      "fact": "The removal of the dust prevention code follows the activation of KIP 9 on Kaspa mainnet.",
+      "category": "governance | security | development",
+      "impact": "high",
+      "context": "With KIP 9 active, it is considered sufficient to handle potential dust attacks, making additional restrictions unnecessary.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Remove temporary dust prevention mechanism",
+        "author": "someone235",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+        "date": "2025-06-26T07:38:52+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:40.826435"
+    },
+    {
+      "fact": "PR #698 led to changes in 53 files, with 155 additions and 26 deletions, to remove the dust prevention mechanism.",
+      "category": "development",
+      "impact": "medium",
+      "context": "The scale of changes indicates a significant code update related to transaction validation and handling.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Remove temporary dust prevention mechanism",
+        "author": "someone235",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+        "date": "2025-06-26T07:38:52+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:40.826440"
+    },
+    {
+      "fact": "The restrictive temporary dust prevention mechanism previously hindered the use of multi-output transactions.",
+      "category": "performance | development",
+      "impact": "medium",
+      "context": "Its removal improves usability for users needing multi-output transactions, restoring intended transaction flexibility.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Remove temporary dust prevention mechanism",
+        "author": "someone235",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+        "date": "2025-06-26T07:38:52+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:40.826443"
+    },
+    {
+      "fact": "Initial Python bindings for Rusty Kaspa have been implemented, exposing wRPC client, transaction creation, and key management functionality to Python.",
+      "category": "technical",
+      "impact": "high",
+      "context": "Enables Python developers to interact with Kaspa's core features directly from Python, significantly broadening integration and scripting possibilities for Kaspa applications.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Python bindings initial feature set",
+        "author": "smartgoo",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+        "date": "2024-11-22T20:23:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:47.153582"
+    },
+    {
+      "fact": "The Python bindings use PyO3 and Maturin to build a native Python extension module named `kaspa`.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Using industry-standard tooling for Python bindings ensures reliability, maintainability, and ease of distribution within the Python ecosystem.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Python bindings initial feature set",
+        "author": "smartgoo",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+        "date": "2024-11-22T20:23:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:47.153636"
+    },
+    {
+      "fact": "New workspace member crates were added: `kaspa-python` (entry point), `kaspa-python-core` (interface types), `kaspa-python-macros`, and `kaspa-wrpc-python` (Python wRPC client).",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Modularizing Python binding components enhances code organization and maintainability, allowing for targeted improvements or bug fixes.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Python bindings initial feature set",
+        "author": "smartgoo",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+        "date": "2024-11-22T20:23:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:47.153643"
+    },
+    {
+      "fact": "The Python bindings closely mirror the existing WASM interface, where possible.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Interface consistency across platforms (Python/WASM) reduces developer friction and improves the cross-platform experience for Kaspa integrators.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Python bindings initial feature set",
+        "author": "smartgoo",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+        "date": "2024-11-22T20:23:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:47.153648"
+    },
+    {
+      "fact": "Python binding code is separated by a `py-sdk` feature flag, and this feature was added to multiple existing Rusty Kaspa crates.",
+      "category": "development",
+      "impact": "medium",
+      "context": "Using feature flags for Python bindings allows for flexible builds and minimizes unnecessary code inclusion, improving build customizability.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Python bindings initial feature set",
+        "author": "smartgoo",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+        "date": "2024-11-22T20:23:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:47.153652"
+    },
+    {
+      "fact": "Python-compatible implementations were created for cases where direct exposing of Rusty Kaspa native/WASM code to Python was not feasible.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Ensures a robust Python interface even when language-specific adaptations are required, preserving functionality across ecosystems.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Python bindings initial feature set",
+        "author": "smartgoo",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+        "date": "2024-11-22T20:23:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:47.153657"
+    },
+    {
+      "fact": "Where both `python` and `wasm` directories exist, a unified `bindings` directory structure was introduced.",
+      "category": "development",
+      "impact": "low",
+      "context": "Improved organization of foreign-language interfaces enhances long-term codebase maintainability and clarity for contributors.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Python bindings initial feature set",
+        "author": "smartgoo",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+        "date": "2024-11-22T20:23:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:47.153661"
+    },
+    {
+      "fact": "CI workflows were updated to build Python wheels across operating systems, architectures, and Python versions on release, and for Linux x86_64 on push/pull.",
+      "category": "development",
+      "impact": "medium",
+      "context": "Automated multi-platform packaging ensures that Python bindings are readily available for diverse environments, improving accessibility and reducing installation hurdles for developers.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Python bindings initial feature set",
+        "author": "smartgoo",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+        "date": "2024-11-22T20:23:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:47.153665"
+    },
+    {
+      "fact": "A DeepWiki badge was proposed to be added to the rusty-kaspa repository README.",
+      "category": "development",
+      "impact": "low",
+      "context": "The badge enables automatic re-indexing of changed files in the repository by DeepWiki on each push to the main branch, potentially ensuring up-to-date documentation and code reference.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Deep wiki badge",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/699",
+        "date": "2025-06-26T13:41:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:49.882749"
+    },
+    {
+      "fact": "Repositories displaying the DeepWiki badge receive a small ranking boost in DeepWiki’s retrieval layer, making code snippets from the repository more discoverable.",
+      "category": "community",
+      "impact": "low",
+      "context": "Increased visibility of rusty-kaspa code snippets may help developers and community members more easily find relevant Kaspa code and documentation in DeepWiki search results.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Deep wiki badge",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/699",
+        "date": "2025-06-26T13:41:09+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:49.882778"
+    },
+    {
+      "fact": "A pull request (#697) has been submitted to Kaspa’s Rust implementation (\"rusty-kaspa\") to enforce a check ensuring that \"trusted blocks\" are not positioned in the \"pruning point future\".",
+      "category": "security, consensus",
+      "impact": "medium",
+      "context": "This update introduces a safeguard to prevent trusted block data from inadvertently referencing blocks beyond the current pruning point, which could otherwise compromise chain validity or interfere with the intended pruning security model.",
+      "source": {
+        "type": "github_pull_request",
+        "title": "Check that trusted blocks are not in the pruning point future",
+        "author": "someone235",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/697",
+        "date": "2025-06-25T14:39:37+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:01:52.072307"
+    },
+    {
+      "fact": "Starting a Kaspa node with the --utxoindex flag can trigger a panic due to an integer overflow when calculating utxo_files_limit in kaspad/src/daemon.rs (line 226).",
+      "category": "technical",
+      "impact": "high",
+      "context": "This overflow prevents the node from starting with UTXO indexing enabled, potentially impacting users or services that rely on indexed UTXO queries and hindering participation in the network for those use cases.",
+      "source": {
+        "type": "github_issue",
+        "title": "Cannot start a node with --utxoindex",
+        "author": "9igeeky",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/696",
+        "date": "2025-06-25T14:33:52+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:01.509296"
+    },
+    {
+      "fact": "The problematic code multiplies fd_remaining (file descriptor remaining budget) by 10 and divides by 100, which can cause an overflow if fd_remaining is a large value.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Integer overflows are critical bugs in blockchain infrastructure as they can cause software crashes and are often edge cases missed during routine testing, risking network service reliability.",
+      "source": {
+        "type": "github_issue",
+        "title": "Cannot start a node with --utxoindex",
+        "author": "9igeeky",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/696",
+        "date": "2025-06-25T14:33:52+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:01.509312"
+    },
+    {
+      "fact": "The issue is being tracked as GitHub Issue #696 on the rusty-kaspa repository and has ongoing discussion and attention from the development community.",
+      "category": "development",
+      "impact": "medium",
+      "context": "Transparency and active maintenance reduce risk and increase trust in the Kaspa node software; developer response speed to this bug will affect node operator experience and network stability.",
+      "source": {
+        "type": "github_issue",
+        "title": "Cannot start a node with --utxoindex",
+        "author": "9igeeky",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/696",
+        "date": "2025-06-25T14:33:52+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:01.509314"
+    },
+    {
+      "fact": "In the Kaspa Rust SDK (wasm web kaspa v1.0.0), the transaction Generator stops processing when a single UTXO causes a \"mass exceeds maximum\" error, even if other UTXOs in the set could fulfill the request.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "This behavior can cause failed transaction creation attempts even though valid UTXOs are available, affecting wallets and dApps reliant on automated UTXO selection.",
+      "source": {
+        "type": "github_issue",
+        "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+        "author": "IzioDev",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+        "date": "2025-06-26T18:07:35+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:12.567124"
+    },
+    {
+      "fact": "The issue is specifically triggered during the evaluation of UTXOs for spending, where the Generator should iterate through all available UTXOs and combinations, but currently fails after the first unsuitable candidate.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Robust UTXO selection is crucial for user experience, especially under KIP-9 rules which relate to transaction mass computations and block acceptance criteria.",
+      "source": {
+        "type": "github_issue",
+        "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+        "author": "IzioDev",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+        "date": "2025-06-26T18:07:35+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:12.567149"
+    },
+    {
+      "fact": "The bug occurs in method `generator.next()` when constructing transactions with zero priority fee and specific outputs, on the testnet (“kaspatest” address prefix).",
+      "category": "technical",
+      "impact": "low",
+      "context": "Precise details on reproduction help identify and address corner cases in SDK design, relevant for debugging and future maintenance.",
+      "source": {
+        "type": "github_issue",
+        "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+        "author": "IzioDev",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+        "date": "2025-06-26T18:07:35+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:12.567155"
+    },
+    {
+      "fact": "The underlying error returned is “Storage mass exceeds maximum”, directly referencing protocol-enforced limits on transaction mass.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Ensures developers are aware of protocol-level transaction restrictions (KIP-9), and that tooling must handle such protocol feedback gracefully to avoid lost transactions or UI bugs.",
+      "source": {
+        "type": "github_issue",
+        "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+        "author": "IzioDev",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+        "date": "2025-06-26T18:07:35+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:12.567165"
+    },
+    {
+      "fact": "The Github issue (open as of 2025-06-26) affects at least the v1.0.0 released version of `kaspa-wasm` SDK, as sourced from the project’s release page.",
+      "category": "development",
+      "impact": "medium",
+      "context": "Projects building on Kaspa’s ecosystem (wallets, SDK integrators) must track issue resolution and test with affected SDK versions.",
+      "source": {
+        "type": "github_issue",
+        "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+        "author": "IzioDev",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+        "date": "2025-06-26T18:07:35+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:12.567172"
+    },
+    {
+      "fact": "Affected use case includes funding outputs of 0.2 TKAS where UTXOs of both 0.29624618 TKAS and 0.5 TKAS are present, but only the smaller UTXO is initially evaluated and fails due to mass, causing premature exit.",
+      "category": "technical",
+      "impact": "low",
+      "context": "This clarifies practical implications for end users (such as failed sends) and helps developers hone UTXO selection logic.",
+      "source": {
+        "type": "github_issue",
+        "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+        "author": "IzioDev",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+        "date": "2025-06-26T18:07:35+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:12.567177"
+    },
+    {
+      "fact": "There is an open issue (#700) in the rusty-kaspa repository requesting the addition of tx.payload support for PSKT (Partially Signed Kaspa Transaction) constructions.",
+      "category": "development",
+      "impact": "medium",
+      "context": "Adding tx.payload support for PSKT in rusty-kaspa is important for enhancing support for advanced transaction workflows, enabling more complex or flexible partially signed transaction handling in Kaspa-based applications or wallets.",
+      "source": {
+        "type": "github_issue",
+        "title": "Add tx.payload support for PSKT constructions",
+        "author": "danwt",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/700",
+        "date": "2025-06-26T13:45:39+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-02T08:02:14.063325"
+    }
+  ],
+  "facts_by_category": {
+    "technical": [
+      {
+        "fact": "The temporary dust prevention mechanism has been removed from the Kaspa Rust codebase.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "The removal of the temporary dust prevention mechanism indicates a change in how small-value outputs (\"dust\") are handled by the Kaspa protocol, which may reflect protocol maturity or readiness for a longer-term dust management solution.",
+        "source": {
+          "type": "github_commit",
+          "title": "Remove temporary dust prevention mechanism (#698)",
+          "author": "Ori Newman",
+          "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+          "date": "2025-06-30T10:18:30+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:16.386939"
+      },
+      {
+        "fact": "A new IBD (Initial Block Download) type called pruning_catchup has been introduced to handle node/network synchronization in cases where pruning points diverge between the syncer and the node.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "This addresses synchronization scenarios where a node's pruning point is behind the syncer's, ensuring correct catch-up without full chain download, which is vital for efficient node operation and blockchain size management.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "IBD Handle Syncer Pruning Movement",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+          "date": "2025-06-27T19:26:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:37.148437"
+      },
+      {
+        "fact": "The pruning_catchup IBD mode is triggered if (1) pruning points between syncer and node differ, (2) the node recognizes the syncer's pruning point as being in its future, and (3) the node is missing the block body for the syncer's pruning point.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "These conditions enable more precise handling of sync scenarios during network upgrades or after long offline periods, improving chain security and correctness during IBD.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "IBD Handle Syncer Pruning Movement",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+          "date": "2025-06-27T19:26:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:37.148463"
+      },
+      {
+        "fact": "The code introduces explicit transitional states during pruning_catchup IBD, tracked via internal flags, to handle cases where stores are updated but the new pruning UTXO set or anticone block bodies are not yet fully processed.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Transitional state management reduces risk of chain inconsistency and enables nodes to safely resume interrupted syncing processes.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "IBD Handle Syncer Pruning Movement",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+          "date": "2025-06-27T19:26:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:37.148472"
+      },
+      {
+        "fact": "Initial Python bindings for Rusty Kaspa have been implemented, exposing wRPC client, transaction creation, and key management functionality to Python.",
+        "category": "technical",
+        "impact": "high",
+        "context": "Enables Python developers to interact with Kaspa's core features directly from Python, significantly broadening integration and scripting possibilities for Kaspa applications.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Python bindings initial feature set",
+          "author": "smartgoo",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+          "date": "2024-11-22T20:23:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:47.153582"
+      },
+      {
+        "fact": "The Python bindings use PyO3 and Maturin to build a native Python extension module named `kaspa`.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Using industry-standard tooling for Python bindings ensures reliability, maintainability, and ease of distribution within the Python ecosystem.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Python bindings initial feature set",
+          "author": "smartgoo",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+          "date": "2024-11-22T20:23:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:47.153636"
+      },
+      {
+        "fact": "New workspace member crates were added: `kaspa-python` (entry point), `kaspa-python-core` (interface types), `kaspa-python-macros`, and `kaspa-wrpc-python` (Python wRPC client).",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Modularizing Python binding components enhances code organization and maintainability, allowing for targeted improvements or bug fixes.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Python bindings initial feature set",
+          "author": "smartgoo",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+          "date": "2024-11-22T20:23:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:47.153643"
+      },
+      {
+        "fact": "The Python bindings closely mirror the existing WASM interface, where possible.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Interface consistency across platforms (Python/WASM) reduces developer friction and improves the cross-platform experience for Kaspa integrators.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Python bindings initial feature set",
+          "author": "smartgoo",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+          "date": "2024-11-22T20:23:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:47.153648"
+      },
+      {
+        "fact": "Python-compatible implementations were created for cases where direct exposing of Rusty Kaspa native/WASM code to Python was not feasible.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Ensures a robust Python interface even when language-specific adaptations are required, preserving functionality across ecosystems.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Python bindings initial feature set",
+          "author": "smartgoo",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+          "date": "2024-11-22T20:23:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:47.153657"
+      },
+      {
+        "fact": "Starting a Kaspa node with the --utxoindex flag can trigger a panic due to an integer overflow when calculating utxo_files_limit in kaspad/src/daemon.rs (line 226).",
+        "category": "technical",
+        "impact": "high",
+        "context": "This overflow prevents the node from starting with UTXO indexing enabled, potentially impacting users or services that rely on indexed UTXO queries and hindering participation in the network for those use cases.",
+        "source": {
+          "type": "github_issue",
+          "title": "Cannot start a node with --utxoindex",
+          "author": "9igeeky",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/696",
+          "date": "2025-06-25T14:33:52+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:01.509296"
+      },
+      {
+        "fact": "The problematic code multiplies fd_remaining (file descriptor remaining budget) by 10 and divides by 100, which can cause an overflow if fd_remaining is a large value.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Integer overflows are critical bugs in blockchain infrastructure as they can cause software crashes and are often edge cases missed during routine testing, risking network service reliability.",
+        "source": {
+          "type": "github_issue",
+          "title": "Cannot start a node with --utxoindex",
+          "author": "9igeeky",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/696",
+          "date": "2025-06-25T14:33:52+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:01.509312"
+      },
+      {
+        "fact": "In the Kaspa Rust SDK (wasm web kaspa v1.0.0), the transaction Generator stops processing when a single UTXO causes a \"mass exceeds maximum\" error, even if other UTXOs in the set could fulfill the request.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "This behavior can cause failed transaction creation attempts even though valid UTXOs are available, affecting wallets and dApps reliant on automated UTXO selection.",
+        "source": {
+          "type": "github_issue",
+          "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+          "author": "IzioDev",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+          "date": "2025-06-26T18:07:35+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:12.567124"
+      },
+      {
+        "fact": "The issue is specifically triggered during the evaluation of UTXOs for spending, where the Generator should iterate through all available UTXOs and combinations, but currently fails after the first unsuitable candidate.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Robust UTXO selection is crucial for user experience, especially under KIP-9 rules which relate to transaction mass computations and block acceptance criteria.",
+        "source": {
+          "type": "github_issue",
+          "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+          "author": "IzioDev",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+          "date": "2025-06-26T18:07:35+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:12.567149"
+      },
+      {
+        "fact": "The bug occurs in method `generator.next()` when constructing transactions with zero priority fee and specific outputs, on the testnet (“kaspatest” address prefix).",
+        "category": "technical",
+        "impact": "low",
+        "context": "Precise details on reproduction help identify and address corner cases in SDK design, relevant for debugging and future maintenance.",
+        "source": {
+          "type": "github_issue",
+          "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+          "author": "IzioDev",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+          "date": "2025-06-26T18:07:35+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:12.567155"
+      },
+      {
+        "fact": "The underlying error returned is “Storage mass exceeds maximum”, directly referencing protocol-enforced limits on transaction mass.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Ensures developers are aware of protocol-level transaction restrictions (KIP-9), and that tooling must handle such protocol feedback gracefully to avoid lost transactions or UI bugs.",
+        "source": {
+          "type": "github_issue",
+          "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+          "author": "IzioDev",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+          "date": "2025-06-26T18:07:35+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:12.567165"
+      },
+      {
+        "fact": "Affected use case includes funding outputs of 0.2 TKAS where UTXOs of both 0.29624618 TKAS and 0.5 TKAS are present, but only the smaller UTXO is initially evaluated and fails due to mass, causing premature exit.",
+        "category": "technical",
+        "impact": "low",
+        "context": "This clarifies practical implications for end users (such as failed sends) and helps developers hone UTXO selection logic.",
+        "source": {
+          "type": "github_issue",
+          "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+          "author": "IzioDev",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+          "date": "2025-06-26T18:07:35+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:12.567177"
+      }
+    ],
+    "development": [
+      {
+        "fact": "The workspace lints are now applied to all crates in the Kaspa Rust codebase.",
+        "category": "development",
+        "impact": "low",
+        "context": "Ensuring code linter rules apply to all crates helps maintain code quality and consistency across the entire codebase.",
+        "source": {
+          "type": "github_commit",
+          "title": "Remove temporary dust prevention mechanism (#698)",
+          "author": "Ori Newman",
+          "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+          "date": "2025-06-30T10:18:30+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:16.386967"
+      },
+      {
+        "fact": "The uninlined_format_args lint has been disabled in the Kaspa Rust codebase.",
+        "category": "development",
+        "impact": "low",
+        "context": "Adjusting linter settings (such as disabling specific lints) can improve developer experience and streamline development workflows.",
+        "source": {
+          "type": "github_commit",
+          "title": "Remove temporary dust prevention mechanism (#698)",
+          "author": "Ori Newman",
+          "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+          "date": "2025-06-30T10:18:30+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:16.386975"
+      },
+      {
+        "fact": "The commit includes significant changes across 53 files, with 155 additions and 26 deletions.",
+        "category": "development",
+        "impact": "medium",
+        "context": "The scale of changes reflects an active and ongoing effort to refactor, clean, or update core parts of the Kaspa Rust implementation.",
+        "source": {
+          "type": "github_commit",
+          "title": "Remove temporary dust prevention mechanism (#698)",
+          "author": "Ori Newman",
+          "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+          "date": "2025-06-30T10:18:30+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:16.386981"
+      },
+      {
+        "fact": "PR #698 led to changes in 53 files, with 155 additions and 26 deletions, to remove the dust prevention mechanism.",
+        "category": "development",
+        "impact": "medium",
+        "context": "The scale of changes indicates a significant code update related to transaction validation and handling.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Remove temporary dust prevention mechanism",
+          "author": "someone235",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+          "date": "2025-06-26T07:38:52+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:40.826440"
+      },
+      {
+        "fact": "Python binding code is separated by a `py-sdk` feature flag, and this feature was added to multiple existing Rusty Kaspa crates.",
+        "category": "development",
+        "impact": "medium",
+        "context": "Using feature flags for Python bindings allows for flexible builds and minimizes unnecessary code inclusion, improving build customizability.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Python bindings initial feature set",
+          "author": "smartgoo",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+          "date": "2024-11-22T20:23:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:47.153652"
+      },
+      {
+        "fact": "Where both `python` and `wasm` directories exist, a unified `bindings` directory structure was introduced.",
+        "category": "development",
+        "impact": "low",
+        "context": "Improved organization of foreign-language interfaces enhances long-term codebase maintainability and clarity for contributors.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Python bindings initial feature set",
+          "author": "smartgoo",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+          "date": "2024-11-22T20:23:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:47.153661"
+      },
+      {
+        "fact": "CI workflows were updated to build Python wheels across operating systems, architectures, and Python versions on release, and for Linux x86_64 on push/pull.",
+        "category": "development",
+        "impact": "medium",
+        "context": "Automated multi-platform packaging ensures that Python bindings are readily available for diverse environments, improving accessibility and reducing installation hurdles for developers.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Python bindings initial feature set",
+          "author": "smartgoo",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/602",
+          "date": "2024-11-22T20:23:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:47.153665"
+      },
+      {
+        "fact": "A DeepWiki badge was proposed to be added to the rusty-kaspa repository README.",
+        "category": "development",
+        "impact": "low",
+        "context": "The badge enables automatic re-indexing of changed files in the repository by DeepWiki on each push to the main branch, potentially ensuring up-to-date documentation and code reference.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Deep wiki badge",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/699",
+          "date": "2025-06-26T13:41:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:49.882749"
+      },
+      {
+        "fact": "The issue is being tracked as GitHub Issue #696 on the rusty-kaspa repository and has ongoing discussion and attention from the development community.",
+        "category": "development",
+        "impact": "medium",
+        "context": "Transparency and active maintenance reduce risk and increase trust in the Kaspa node software; developer response speed to this bug will affect node operator experience and network stability.",
+        "source": {
+          "type": "github_issue",
+          "title": "Cannot start a node with --utxoindex",
+          "author": "9igeeky",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/696",
+          "date": "2025-06-25T14:33:52+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:01.509314"
+      },
+      {
+        "fact": "The Github issue (open as of 2025-06-26) affects at least the v1.0.0 released version of `kaspa-wasm` SDK, as sourced from the project’s release page.",
+        "category": "development",
+        "impact": "medium",
+        "context": "Projects building on Kaspa’s ecosystem (wallets, SDK integrators) must track issue resolution and test with affected SDK versions.",
+        "source": {
+          "type": "github_issue",
+          "title": "SDK - Generator - Mass Exceed on a single utxo set evaluation round should not exit if there are other utxos that could fit",
+          "author": "IzioDev",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/701",
+          "date": "2025-06-26T18:07:35+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:12.567172"
+      },
+      {
+        "fact": "There is an open issue (#700) in the rusty-kaspa repository requesting the addition of tx.payload support for PSKT (Partially Signed Kaspa Transaction) constructions.",
+        "category": "development",
+        "impact": "medium",
+        "context": "Adding tx.payload support for PSKT in rusty-kaspa is important for enhancing support for advanced transaction workflows, enabling more complex or flexible partially signed transaction handling in Kaspa-based applications or wallets.",
+        "source": {
+          "type": "github_issue",
+          "title": "Add tx.payload support for PSKT constructions",
+          "author": "danwt",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/700",
+          "date": "2025-06-26T13:45:39+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:02:14.063325"
+      }
+    ],
+    "security": [
+      {
+        "fact": "Before any destructive action (such as moving pruning points), the node must (1) validate that the syncer’s pruning point is a valid sample, (2) ensure enough headers are built on top with blue_score greater than P.b_score+pruning_depth, and (3) ensure pruning points on the path are consistent.",
+        "category": "security",
+        "impact": "high",
+        "context": "Enforcing these checks enhances the safety and robustness of pruning point movement, preventing state corruption or malicious syncing attacks.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "IBD Handle Syncer Pruning Movement",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+          "date": "2025-06-27T19:26:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:37.148468"
+      },
+      {
+        "fact": "The anticone of a new pruning point is calculated and kept during pruning point movement, and all bodies in this anticone must undergo trusted validation, as their parent blocks’ bodies are permanently missing.",
+        "category": "security",
+        "impact": "medium",
+        "context": "This design allows for correct network operation and block validation without losing chain history assurance.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "IBD Handle Syncer Pruning Movement",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+          "date": "2025-06-27T19:26:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:37.148480"
+      },
+      {
+        "fact": "The implemented mechanisms depend on the honest majority security assumption for pruning—requiring the syncer's DAG (and its pruning point) to reflect honest behavior, despite incompletely validated blocks at certain sync stages.",
+        "category": "security",
+        "impact": "high",
+        "context": "This security model is foundational for Kaspa's pruning and sync approach, balancing trust assumptions with network efficiency.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "IBD Handle Syncer Pruning Movement",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+          "date": "2025-06-27T19:26:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:37.148488"
+      }
+    ],
+    "performance": [
+      {
+        "fact": "Unlike \"IBD with headers proof,\" which acts atomically, pruning_catchup builds upon current node consensus, performing stages stepwise with robust tracking to enable both performance and reliability improvements.",
+        "category": "performance",
+        "impact": "medium",
+        "context": "This staged approach reduces sync overhead for nodes catching up with a pruned tip, optimizing resource use and supporting fast chain state initialization.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "IBD Handle Syncer Pruning Movement",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+          "date": "2025-06-27T19:26:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:37.148484"
+      }
+    ],
+    "security | development": [
+      {
+        "fact": "The temporary dust prevention mechanism introduced in September 2023 via kaspad PR #2223 has been removed from the codebase.",
+        "category": "security | development",
+        "impact": "medium",
+        "context": "The mechanism was originally implemented to mitigate a dust attack but is now considered too restrictive for legitimate multi-output transaction use.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Remove temporary dust prevention mechanism",
+          "author": "someone235",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+          "date": "2025-06-26T07:38:52+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:40.826416"
+      }
+    ],
+    "governance | security | development": [
+      {
+        "fact": "The removal of the dust prevention code follows the activation of KIP 9 on Kaspa mainnet.",
+        "category": "governance | security | development",
+        "impact": "high",
+        "context": "With KIP 9 active, it is considered sufficient to handle potential dust attacks, making additional restrictions unnecessary.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Remove temporary dust prevention mechanism",
+          "author": "someone235",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+          "date": "2025-06-26T07:38:52+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:40.826435"
+      }
+    ],
+    "performance | development": [
+      {
+        "fact": "The restrictive temporary dust prevention mechanism previously hindered the use of multi-output transactions.",
+        "category": "performance | development",
+        "impact": "medium",
+        "context": "Its removal improves usability for users needing multi-output transactions, restoring intended transaction flexibility.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Remove temporary dust prevention mechanism",
+          "author": "someone235",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+          "date": "2025-06-26T07:38:52+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:40.826443"
+      }
+    ],
+    "community": [
+      {
+        "fact": "Repositories displaying the DeepWiki badge receive a small ranking boost in DeepWiki’s retrieval layer, making code snippets from the repository more discoverable.",
+        "category": "community",
+        "impact": "low",
+        "context": "Increased visibility of rusty-kaspa code snippets may help developers and community members more easily find relevant Kaspa code and documentation in DeepWiki search results.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Deep wiki badge",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/699",
+          "date": "2025-06-26T13:41:09+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:49.882778"
+      }
+    ],
+    "security, consensus": [
+      {
+        "fact": "A pull request (#697) has been submitted to Kaspa’s Rust implementation (\"rusty-kaspa\") to enforce a check ensuring that \"trusted blocks\" are not positioned in the \"pruning point future\".",
+        "category": "security, consensus",
+        "impact": "medium",
+        "context": "This update introduces a safeguard to prevent trusted block data from inadvertently referencing blocks beyond the current pruning point, which could otherwise compromise chain validity or interfere with the intended pruning security model.",
+        "source": {
+          "type": "github_pull_request",
+          "title": "Check that trusted blocks are not in the pruning point future",
+          "author": "someone235",
+          "url": "https://github.com/kaspanet/rusty-kaspa/pull/697",
+          "date": "2025-06-25T14:39:37+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-02T08:01:52.072307"
+      }
+    ]
+  },
+  "statistics": {
+    "total_facts": 36,
+    "by_category": {
+      "technical": 16,
+      "development": 11,
+      "security": 3,
+      "performance": 1,
+      "security | development": 1,
+      "governance | security | development": 1,
+      "performance | development": 1,
+      "community": 1,
+      "security, consensus": 1
+    },
+    "by_impact": {
+      "high": 5,
+      "medium": 24,
+      "low": 7
+    },
+    "by_source": {
+      "medium": 0,
+      "github": 36,
+      "telegram": 0,
+      "discord": 0,
+      "forum": 0,
+      "news": 0,
+      "documentation": 0
+    }
+  },
+  "metadata": {
+    "extractor_version": "2.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "total_sources_processed": 2,
+    "sources_with_data": [
+      "github_activity",
+      "github_activities"
+    ]
+  }
+}
