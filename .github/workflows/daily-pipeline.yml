@@ -30,20 +30,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Medium Processing Pipeline
+      - name: Run Smart Knowledge Pipeline
         run: |
-          python -m scripts.run_pipeline ingest
-          echo "✅ Medium ingestion completed"
-
-      - name: Run Data Aggregation
-        run: |
-          python -m scripts.run_pipeline aggregate
-          echo "✅ Data aggregation completed"
-
-      - name: Run AI Processing
-        run: |
-          python -m scripts.run_pipeline ai
-          echo "✅ AI processing completed"
+          python -m scripts.run_pipeline
+          echo "✅ Smart pipeline completed"
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
