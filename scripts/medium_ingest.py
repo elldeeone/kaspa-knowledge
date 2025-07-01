@@ -40,32 +40,32 @@ def get_existing_article_links():
     """
     existing_links = set()
     sources_dir = Path("sources/medium")
-    
+
     if not sources_dir.exists():
         return existing_links
-    
+
     # Get all JSON files in the medium directory
     json_files = list(sources_dir.glob("*.json"))
-    
+
     if not json_files:
         return existing_links
-    
+
     print(f"🔍 Checking for existing articles across {len(json_files)} files...")
-    
+
     total_existing = 0
     for file_path in json_files:
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 articles = json.load(f)
                 if isinstance(articles, list):
                     for article in articles:
-                        if isinstance(article, dict) and 'link' in article:
-                            existing_links.add(article['link'])
+                        if isinstance(article, dict) and "link" in article:
+                            existing_links.add(article["link"])
                             total_existing += 1
         except (json.JSONDecodeError, IOError) as e:
             print(f"⚠️  Warning: Could not read {file_path}: {e}")
             continue
-    
+
     print(f"📚 Found {total_existing} existing articles for deduplication check")
     return existing_links
 
@@ -77,12 +77,12 @@ def filter_new_articles(all_articles, existing_links):
     """
     if not existing_links:
         return all_articles
-    
+
     new_articles = []
     for article in all_articles:
-        if article.get('link') not in existing_links:
+        if article.get("link") not in existing_links:
             new_articles.append(article)
-    
+
     return new_articles
 
 
@@ -461,7 +461,7 @@ regular operations, full-history for comprehensive backfill operations.
     # Filter out articles that already exist in our database
     if not args.force:
         new_articles = filter_new_articles(unique_articles_this_run, existing_links)
-        
+
         # Early exit if no new articles found
         if not new_articles:
             print("\n🎯 Smart deduplication result:")
@@ -471,8 +471,9 @@ regular operations, full-history for comprehensive backfill operations.
             print("\n✨ No new articles found - skipping file creation and processing!")
             print("ℹ️  Use --force flag to bypass deduplication if needed.")
             import sys
+
             sys.exit(2)  # Exit code 2 indicates "no new content"
-        
+
         final_articles = new_articles
     else:
         print("⚠️  Force flag used - bypassing deduplication checks")
@@ -490,7 +491,7 @@ regular operations, full-history for comprehensive backfill operations.
         print(f"   - Manual articles: {successful_manual}/{len(args.manual_urls)}")
     print(f"   - Total articles fetched: {len(all_articles)}")
     print(f"   - Unique articles this run: {len(unique_articles_this_run)}")
-    
+
     if not args.force:
         existing_count = len(existing_links)
         skipped_count = len(unique_articles_this_run) - len(final_articles)
@@ -506,7 +507,9 @@ regular operations, full-history for comprehensive backfill operations.
 
     # Display article titles (limit to first 10 for readability)
     display_limit = min(10, len(final_articles))
-    print(f"\n📄 New articles to save (showing {display_limit} of {len(final_articles)}):")
+    print(
+        f"\n📄 New articles to save (showing {display_limit} of {len(final_articles)}):"
+    )
     for i, article in enumerate(final_articles[:display_limit], 1):
         author = (
             article["author"] if article["author"] != "Unknown" else "Unknown Author"

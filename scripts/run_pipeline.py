@@ -36,7 +36,9 @@ def run_command(command, description):
             print(f"✅ {description} completed successfully")
             return True, "success"
         elif result.returncode == 2 and "medium_ingest" in command:
-            print(f"ℹ️  {description} found no new content - skipping downstream processing")
+            print(
+                f"ℹ️  {description} found no new content - skipping downstream processing"
+            )
             return True, "no_new_content"
         else:
             print(f"❌ {description} failed with return code {result.returncode}")
@@ -76,11 +78,11 @@ def run_full_pipeline():
 
     # Check if ingestion found new content
     ingestion_found_new_content = False
-    
+
     for step in steps:
         total_steps += 1
         success, status = run_command(step["command"], step["description"])
-        
+
         if success:
             success_count += 1
             if status == "success":
@@ -90,7 +92,7 @@ def run_full_pipeline():
             print(f"\n❌ Required step failed: {step['description']}")
             print("🛑 Stopping pipeline due to critical failure")
             return False
-    
+
     # Skip remaining stages if no new content was found
     if not ingestion_found_new_content:
         print("\n🎯 PIPELINE OPTIMIZATION")
@@ -98,7 +100,7 @@ def run_full_pipeline():
         print("📊 No new content found during ingestion")
         print("⚡ Skipping aggregation and AI processing to save resources")
         print("✨ This is the smart deduplication working as intended!")
-        
+
         print("\n🎉 PIPELINE COMPLETED (OPTIMIZED)")
         print("=" * 60)
         print(f"✅ Successful steps: {success_count}/{total_steps}")
@@ -112,7 +114,9 @@ def run_full_pipeline():
     print("=" * 60)
 
     total_steps += 1
-    success, status = run_command("python -m scripts.aggregate_sources", "Raw Sources Aggregation")
+    success, status = run_command(
+        "python -m scripts.aggregate_sources", "Raw Sources Aggregation"
+    )
     if success:
         success_count += 1
     else:
@@ -172,14 +176,18 @@ def run_full_pipeline():
 def run_ingestion_only():
     """Run only the data ingestion steps."""
     print("\n🔄 Running ingestion-only pipeline")
-    success, status = run_command("python -m scripts.medium_ingest", "Medium Articles Ingestion")
+    success, status = run_command(
+        "python -m scripts.medium_ingest", "Medium Articles Ingestion"
+    )
     return success
 
 
 def run_aggregation_only():
     """Run only the raw aggregation step."""
     print("\n🔄 Running aggregation-only pipeline")
-    success, status = run_command("python -m scripts.aggregate_sources", "Raw Sources Aggregation")
+    success, status = run_command(
+        "python -m scripts.aggregate_sources", "Raw Sources Aggregation"
+    )
     return success
 
 
