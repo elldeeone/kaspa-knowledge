@@ -1,0 +1,32 @@
+Please analyze the following GitHub repository activity data and create a structured summary in Markdown format.
+
+**Repository:** {repo_name}
+**Period:** Last {days_back} days
+**Data Collected:** {fetched_at}
+
+**Raw Activity Data:**
+{activity_data}
+
+Please provide a summary that includes:
+
+## Recent Commits ({commit_count})
+- List the most significant commits with brief descriptions
+- Include author names and key changes
+- Focus on commits that indicate important features, fixes, or improvements
+
+## Pull Requests ({pr_count})
+- Summarize new and updated pull requests
+- Include PR titles, authors, and current status (open/closed/merged)
+- Highlight any notable features or bug fixes
+
+## Issues ({issue_count})
+- Summarize new and updated issues
+- Include issue titles, authors, and status changes
+- Group by type if possible (bugs, features, questions, etc.)
+
+## Activity Overview
+- Overall development activity level
+- Key contributors during this period
+- Notable trends or patterns in the repository
+
+**Important:** Only include information that is present in the provided data. Do not invent or assume details that are not explicitly stated in the raw data. 

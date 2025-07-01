@@ -1,0 +1,24 @@
+{
+  "kaspanet/kips": {
+    "repository": {
+      "owner": "kaspanet",
+      "name": "kips",
+      "full_name": "kaspanet/kips",
+      "description": "Kaspa Improvement Proposals",
+      "url": "https://github.com/kaspanet/kips",
+      "stars": 38,
+      "forks": 17,
+      "language": "Python",
+      "updated_at": "2025-05-11T07:15:05+00:00",
+      "created_at": "2022-11-27T13:25:30+00:00"
+    },
+    "commits": [],
+    "pull_requests": [],
+    "issues": [],
+    "metadata": {
+      "fetched_at": "2025-07-01T20:53:44.512422+00:00",
+      "days_back": 7,
+      "total_items": 0
+    }
+  }
+}
