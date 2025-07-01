@@ -20,7 +20,7 @@ import time
 load_dotenv()
 
 # Configuration
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_TOKEN = os.getenv("GH_TOKEN")
 CONFIG_PATH = Path("config/sources.config.json")
 OUTPUT_DIR = Path("sources/github")
 
@@ -49,7 +49,7 @@ def load_github_config():
 def authenticate_github():
     """Authenticate with GitHub API using personal access token"""
     if not GITHUB_TOKEN:
-        print("❌ GITHUB_TOKEN environment variable not set")
+        print("❌ GH_TOKEN environment variable not set")
         print("   Please add your GitHub Personal Access Token to .env file")
         print("   Generate one at: https://github.com/settings/tokens")
         return None
