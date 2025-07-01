@@ -2,12 +2,10 @@
 """
 Kaspa Knowledge Hub Data Pipeline Runner
 
-This script orchestrates the full data pipeline following the elizaOS pattern:
+This script orchestrates the full data pipeline:
 1. Ingests data from various sources into sources/ folders (raw data)
 2. Aggregates all sources into daily raw aggregated data (no AI processing)
 3. Generates AI-processed outputs: briefings and facts (separate files)
-
-Inspired by elizaOS/knowledge repository structure.
 """
 
 import subprocess
@@ -54,7 +52,7 @@ def run_full_pipeline():
     """Run the complete data pipeline."""
     print("\n🚀 Starting Kaspa Knowledge Hub Pipeline")
     print(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("🏗️  Pipeline Version: 2.0.0 (elizaOS-inspired)")
+    print("🏗️  Pipeline Version: 2.0.0")
 
     success_count = 0
     total_steps = 0

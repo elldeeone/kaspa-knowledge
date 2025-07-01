@@ -4,8 +4,6 @@ Kaspa Knowledge Hub - Daily Facts Extractor
 
 This script reads the raw aggregated daily data and extracts
 key technical facts, insights, and important developments.
-
-Inspired by elizaOS daily facts extraction.
 """
 
 import json

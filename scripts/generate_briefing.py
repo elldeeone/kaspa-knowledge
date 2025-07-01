@@ -4,8 +4,6 @@ Kaspa Knowledge Hub - Daily Briefing Generator
 
 This script reads the raw aggregated daily data and generates
 high-level summaries and briefings using LLM processing.
-
-Inspired by elizaOS council briefing generation.
 """
 
 import json
