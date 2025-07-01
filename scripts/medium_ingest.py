@@ -461,14 +461,49 @@ regular operations, full-history for comprehensive backfill operations.
     if not args.force:
         new_articles = filter_new_articles(unique_articles_this_run, existing_links)
 
-        # Early exit if no new articles found
+        # Handle case when no new articles found - still save file with metadata
         if not new_articles:
             print("\n🎯 Smart deduplication result:")
             print(f"   - Articles fetched: {len(all_articles)}")
             print(f"   - Unique in this run: {len(unique_articles_this_run)}")
             print("   - New articles (not in database): 0")
-            print("\n✨ No new articles found - skipping file creation and processing!")
+            print("\n✨ No new articles found - saving empty file with metadata!")
             print("ℹ️  Use --force flag to bypass deduplication if needed.")
+
+            # Create empty file with metadata to maintain consistency
+            empty_data_with_metadata = {
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "generated_at": datetime.now().isoformat(),
+                "source": "medium",
+                "status": "no_new_content",
+                "articles": [],
+                "metadata": {
+                    "total_feeds_checked": len(RSS_URLS),
+                    "successful_feeds": successful_feeds,
+                    "articles_fetched_total": len(all_articles),
+                    "unique_articles_this_run": len(unique_articles_this_run),
+                    "existing_articles_in_database": len(existing_links),
+                    "processing_mode": (
+                        "full_history" if args.full_history else "daily_sync"
+                    ),
+                    "deduplication_enabled": True,
+                },
+            }
+
+            # Save empty file following the same pattern as save_raw_medium_data
+            if args.full_history:
+                date_str = "full_history"
+            else:
+                date_str = datetime.now().strftime("%Y-%m-%d")
+
+            sources_dir = Path("sources/medium")
+            sources_dir.mkdir(parents=True, exist_ok=True)
+            output_path = sources_dir / f"{date_str}.json"
+
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(empty_data_with_metadata, f, indent=2, ensure_ascii=False)
+
+            print(f"📁 Saved empty data file to: {output_path}")
             import sys
 
             sys.exit(2)  # Exit code 2 indicates "no new content"

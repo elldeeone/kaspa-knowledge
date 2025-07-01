@@ -1,4 +1,30 @@
 {
+  "github_repositories": [
+    {
+      "owner": "kaspanet",
+      "repo": "rusty-kaspa",
+      "enabled": true,
+      "description": "Primary Kaspa implementation in Rust"
+    },
+    {
+      "owner": "kaspanet",
+      "repo": "kaspad",
+      "enabled": true,
+      "description": "Legacy Kaspa implementation in Go"
+    },
+    {
+      "owner": "kaspanet",
+      "repo": "kips",
+      "enabled": true,
+      "description": "Kaspa Improvement Proposals"
+    },
+    {
+      "owner": "kaspanet",
+      "repo": "docs",
+      "enabled": true,
+      "description": "Official Kaspa documentation"
+    }
+  ],
   "telegram_groups": [
     {
       "username": "KaspaCoreRD",

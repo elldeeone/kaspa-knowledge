@@ -222,13 +222,48 @@ async def fetch_group_messages(client, group, last_id):
     return messages_data, new_last_id
 
 
-def save_raw_telegram_data(messages):
-    """Save raw Telegram messages to group-specific daily files."""
-    if not messages:
+def save_raw_telegram_data(messages, force_save=False):
+    """Save raw Telegram messages to group-specific daily files.
+
+    Args:
+        messages: List of messages to save
+        force_save: If True, save empty file with metadata even when no messages
+    """
+    date_str = datetime.now().strftime("%Y-%m-%d")
+
+    if not messages and not force_save:
         print("⚠️ No messages to save")
         return
 
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    # Handle empty messages case - save metadata file
+    if not messages and force_save:
+        print("📁 No messages found - saving empty file with metadata")
+
+        # Create main telegram directory
+        sources_dir = Path("sources/telegram")
+        sources_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save empty file with metadata
+        empty_data_with_metadata = {
+            "date": date_str,
+            "generated_at": datetime.now().isoformat(),
+            "source": "telegram",
+            "status": "no_new_content",
+            "messages": [],
+            "metadata": {
+                "groups_processed": 0,
+                "total_messages_fetched": 0,
+                "credential_status": "placeholder_values",
+                "processing_mode": "daily_sync",
+            },
+        }
+
+        output_path = sources_dir / f"{date_str}.json"
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(empty_data_with_metadata, f, indent=2, ensure_ascii=False)
+
+        print(f"📁 Saved empty data file to: {output_path}")
+        return [output_path]
 
     # Group messages by group name
     messages_by_group = {}
@@ -275,6 +310,8 @@ async def main():
     messages = await fetch_messages(full_history=args.full_history)
 
     if messages is None:  # This means we skipped due to missing credentials/config
+        # Still save empty file with metadata for consistency
+        save_raw_telegram_data([], force_save=True)
         print("\n🎉 Telegram ingestion complete!")
         sys.exit(2)  # Exit code 2 indicates "no new content" like Medium
     elif messages:
@@ -282,6 +319,8 @@ async def main():
         print("\n🎉 Telegram ingestion complete!")
         sys.exit(0)  # Success with new content
     else:
+        # No messages found, but save empty file with metadata
+        save_raw_telegram_data([], force_save=True)
         print("\n🎉 Telegram ingestion complete!")
         sys.exit(2)  # No messages found, exit code 2 for "no new content"
 

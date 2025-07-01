@@ -142,6 +142,63 @@ class BriefingGenerator:
             "article_count": len(articles),
         }
 
+    def generate_github_briefing(self, github_activity: List[Dict]) -> Dict[str, Any]:
+        """Generate a briefing for GitHub activity."""
+        if not github_activity:
+            return {
+                "summary": "No GitHub activity found for this date.",
+                "repositories": [],
+                "activity_summary": {},
+            }
+
+        print(f"🤖 Generating briefing for {len(github_activity)} GitHub summaries...")
+
+        # Extract content from GitHub summaries
+        combined_content = ""
+        repo_count = 0
+
+        for item in github_activity:
+            if item.get("type") == "github_summary":
+                combined_content += item.get("content", "")
+                # Count repositories by looking for "Repository:" headers
+                repo_count += item.get("content", "").count("# Repository:")
+
+        if not combined_content:
+            return {
+                "summary": "No GitHub activity content available for processing.",
+                "repositories": [],
+                "activity_summary": {},
+            }
+
+        # Generate AI briefing from GitHub summaries
+        try:
+            github_summary = self.llm.call_llm(
+                prompt=(
+                    f"Summarize this GitHub activity data:\n\n"
+                    f"{combined_content[:4000]}"
+                ),
+                system_prompt=(
+                    "You are a technical project manager. Summarize GitHub "
+                    "development activity focusing on key changes, contributors, "
+                    "and trends. Keep it concise and actionable."
+                ),
+            )
+
+            print(f"    ✅ Generated GitHub briefing ({len(github_summary)} chars)")
+
+        except Exception as e:
+            print(f"    ⚠️  Failed to generate GitHub briefing: {e}")
+            github_summary = f"[GitHub briefing generation failed: {str(e)}]"
+
+        return {
+            "summary": github_summary,
+            "repositories": repo_count,
+            "activity_summary": {
+                "summaries_processed": len(github_activity),
+                "repositories_covered": repo_count,
+            },
+        }
+
     def generate_daily_briefing(self, date: str = None) -> Dict[str, Any]:
         """Generate a comprehensive daily briefing from all sources."""
         if date is None:
@@ -160,13 +217,12 @@ class BriefingGenerator:
                 "medium": self.generate_medium_briefing(
                     daily_data["sources"].get("medium_articles", [])
                 ),
-                "github": {
-                    "summary": "GitHub activity processing not yet implemented."
-                },
-                "discord": {
-                    "summary": "Discord messages processing not yet implemented."
-                },
-                "forum": {"summary": "Forum posts processing not yet implemented."},
+                "github": self.generate_github_briefing(
+                    daily_data["sources"].get("github_activity", [])
+                ),
+                "telegram": {"summary": "Telegram processing not yet implemented."},
+                "discord": {"summary": "Discord processing not yet implemented."},
+                "forum": {"summary": "Forum processing not yet implemented."},
                 "news": {"summary": "News articles processing not yet implemented."},
             },
             "metadata": {

@@ -52,8 +52,11 @@ def run_command(command, description):
 
 def run_full_pipeline():
     """Run the complete data pipeline."""
+    # Define pipeline date for consistent file naming
+    pipeline_date = datetime.now().strftime("%Y-%m-%d")
+
     print("\n🚀 Starting Kaspa Knowledge Hub Pipeline")
-    print(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"📅 Pipeline Date: {pipeline_date} ({datetime.now().strftime('%H:%M:%S')})")
     print("🏗️  Pipeline Version: 2.0.0")
 
     success_count = 0
@@ -71,12 +74,11 @@ def run_full_pipeline():
             "description": "Telegram Group Ingestion",
             "required": False,
         },
-        # TODO: Add other source ingestion commands when available
-        # {
-        #     "command": "python -m processing.github_ingest",
-        #     "description": "GitHub Activity Ingestion",
-        #     "required": False
-        # },
+        {
+            "command": f"python -m scripts.github_ingest --date {pipeline_date}",
+            "description": "GitHub Repository Ingestion",
+            "required": False,
+        },
     ]
 
     print("\n📋 STAGE 1: RAW DATA INGESTION")
@@ -115,6 +117,29 @@ def run_full_pipeline():
         print("🌟 Pipeline completed efficiently - no duplicate processing!")
         print("\n🎯 Pipeline completed successfully!")
         return True
+
+    # Step 1.5: Pre-processing/Summarization (GitHub Activity)
+    print("\n📋 STAGE 1.5: DATA PRE-PROCESSING")
+    print("=" * 60)
+
+    preprocessing_steps = [
+        {
+            "command": f"python -m scripts.summarize_github --date {pipeline_date}",
+            "description": "GitHub Activity Summarization",
+            "required": False,
+        },
+    ]
+
+    for step in preprocessing_steps:
+        total_steps += 1
+        success, status = run_command(step["command"], step["description"])
+
+        if success:
+            success_count += 1
+        elif step["required"]:
+            print(f"\n❌ Required preprocessing step failed: {step['description']}")
+            print("🛑 Stopping pipeline due to critical failure")
+            return False
 
     # Step 2: Aggregate raw sources (no AI processing)
     print("\n📋 STAGE 2: RAW DATA AGGREGATION")
@@ -172,10 +197,14 @@ def run_full_pipeline():
 
     # Show output structure
     print("\n📁 OUTPUT STRUCTURE:")
-    print("sources/           - Raw ingested data")
-    print("data/aggregated/   - Raw daily aggregated data")
-    print("data/briefings/    - AI-generated daily briefings")
-    print("data/facts/        - AI-extracted daily facts")
+    print("sources/                - Raw ingested data")
+    print("  ├─ github/            - Raw GitHub repository data")
+    print("  ├─ github_summaries/  - AI-processed GitHub summaries")
+    print("  ├─ medium/            - Raw Medium articles")
+    print("  └─ telegram/          - Raw Telegram messages")
+    print("data/aggregated/        - Raw daily aggregated data")
+    print("data/briefings/         - AI-generated daily briefings")
+    print("data/facts/             - AI-extracted daily facts")
 
     return success_count >= (total_steps - 1)  # Allow 1 failure
 
@@ -187,6 +216,7 @@ def run_ingestion_only():
     steps = [
         ("python -m scripts.medium_ingest", "Medium Articles Ingestion"),
         ("python -m scripts.telegram_ingest", "Telegram Group Ingestion"),
+        ("python -m scripts.github_ingest", "GitHub Repository Ingestion"),
     ]
 
     success_count = 0
