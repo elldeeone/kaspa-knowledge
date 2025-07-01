@@ -11,6 +11,7 @@ import json
 import feedparser
 import argparse
 import requests
+import glob
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
@@ -30,6 +31,59 @@ if not RSS_URLS_STR:
     RSS_URLS_STR = single_url
 
 RSS_URLS = [url.strip() for url in RSS_URLS_STR.split(",") if url.strip()]
+
+
+def get_existing_article_links():
+    """
+    Fast deduplication: Load all existing article links from all medium files.
+    Returns a set of links for O(1) lookup performance.
+    """
+    existing_links = set()
+    sources_dir = Path("sources/medium")
+    
+    if not sources_dir.exists():
+        return existing_links
+    
+    # Get all JSON files in the medium directory
+    json_files = list(sources_dir.glob("*.json"))
+    
+    if not json_files:
+        return existing_links
+    
+    print(f"🔍 Checking for existing articles across {len(json_files)} files...")
+    
+    total_existing = 0
+    for file_path in json_files:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                articles = json.load(f)
+                if isinstance(articles, list):
+                    for article in articles:
+                        if isinstance(article, dict) and 'link' in article:
+                            existing_links.add(article['link'])
+                            total_existing += 1
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"⚠️  Warning: Could not read {file_path}: {e}")
+            continue
+    
+    print(f"📚 Found {total_existing} existing articles for deduplication check")
+    return existing_links
+
+
+def filter_new_articles(all_articles, existing_links):
+    """
+    Filter out articles that already exist in our database.
+    Returns only genuinely new articles.
+    """
+    if not existing_links:
+        return all_articles
+    
+    new_articles = []
+    for article in all_articles:
+        if article.get('link') not in existing_links:
+            new_articles.append(article)
+    
+    return new_articles
 
 
 def scrape_individual_article(article_url):
@@ -326,6 +380,11 @@ regular operations, full-history for comprehensive backfill operations.
         help="Additional article URLs to scrape manually (bypasses RSS limitation).",
         metavar="URL",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force processing even if no new articles found (bypass deduplication).",
+    )
     args = parser.parse_args()
 
     print("🔄 Starting Medium article ingestion...")
@@ -340,6 +399,11 @@ regular operations, full-history for comprehensive backfill operations.
     print(f"🔗 Configured RSS feeds: {len(RSS_URLS)}")
     for i, url in enumerate(RSS_URLS, 1):
         print(f"  {i}. {url}")
+
+    # Get existing articles for deduplication (unless force flag is used)
+    existing_links = set()
+    if not args.force:
+        existing_links = get_existing_article_links()
 
     all_articles = []
     successful_feeds = 0
@@ -381,7 +445,7 @@ regular operations, full-history for comprehensive backfill operations.
             print("⚠️ No articles found across all RSS feeds.")
         return
 
-    # Remove duplicates based on the article link
+    # Remove duplicates within this run based on the article link
     articles_by_link = {}
     for article in all_articles:
         link = article["link"]
@@ -392,10 +456,29 @@ regular operations, full-history for comprehensive backfill operations.
         ):
             articles_by_link[link] = article
 
-    unique_articles = list(articles_by_link.values())
+    unique_articles_this_run = list(articles_by_link.values())
+
+    # Filter out articles that already exist in our database
+    if not args.force:
+        new_articles = filter_new_articles(unique_articles_this_run, existing_links)
+        
+        # Early exit if no new articles found
+        if not new_articles:
+            print("\n🎯 Smart deduplication result:")
+            print(f"   - Articles fetched: {len(all_articles)}")
+            print(f"   - Unique in this run: {len(unique_articles_this_run)}")
+            print(f"   - New articles (not in database): 0")
+            print("\n✨ No new articles found - skipping file creation and processing!")
+            print("ℹ️  Use --force flag to bypass deduplication if needed.")
+            return
+        
+        final_articles = new_articles
+    else:
+        print("⚠️  Force flag used - bypassing deduplication checks")
+        final_articles = unique_articles_this_run
 
     # Sort articles by publication date (newest first)
-    unique_articles.sort(
+    final_articles.sort(
         key=lambda x: x["published"] if x["published"] != "Unknown" else "1900-01-01",
         reverse=True,
     )
@@ -404,27 +487,36 @@ regular operations, full-history for comprehensive backfill operations.
     print(f"   - Successful feeds: {successful_feeds}/{len(RSS_URLS)}")
     if args.manual_urls:
         print(f"   - Manual articles: {successful_manual}/{len(args.manual_urls)}")
-    print(f"   - Total articles found: {len(all_articles)}")
-    print(f"   - Unique articles: {len(unique_articles)}")
+    print(f"   - Total articles fetched: {len(all_articles)}")
+    print(f"   - Unique articles this run: {len(unique_articles_this_run)}")
+    
+    if not args.force:
+        existing_count = len(existing_links)
+        skipped_count = len(unique_articles_this_run) - len(final_articles)
+        print(f"   - Existing articles in database: {existing_count}")
+        print(f"   - Duplicate articles skipped: {skipped_count}")
+        print(f"   - New articles to save: {len(final_articles)}")
+    else:
+        print(f"   - Articles to save (force mode): {len(final_articles)}")
 
-    if len(all_articles) > len(unique_articles):
-        duplicates_removed = len(all_articles) - len(unique_articles)
-        print(f"   - Duplicates removed: {duplicates_removed}")
+    if len(all_articles) > len(unique_articles_this_run):
+        duplicates_removed = len(all_articles) - len(unique_articles_this_run)
+        print(f"   - Within-run duplicates removed: {duplicates_removed}")
 
     # Display article titles (limit to first 10 for readability)
-    display_limit = min(10, len(unique_articles))
-    print(f"\n📄 Recent articles (showing {display_limit} of {len(unique_articles)}):")
-    for i, article in enumerate(unique_articles[:display_limit], 1):
+    display_limit = min(10, len(final_articles))
+    print(f"\n📄 New articles to save (showing {display_limit} of {len(final_articles)}):")
+    for i, article in enumerate(final_articles[:display_limit], 1):
         author = (
             article["author"] if article["author"] != "Unknown" else "Unknown Author"
         )
         print(f"  {i}. {article['title']} - {author}")
 
-    if len(unique_articles) > display_limit:
-        print(f"  ... and {len(unique_articles) - display_limit} more articles")
+    if len(final_articles) > display_limit:
+        print(f"  ... and {len(final_articles) - display_limit} more articles")
 
     # Save the articles
-    output_path = save_raw_medium_data(unique_articles, full_history=args.full_history)
+    output_path = save_raw_medium_data(final_articles, full_history=args.full_history)
 
     print("\n🎉 Medium ingestion complete!")
     print(f"📁 Raw data saved to: {output_path}")

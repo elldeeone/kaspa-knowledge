@@ -91,4 +91,5 @@ output/
 .taskmaster/
 .trae/
 AGENTS.md
-CLAUDE.md
+CLAUDE.md# Backup files from manual operations
+sources/medium/*.backup
