@@ -83,10 +83,9 @@ jobs:
         
     - name: Test pipeline components
       run: |
-        cd scripts
         # Test that the main pipeline scripts can be run with --help
-        python run_pipeline.py --help || echo "Pipeline help not available"
-        python medium_ingest.py --help || echo "Medium ingest help not available"
+        python -m scripts.run_pipeline --help || echo "Pipeline help not available"
+        python -m scripts.medium_ingest --help || echo "Medium ingest help not available"
 
   security-scan:
     name: Security Scanning

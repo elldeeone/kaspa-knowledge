@@ -28,7 +28,7 @@ kaspa-knowledge/
 │   ├── briefings/            # AI-generated executive briefings
 │   └── facts/                # AI-extracted technical facts
 ├── scripts/                  # Pipeline processing scripts
-│   ├── medium_ingest.py      # Medium RSS ingestion
+│   ├── medium_ingest.py      # Multi-feed Medium RSS ingestion with full history support
 │   ├── aggregate_sources.py  # Raw data aggregation
 │   ├── generate_briefing.py  # AI briefing generation
 │   ├── extract_facts.py      # AI fact extraction
@@ -60,7 +60,7 @@ kaspa-knowledge/
 
 ### Data Sources
 
-- **Medium RSS Feeds**: Core developer blogs and articles
+- **Medium RSS Feeds**: Multiple author feeds for comprehensive coverage of developer blogs and articles
 - **GitHub Repositories**: Commits, pull requests, issues from key Kaspa repos  
 - **Discord Channels**: High-signal conversations from development channels
 - **Research Forum**: Discussions from https://research.kas.pa/
@@ -137,7 +137,7 @@ scripts/prompts/
    cp .env.example .env
    # Edit .env with your API keys:
    # OPENROUTER_API_KEY=your_openrouter_api_key
-   # MEDIUM_RSS_URL=https://hashdag.medium.com/feed
+   # MEDIUM_RSS_URLS=https://hashdag.medium.com/feed,https://kaspadev.medium.com/feed
    ```
 
 5. **Set up GitHub Actions secrets** (for automation):
@@ -152,6 +152,24 @@ Configuration is managed through:
 - **Script parameters**: Configurable within individual processing scripts  
 - **Pipeline settings**: Located in `scripts/run_pipeline.py`
 
+### Enhanced Medium RSS Configuration
+
+The system supports multiple Medium author RSS feeds and full history backfill:
+
+**Multiple RSS Feeds:**
+```bash
+# Configure multiple Medium authors (comma-separated)
+MEDIUM_RSS_URLS=https://hashdag.medium.com/feed,https://kaspadev.medium.com/feed,https://medium.com/feed/@kaspa_currency
+```
+
+**Getting RSS Feed URLs:**
+To get any Medium author's RSS feed URL, simply add `/feed` to their profile URL:
+- Profile: `https://author-name.medium.com/` 
+- RSS Feed: `https://author-name.medium.com/feed`
+
+**Backward Compatibility:**
+The system still supports the legacy single URL format (`MEDIUM_RSS_URL`) for existing configurations.
+
 ## 🏃‍♂️ Usage
 
 ### Manual Execution
@@ -164,7 +182,9 @@ python -m scripts.run_pipeline
 **Run individual stages:**
 ```bash
 # Stage 1: Ingest raw data
-python -m scripts.medium_ingest
+python -m scripts.medium_ingest                    # Daily sync (saves to dated file)
+python -m scripts.medium_ingest --full-history     # Full history backfill (saves to full_history.json)
+python -m scripts.medium_ingest --manual-urls URL1 URL2  # Manual scraping (bypasses RSS limit)
 
 # Stage 2: Aggregate raw sources  
 python -m scripts.aggregate_sources
@@ -174,6 +194,70 @@ python -m scripts.generate_briefing
 
 # Stage 3b: Extract facts
 python -m scripts.extract_facts
+```
+
+### Medium Ingestion Options
+
+**Daily Sync (Default):**
+```bash
+python -m scripts.medium_ingest
+```
+- Fetches all articles available in RSS feeds (limited to 10 most recent per author by Medium)
+- Saves to `sources/medium/YYYY-MM-DD.json`
+- Used by daily automated pipeline
+
+**Full History Backfill:**
+```bash
+python -m scripts.medium_ingest --full-history
+```
+- Fetches all articles available in RSS feeds (same 10-article limit applies)
+- Saves to `sources/medium/full_history.json`
+- **Run only once** to establish historical baseline  
+- Intended for comprehensive backfill operations
+- Processes multiple feeds simultaneously
+- Automatically removes duplicates across feeds
+
+**Manual URL Scraping (NEW):**
+```bash
+# Scrape specific articles that aren't in RSS feeds
+python -m scripts.medium_ingest --manual-urls https://hashdag.medium.com/article1 https://hashdag.medium.com/article2
+
+# Combine with RSS feeds for comprehensive collection
+python -m scripts.medium_ingest --full-history --manual-urls https://hashdag.medium.com/old-article1 https://hashdag.medium.com/old-article2
+```
+- **Bypasses RSS limitation** - can scrape any accessible Medium article
+- Perfect for capturing older articles not available in RSS feeds
+- Can be combined with regular RSS ingestion
+- Automatically extracts title, author, content, and publication date
+- Integrates seamlessly with existing data structure
+
+**IMPORTANT LIMITATION:** Medium RSS feeds are hard-limited to the **10 most recent articles per author** by Medium's platform design. **Solution**: Use `--manual-urls` to scrape specific older articles that aren't available via RSS feeds.
+
+### Working Around RSS Limitations
+
+**Strategy 1: Manual URL Scraping (RECOMMENDED)**
+```bash
+# For Yonatan (hashdag) who has 13 total articles but RSS only shows 10:
+# 1. Visit https://hashdag.medium.com/ to find older articles
+# 2. Copy URLs of the 3 missing articles
+# 3. Scrape them manually:
+python -m scripts.medium_ingest --manual-urls \
+  https://hashdag.medium.com/older-article-1 \
+  https://hashdag.medium.com/older-article-2 \
+  https://hashdag.medium.com/older-article-3
+```
+
+**Strategy 2: Regular Historical Collection**
+```bash
+# Run weekly/monthly to capture articles before they disappear from RSS
+python -m scripts.medium_ingest --full-history
+# Manually merge with previous full_history.json files to build complete archive
+```
+
+**Strategy 3: Timeline Reconstruction**
+```bash
+# If you've been running daily, older articles might be in dated files
+ls sources/medium/  # Check for articles in previous YYYY-MM-DD.json files
 ```
 
 ### Automated Execution
