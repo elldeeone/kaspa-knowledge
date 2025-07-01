@@ -34,14 +34,17 @@ def run_command(command, description):
 
         if result.returncode == 0:
             print(f"✅ {description} completed successfully")
-            return True
+            return True, "success"
+        elif result.returncode == 2 and "medium_ingest" in command:
+            print(f"ℹ️  {description} found no new content - skipping downstream processing")
+            return True, "no_new_content"
         else:
             print(f"❌ {description} failed with return code {result.returncode}")
-            return False
+            return False, "failed"
 
     except Exception as e:
         print(f"❌ Error running {description}: {e}")
-        return False
+        return False, "failed"
 
 
 def run_full_pipeline():
@@ -71,21 +74,46 @@ def run_full_pipeline():
     print("\n📋 STAGE 1: RAW DATA INGESTION")
     print("=" * 60)
 
+    # Check if ingestion found new content
+    ingestion_found_new_content = False
+    
     for step in steps:
         total_steps += 1
-        if run_command(step["command"], step["description"]):
+        success, status = run_command(step["command"], step["description"])
+        
+        if success:
             success_count += 1
+            if status == "success":
+                ingestion_found_new_content = True
+            # Note: "no_new_content" is also considered success, but won't trigger downstream processing
         elif step["required"]:
             print(f"\n❌ Required step failed: {step['description']}")
             print("🛑 Stopping pipeline due to critical failure")
             return False
+    
+    # Skip remaining stages if no new content was found
+    if not ingestion_found_new_content:
+        print("\n🎯 PIPELINE OPTIMIZATION")
+        print("=" * 60)
+        print("📊 No new content found during ingestion")
+        print("⚡ Skipping aggregation and AI processing to save resources")
+        print("✨ This is the smart deduplication working as intended!")
+        
+        print("\n🎉 PIPELINE COMPLETED (OPTIMIZED)")
+        print("=" * 60)
+        print(f"✅ Successful steps: {success_count}/{total_steps}")
+        print(f"📊 Success rate: {(success_count/total_steps)*100:.1f}%")
+        print("🌟 Pipeline completed efficiently - no duplicate processing!")
+        print("\n🎯 Pipeline completed successfully!")
+        return True
 
     # Step 2: Aggregate raw sources (no AI processing)
     print("\n📋 STAGE 2: RAW DATA AGGREGATION")
     print("=" * 60)
 
     total_steps += 1
-    if run_command("python -m scripts.aggregate_sources", "Raw Sources Aggregation"):
+    success, status = run_command("python -m scripts.aggregate_sources", "Raw Sources Aggregation")
+    if success:
         success_count += 1
     else:
         print("\n❌ Raw aggregation failed")
@@ -111,7 +139,8 @@ def run_full_pipeline():
 
     for step in ai_steps:
         total_steps += 1
-        if run_command(step["command"], step["description"]):
+        success, status = run_command(step["command"], step["description"])
+        if success:
             success_count += 1
         elif step["required"]:
             print(f"\n❌ Required AI step failed: {step['description']}")
@@ -143,13 +172,15 @@ def run_full_pipeline():
 def run_ingestion_only():
     """Run only the data ingestion steps."""
     print("\n🔄 Running ingestion-only pipeline")
-    return run_command("python -m scripts.medium_ingest", "Medium Articles Ingestion")
+    success, status = run_command("python -m scripts.medium_ingest", "Medium Articles Ingestion")
+    return success
 
 
 def run_aggregation_only():
     """Run only the raw aggregation step."""
     print("\n🔄 Running aggregation-only pipeline")
-    return run_command("python -m scripts.aggregate_sources", "Raw Sources Aggregation")
+    success, status = run_command("python -m scripts.aggregate_sources", "Raw Sources Aggregation")
+    return success
 
 
 def run_ai_processing_only():
@@ -163,7 +194,8 @@ def run_ai_processing_only():
 
     success_count = 0
     for command, description in steps:
-        if run_command(command, description):
+        success, status = run_command(command, description)
+        if success:
             success_count += 1
 
     return success_count > 0

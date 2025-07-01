@@ -470,7 +470,8 @@ regular operations, full-history for comprehensive backfill operations.
             print(f"   - New articles (not in database): 0")
             print("\n✨ No new articles found - skipping file creation and processing!")
             print("ℹ️  Use --force flag to bypass deduplication if needed.")
-            return
+            import sys
+            sys.exit(2)  # Exit code 2 indicates "no new content"
         
         final_articles = new_articles
     else:
