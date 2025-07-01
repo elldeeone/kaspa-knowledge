@@ -137,9 +137,7 @@ async def fetch_topic_messages(client, group, topic, last_id):
     """Fetch new messages from a specific topic."""
     messages_data = []
     new_last_id = last_id
-    async for message in client.iter_messages(
-        group, reply_to=topic.id, min_id=last_id
-    ):
+    async for message in client.iter_messages(group, reply_to=topic.id, min_id=last_id):
         if isinstance(message, Message) and message.text:
             sender = await message.get_sender()
             sender_username = "Unknown"
@@ -161,9 +159,7 @@ async def fetch_topic_messages(client, group, topic, last_id):
                 }
             )
             new_last_id = max(new_last_id, message.id)
-    print(
-        f"     - Topic '{topic.title}': Fetched {len(messages_data)} new messages."
-    )
+    print(f"     - Topic '{topic.title}': Fetched {len(messages_data)} new messages.")
     return messages_data, new_last_id
 
 
