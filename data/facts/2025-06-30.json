@@ -1,12 +1,12 @@
 {
   "date": "2025-06-30",
-  "generated_at": "2025-06-30T22:35:28.779269",
+  "generated_at": "2025-06-30T23:44:18.601470",
   "facts": [
     {
-      "fact": "Kaspa's Crescendo protocol achieves a 6000x improvement over Satoshi’s original Bitcoin protocol while maintaining the same trust model.",
+      "fact": "Kaspa's Crescendo achieves a 6000x improvement over Satoshi’s protocol while maintaining the same trust model.",
       "category": "technical",
       "impact": "high",
-      "context": "This emphasizes that Kaspa’s technical architecture represents a significant performance and scalability improvement over Bitcoin, while still adhering to a decentralized, anonymous-miner-driven trust structure.",
+      "context": "This improvement refers to scalability and/or performance enhancements in Kaspa over Bitcoin, while preserving a decentralized, trust-minimized architecture with anonymous miners.",
       "source": {
         "type": "medium_article",
         "title": "In which we are all faceless until we have faces (Part I)*",
@@ -14,13 +14,13 @@
         "url": "https://hashdag.medium.com/in-which-we-are-all-faceless-until-we-have-faces-part-i-5f100e0555a4?source=rss-400d0e2aab3b------2",
         "published": "2025-04-04"
       },
-      "extracted_at": "2025-06-30T22:34:11.862930"
+      "extracted_at": "2025-06-30T23:42:25.269716"
     },
     {
-      "fact": "Kaspa delegates control over its network to an anonymous set of miners.",
+      "fact": "Kaspa’s trust model is center-less, delegating control over the network to an anonymous set of miners.",
       "category": "consensus",
-      "impact": "medium",
-      "context": "The protocol's consensus mechanism entrusts network security and operation to a decentralized group of miners, aligning incentives for network security through competition among egoistic entities.",
+      "impact": "high",
+      "context": "This affirms that Kaspa’s protocol is designed to operate without a central authority, relying on anonymous miners whose incentives are aligned with network security.",
       "source": {
         "type": "medium_article",
         "title": "In which we are all faceless until we have faces (Part I)*",
@@ -28,13 +28,41 @@
         "url": "https://hashdag.medium.com/in-which-we-are-all-faceless-until-we-have-faces-part-i-5f100e0555a4?source=rss-400d0e2aab3b------2",
         "published": "2025-04-04"
       },
-      "extracted_at": "2025-06-30T22:34:11.862947"
+      "extracted_at": "2025-06-30T23:42:25.269734"
     },
     {
-      "fact": "Kaspa's future arrival of ASICs is anticipated and seen as overall positive for the network, including GPU miners.",
+      "fact": "The primary social media account for Kaspa was renamed from “Kaspa” to “Kaspa (Unofficial)”.",
+      "category": "governance",
+      "impact": "medium",
+      "context": "This action reflects a move to reinforce Kaspa’s decentralized and center-less ethos, reducing the influence or perception of official centralized control.",
+      "source": {
+        "type": "medium_article",
+        "title": "In which we are all faceless until we have faces (Part I)*",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/in-which-we-are-all-faceless-until-we-have-faces-part-i-5f100e0555a4?source=rss-400d0e2aab3b------2",
+        "published": "2025-04-04"
+      },
+      "extracted_at": "2025-06-30T23:42:25.269741"
+    },
+    {
+      "fact": "Kaspa positions itself as a p2p electronic cash system and a trustworthy store of value, aiming to compete in the broader crypto and financial markets.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "This establishes Kaspa’s technical ambition to occupy a similar user and value proposition space as Bitcoin.",
+      "source": {
+        "type": "medium_article",
+        "title": "In which we are all faceless until we have faces (Part I)*",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/in-which-we-are-all-faceless-until-we-have-faces-part-i-5f100e0555a4?source=rss-400d0e2aab3b------2",
+        "published": "2025-04-04"
+      },
+      "extracted_at": "2025-06-30T23:42:25.269749"
+    },
+    {
+      "fact": "The arrival of ASIC miners is anticipated for the Kaspa network and is considered an overall positive development, even for existing GPU miners.",
       "category": "mining",
       "impact": "high",
-      "context": "ASIC adoption shifts mining towards higher capital expenditure (CapEx), increasing network security and maturing the mining ecosystem.",
+      "context": "The introduction of ASICs will increase the capital expenditure (CapEx) required for mining, contributing to the network’s security and signifying a maturing ecosystem.",
       "source": {
         "type": "medium_article",
         "title": "Kaspa where to (Part IV, last)",
@@ -42,335 +70,377 @@
         "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
         "published": "2023-05-03"
       },
-      "extracted_at": "2025-06-30T22:34:16.789285"
+      "extracted_at": "2025-06-30T23:43:09.029161"
     },
     {
-      "fact": "As of the article's writing, approximately 5.3% of the Kaspa network's hashrate is accessible via NiceHash.",
-      "category": "mining/security",
-      "impact": "medium",
-      "context": "Indicates Kaspa mining is still relatively illiquid, reducing the risk of large-scale hashrate rental attacks like 51% attacks.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part IV, last)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-        "published": "2023-05-03"
-      },
-      "extracted_at": "2025-06-30T22:34:16.789306"
-    },
-    {
-      "fact": "Kaspa relies on heavy CapEx mining for its long-term vision, especially to achieve its goal of near-instantaneous confirmation times in a permissionless consensus environment.",
-      "category": "mining/consensus",
-      "impact": "high",
-      "context": "CapEx-heavy (ASIC-dominated) mining environments are less susceptible to transient attacks since attackers cannot easily rent short-term hashrate.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part IV, last)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-        "published": "2023-05-03"
-      },
-      "extracted_at": "2025-06-30T22:34:16.789312"
-    },
-    {
-      "fact": "CapEx-heavy mining (ASICs vs. GPUs) is more energy-efficient, with a greater fraction of the security budget invested in durable infrastructure rather than ongoing energy expenditure.",
-      "category": "mining/energy efficiency",
-      "impact": "high",
-      "context": "Improved energy efficiency is important for Kaspa's long-term adoption, particularly after issuance ends (no KAS minting), and in responding to environmental and political concerns about Proof-of-Work energy use.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part IV, last)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-        "published": "2023-05-03"
-      },
-      "extracted_at": "2025-06-30T22:34:16.789319"
-    },
-    {
-      "fact": "Kaspa's consensus layer is designed to provide faster confirmation times and, downstream, greater resistance to MEV (Miner Extractable Value).",
-      "category": "consensus/security",
-      "impact": "medium",
-      "context": "Fast confirmations and MEV resistance improve user experience and security, supporting Kaspa's aim for mass adoption.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part IV, last)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-        "published": "2023-05-03"
-      },
-      "extracted_at": "2025-06-30T22:34:16.789324"
-    },
-    {
-      "fact": "DAGKNIGHT (DK) is a protocol designed by Sutton and Yonatan Sompolinsky, intended for real-world deployment in Kaspa, with outstanding technical TODOs documented in KIP #2.",
-      "category": "technical",
-      "impact": "high",
-      "context": "DAGKNIGHT could affect Kaspa's core consensus protocol, and its TODOs are documented in the public KIP #2, guiding ongoing and future development.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part III)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-        "published": "2022-12-14"
-      },
-      "extracted_at": "2025-06-30T22:34:24.644644"
-    },
-    {
-      "fact": "The current grant proposal for DAGKNIGHT implementation on Kaspa requests 70 million KAS tokens (70 MKAS), equivalent to approximately 0.5% of the circulating supply.",
-      "category": "governance",
-      "impact": "high",
-      "context": "The grant size and its share of circulating supply are significant for project resource allocation and governance implications.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part III)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-        "published": "2022-12-14"
-      },
-      "extracted_at": "2025-06-30T22:34:24.644665"
-    },
-    {
-      "fact": "The previous funded grant in the Kaspa community was 100 million KAS (100 MKAS), about 1% of the then circulating supply.",
-      "category": "governance",
-      "impact": "medium",
-      "context": "Establishes a precedent for the scale of funding for major development efforts in Kaspa.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part III)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-        "published": "2022-12-14"
-      },
-      "extracted_at": "2025-06-30T22:34:24.644671"
-    },
-    {
-      "fact": "Previous and current Kaspa grants for development have been denominated in KAS tokens, not USD.",
-      "category": "governance",
-      "impact": "medium",
-      "context": "Tying developer incentives to the native asset aligns interests with the success of the protocol and reflects community norm.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part III)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-        "published": "2022-12-14"
-      },
-      "extracted_at": "2025-06-30T22:34:24.644676"
-    },
-    {
-      "fact": "Public discussion about development funding models for Kaspa includes: (1) unpaid open-source weekend projects, (2) community grants (e.g., via Gitcoin), and (3) for-profit enterprise funding akin to what IBM does with Linux.",
-      "category": "development",
-      "impact": "medium",
-      "context": "The evolution of developer funding models influences project sustainability and speed of technical progress.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part III)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-        "published": "2022-12-14"
-      },
-      "extracted_at": "2025-06-30T22:34:24.644681"
-    },
-    {
-      "fact": "The implementation of DAGKNIGHT in Kaspa may proceed even if the community does not approve the grant, but would then occur without a specified timeline and as a spare-time effort by the authors.",
-      "category": "development",
-      "impact": "medium",
-      "context": "Indicates the prospect of implementation but with less predictability in absence of structured funding.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part III)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-        "published": "2022-12-14"
-      },
-      "extracted_at": "2025-06-30T22:34:24.644686"
-    },
-    {
-      "fact": "DAGKNIGHT is characterized as core infrastructure (infra) development for Kaspa, not targeting the smart contracts or application layer.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "Clarifies that DK focuses on foundational protocol improvements rather than user-facing functionality or financial applications.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part III)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-        "published": "2022-12-14"
-      },
-      "extracted_at": "2025-06-30T22:34:24.644690"
-    },
-    {
-      "fact": "The DAGKNIGHT (DK) protocol, published by Michal Sutton and Yonatan Sompolinsky, is a proof-of-work (POW) consensus protocol that is responsive to the network’s adversarial latency and is resilient to 49% byzantine attackers.",
-      "category": "consensus",
-      "impact": "high",
-      "context": "This represents a major advancement in consensus protocols, potentially allowing higher security and network responsiveness than previous designs.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part II)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-        "published": "2022-11-26"
-      },
-      "extracted_at": "2025-06-30T22:34:31.913366"
-    },
-    {
-      "fact": "DAGKNIGHT is currently in an academic state with several missing details in its proof section; it requires preparation for peer review and efficient algorithmic implementation for real-world use.",
-      "category": "development",
-      "impact": "medium",
-      "context": "Before consideration for Kaspa, DK needs further theoretical work, peer review, and practical algorithm optimizations.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part II)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-        "published": "2022-11-26"
-      },
-      "extracted_at": "2025-06-30T22:34:31.913381"
-    },
-    {
-      "fact": "Adapting DK for cryptocurrency use (such as in Kaspa) will require addressing additional requirements like minting regulation, difficulty control, and pruning, which necessitate a responsive synchronous protocol versus DK’s current partially synchronous mode.",
-      "category": "development",
-      "impact": "high",
-      "context": "Additional engineering is needed to make DK a suitable drop-in replacement for established blockchain consensus protocols.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part II)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-        "published": "2022-11-26"
-      },
-      "extracted_at": "2025-06-30T22:34:31.913387"
-    },
-    {
-      "fact": "DK, similar to GHOSTDAG, enables high blocks-per-second (bps) rates with much faster confirmation times, but research is required to determine optimal bps due to wider DAGs and larger block headers possibly mitigating confirmation time improvements.",
-      "category": "consensus",
-      "impact": "medium",
-      "context": "Increasing block rates may not always lower confirmation time due to network and structural trade-offs.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part II)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-        "published": "2022-11-26"
-      },
-      "extracted_at": "2025-06-30T22:34:31.913393"
-    },
-    {
-      "fact": "DK can enable features such as \"flexcaps\" (flexible block sizes and difficulties), originally proposed for Bitcoin but only practical at high block rates with a protocol like DK that does not bound DAG width in advance.",
-      "category": "development",
-      "impact": "medium",
-      "context": "Flexcaps could help accommodate peak transaction demand and variable resource limits.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part II)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-        "published": "2022-11-26"
-      },
-      "extracted_at": "2025-06-30T22:34:31.913398"
-    },
-    {
-      "fact": "DK's design supports possible implementations of increased MEV resistance features, including stealth transactions and advanced transaction fee mechanisms, leveraging the protocol’s asynchrony and many miners being able to build in parallel.",
+      "fact": "Kaspa currently has about 5.3% of its network hashrate available for rent via NiceHash.",
       "category": "security",
       "impact": "medium",
-      "context": "These features could help protect users and support innovative fee/MEV solutions.",
+      "context": "The low proportion of NiceHash-able hashrate means the mining market is still relatively illiquid, reducing vulnerability to 51% attacks based on rented hashrate.",
       "source": {
         "type": "medium_article",
-        "title": "Kaspa where to (Part II)",
+        "title": "Kaspa where to (Part IV, last)",
         "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-        "published": "2022-11-26"
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+        "published": "2023-05-03"
       },
-      "extracted_at": "2025-06-30T22:34:31.913403"
+      "extracted_at": "2025-06-30T23:43:09.029175"
     },
     {
-      "fact": "Deploying DK in Kaspa, like the previous Rust upgrade, will require a new community grant request to fund its implementation.",
-      "category": "governance",
-      "impact": "medium",
-      "context": "Significant protocol upgrades in Kaspa involve community governance and funding processes.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part II)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-        "published": "2022-11-26"
-      },
-      "extracted_at": "2025-06-30T22:34:31.913407"
-    },
-    {
-      "fact": "Michael Sutton, a core Kaspa developer, proposed a plan to significantly enhance Kaspad full-node performance by refactoring the codebase and rewriting it in Rust.",
-      "category": "development",
-      "impact": "high",
-      "context": "A Rust rewrite could improve node performance, maintainability, and attract more developer contributions.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part I)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
-        "published": "2022-07-05"
-      },
-      "extracted_at": "2025-06-30T22:34:41.092958"
-    },
-    {
-      "fact": "The current Kaspad codebase is adapted from the Bitcoin client btcd and is written in Golang.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "The use of Golang and legacy code from btcd has resulted in technical debt and code complexity, presenting barriers for new contributors.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part I)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
-        "published": "2022-07-05"
-      },
-      "extracted_at": "2025-06-30T22:34:41.092973"
-    },
-    {
-      "fact": "The proposed refactoring explicitly aims to make the Kaspad codebase modular and more readable, in addition to performance improvements.",
-      "category": "development",
-      "impact": "high",
-      "context": "Improved modularity and legibility would facilitate future developments and open-source contributions, thereby strengthening the ecosystem.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa where to (Part I)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
-        "published": "2022-07-05"
-      },
-      "extracted_at": "2025-06-30T22:34:41.092979"
-    },
-    {
-      "fact": "Kaspa's consensus is based on a novel \"DAG vision\" and the project was initially intended as a demonstration of a new paradigm for permissionless consensus.",
+      "fact": "Kaspa’s consensus layer prioritizes speed of confirmation, with secondary goals including increased throughput capacity and decentralization, and plans for MEV resistance in the future.",
       "category": "consensus",
-      "impact": "medium",
-      "context": "Understanding the original purpose clarifies ongoing efforts to optimize and grow the network’s base protocol.",
+      "impact": "high",
+      "context": "Focusing on fast confirmations and scalability helps Kaspa compete as a next-generation blockchain, while MEV resistance is important for fairness and long-term integrity.",
       "source": {
         "type": "medium_article",
-        "title": "Kaspa where to (Part I)",
+        "title": "Kaspa where to (Part IV, last)",
         "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
-        "published": "2022-07-05"
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+        "published": "2023-05-03"
       },
-      "extracted_at": "2025-06-30T22:34:41.092984"
+      "extracted_at": "2025-06-30T23:43:09.029181"
     },
     {
-      "fact": "Kaspa was originally launched in a mode called \"gamenet\", described as a \"testnet with incentives\".",
-      "category": "technical",
-      "impact": "medium",
-      "context": "\"Gamenet\" reflects Kaspa's experimental and iterative development approach, distinguishing it from standard mainnet/testnet launches.",
+      "fact": "Kaspa’s model emphasizes moving toward CapEx-heavy (ASIC-dominated) mining for security and efficiency.",
+      "category": "mining",
+      "impact": "high",
+      "context": "CapEx-heavy mining makes it economically harder for attackers to rent large amounts of temporary hashrate, thereby increasing network security and energy efficiency.",
       "source": {
         "type": "medium_article",
-        "title": "Kaspa where to (Part I)",
+        "title": "Kaspa where to (Part IV, last)",
         "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
-        "published": "2022-07-05"
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+        "published": "2023-05-03"
       },
-      "extracted_at": "2025-06-30T22:34:41.092988"
+      "extracted_at": "2025-06-30T23:43:09.029186"
     },
     {
-      "fact": "The Kaspa network removed the random block reward and replaced it with a deterministic block reward of 500 KAS per block.",
+      "fact": "CapEx-heavy mining is more energy efficient because a smaller fraction of the network’s security budget is consumed with each new block produced.",
       "category": "mining",
       "impact": "medium",
-      "context": "This change simplifies the reward system by making block payouts predictable and easier to debug, maintaining the same daily issuance rate (86,400 x 500 = 43,200,000 KAS/day).",
+      "context": "Improved energy efficiency is critical for addressing concerns about Proof-of-Work mining’s environmental and political viability, especially as Kaspa plans for mass adoption.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part IV, last)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+        "published": "2023-05-03"
+      },
+      "extracted_at": "2025-06-30T23:43:09.029191"
+    },
+    {
+      "fact": "For Kaspa, virtually instantaneous confirmation times in a permissionless consensus require a CapEx-heavy (ASIC-dominated) mining environment.",
+      "category": "consensus",
+      "impact": "high",
+      "context": "Instant confirmation times are only sustainable if the mining market is illiquid (mostly CapEx), reducing 51% attack risks and aligning with Kaspa’s aims for fast, secure transactions.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part IV, last)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+        "published": "2023-05-03"
+      },
+      "extracted_at": "2025-06-30T23:43:09.029196"
+    },
+    {
+      "fact": "In Kaspa, capital expenditure (CapEx)—rather than operational expenditure (OpEx, e.g., GPU mining)—is being positioned as the dominant cost in mining’s future.",
+      "category": "mining",
+      "impact": "medium",
+      "context": "High CapEx entry requirements reduce the ability for attackers to cheaply influence network consensus, increasing network resilience.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part IV, last)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+        "published": "2023-05-03"
+      },
+      "extracted_at": "2025-06-30T23:43:09.029200"
+    },
+    {
+      "fact": "DAGKNIGHT (DK) is a protocol developed by Yonatan Sompolinsky and Sutton, intended for integration with Kaspa, and its main technical TODOs are detailed in KIP #2.",
+      "category": "technical",
+      "impact": "high",
+      "context": "Introducing and implementing the DAGKNIGHT protocol is a major consensus and performance upgrade for Kaspa, and KIP #2 formally documents the steps needed.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part III)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
+        "published": "2022-12-14"
+      },
+      "extracted_at": "2025-06-30T23:43:20.953740"
+    },
+    {
+      "fact": "The previous community-funded development grant for Kaspa was 100 million KAS (MKAS), equivalent to approximately 1% of the then circulating supply.",
+      "category": "governance",
+      "impact": "medium",
+      "context": "Establishes a precedent for the scale of funding given to core protocol upgrades via community consensus.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part III)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
+        "published": "2022-12-14"
+      },
+      "extracted_at": "2025-06-30T23:43:20.953755"
+    },
+    {
+      "fact": "A new development grant proposal for implementing DAGKNIGHT on Kaspa has been submitted, requesting 70 MKAS (~0.5% of circulating supply).",
+      "category": "governance",
+      "impact": "medium",
+      "context": "This mirrors the funding approach used for KAS protocol development, reflecting ongoing use of on-chain/in-community funding for major network upgrades.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part III)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
+        "published": "2022-12-14"
+      },
+      "extracted_at": "2025-06-30T23:43:20.953761"
+    },
+    {
+      "fact": "The development and release of Kaspa mainnet by DAGlabs was done without a premine, heads-up on mining, founders' rewards, or similar incentives.",
+      "category": "governance",
+      "impact": "high",
+      "context": "This highlights the protocol’s launch — notable for its absence of private or early allocation, meaning all coins were publicly mined from genesis.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part III)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
+        "published": "2022-12-14"
+      },
+      "extracted_at": "2025-06-30T23:43:20.953767"
+    },
+    {
+      "fact": "The timeline and completion of DAGKNIGHT integration on Kaspa are not strictly dependent on grant approval: the protocol authors intend to implement it regardless, but formal grant funding would accelerate development.",
+      "category": "development",
+      "impact": "high",
+      "context": "If the grant is not approved by the community, progress on DAGKNIGHT may be slower or completed on a non-specific timeline, potentially affecting upgrade timing.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part III)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
+        "published": "2022-12-14"
+      },
+      "extracted_at": "2025-06-30T23:43:20.953771"
+    },
+    {
+      "fact": "The DAGKNIGHT (DK) protocol, published by Michal Sutton and Yonatan Sompolinsky, claims to be the first Proof-of-Work (PoW) consensus protocol that is responsive to the network’s actual adversarial latency while being resilient to 49% Byzantine attackers.",
+      "category": "consensus",
+      "impact": "high",
+      "context": "This represents a new design in PoW consensus, offering improved security and responsiveness under real network conditions.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498894"
+    },
+    {
+      "fact": "DK enables high blocks-per-second (bps) like Kaspa’s existing GHOSTDAG but provides much faster confirmation times.",
+      "category": "consensus",
+      "impact": "high",
+      "context": "Improved confirmation time can significantly enhance user experience and transaction finality in high-throughput blockchain environments.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498910"
+    },
+    {
+      "fact": "Further research is necessary to determine the optimal blocks-per-second for DK, as increasing block rates may widen the DAG and increase block header size, potentially offsetting confirmation time improvements.",
+      "category": "development",
+      "impact": "medium",
+      "context": "Tuning block rates is critical for network performance and efficiency.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498916"
+    },
+    {
+      "fact": "The current DK pseudocode is highly inefficient and must be refined for real-world implementation, focusing on devising efficient algorithms.",
+      "category": "development",
+      "impact": "medium",
+      "context": "Practical deployment requires the protocol to be computationally and resource efficient.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498921"
+    },
+    {
+      "fact": "The DK protocol must be adapted to manage cryptocurrency-specific requirements such as minting regulation, difficulty control, and pruning, which require a responsive synchronous protocol, instead of DK’s current partially synchronous operation mode.",
+      "category": "development",
+      "impact": "high",
+      "context": "Without these adaptations, DK cannot be deployed as a working consensus mechanism for cryptocurrencies like Kaspa.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498926"
+    },
+    {
+      "fact": "DK uniquely supports features such as flexcaps, allowing miners to create blocks with variable sizes and difficulties without predefined DAG width constraints.",
+      "category": "consensus",
+      "impact": "medium",
+      "context": "Flexcaps can help handle peak demand by temporarily increasing throughput, which is challenging in other protocols due to DAG width requirements.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498931"
+    },
+    {
+      "fact": "DK’s protocol asynchrony in high bps environments could be utilized to enhance privacy (via stealth transactions) and reduce Miner Extractable Value (MEV), supporting advanced fee mechanisms similar to those proposed by Flashbots’ SUAVE.",
+      "category": "security",
+      "impact": "medium",
+      "context": "These features could make the protocol more resilient to front-running and other MEV-related behaviors, enhancing user security and privacy.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498935"
+    },
+    {
+      "fact": "Completing DK’s formal proof, paper for peer-review, and efficient implementation are prerequisites before the protocol is considered for inclusion in Kaspa.",
+      "category": "development",
+      "impact": "high",
+      "context": "Academic scrutiny and technical readiness are essential before any consensus upgrade.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498940"
+    },
+    {
+      "fact": "Any consensus upgrade (such as implementing DK) will require a new grant proposal to the Kaspa community, similar to the recent Rust upgrade.",
+      "category": "governance",
+      "impact": "medium",
+      "context": "Community governance and funding are necessary for coordinating and implementing major protocol changes.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part II)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+        "published": "2022-11-26"
+      },
+      "extracted_at": "2025-06-30T23:43:39.498944"
+    },
+    {
+      "fact": "One of Kaspa’s core developers, Michael Sutton, proposed refactoring the Kaspad full-node codebase and rewriting it in Rust to significantly enhance performance.",
+      "category": "development",
+      "impact": "high",
+      "context": "Transitioning to Rust is expected to improve modularity, code legibility, and potentially order-of-magnitude performance increases for Kaspa nodes.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part I)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+        "published": "2022-07-05"
+      },
+      "extracted_at": "2025-06-30T23:43:44.732147"
+    },
+    {
+      "fact": "The current Kaspad codebase is an adaptation of the Bitcoin client btcd and is written in Golang.",
+      "category": "development",
+      "impact": "medium",
+      "context": "The inherited structure leads to technical debt and code complexity, making contributions difficult for new developers.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part I)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+        "published": "2022-07-05"
+      },
+      "extracted_at": "2025-06-30T23:43:44.732162"
+    },
+    {
+      "fact": "The proposed refactor aims to make the codebase more modular and easier to understand, beyond just improving performance.",
+      "category": "development",
+      "impact": "high",
+      "context": "Improved structure and readability can enhance community contribution and the maintainability of the project.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part I)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+        "published": "2022-07-05"
+      },
+      "extracted_at": "2025-06-30T23:43:44.732168"
+    },
+    {
+      "fact": "Kaspa was initially launched as a live demonstration of a novel permissionless consensus paradigm.",
+      "category": "consensus",
+      "impact": "medium",
+      "context": "The project's primary goal was to showcase new consensus concepts, influencing design and development priorities.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part I)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+        "published": "2022-07-05"
+      },
+      "extracted_at": "2025-06-30T23:43:44.732173"
+    },
+    {
+      "fact": "Kaspa was originally released in a \"gamenet\" mode, described as \"testnet with incentives.\"",
+      "category": "governance",
+      "impact": "medium",
+      "context": "This launch mode provided real-world testing conditions with incentivized participation, influencing network reliability and growth.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part I)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+        "published": "2022-07-05"
+      },
+      "extracted_at": "2025-06-30T23:43:44.732178"
+    },
+    {
+      "fact": "Kaspa’s development and treasury are managed by a small group of volunteers, and the treasury is contribution-based.",
+      "category": "governance",
+      "impact": "medium",
+      "context": "The limited resources affect the rate and direction of development, including decisions about major technical undertakings like a Rust rewrite.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa where to (Part I)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+        "published": "2022-07-05"
+      },
+      "extracted_at": "2025-06-30T23:43:44.732182"
+    },
+    {
+      "fact": "The random block reward has been removed; Kaspa now uses a deterministic block reward of 500 Kaspa per block.",
+      "category": "mining",
+      "impact": "medium",
+      "context": "Simplifies logic and debugging; ensures predictable daily mining rewards of 43,200,000 Kaspa.",
       "source": {
         "type": "medium_article",
         "title": "Kaspa (Black Tuesday)",
@@ -378,251 +448,321 @@
         "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
         "published": "2021-11-23"
       },
-      "extracted_at": "2025-06-30T22:34:55.001006"
+      "extracted_at": "2025-06-30T23:43:49.986264"
     },
     {
-      "fact": "The upcoming Kaspa rebase is a cosmetic change; it alters only the representation of amounts but does not affect users' proportional ownership of the token supply.",
+      "fact": "A rebase of Kaspa is planned, which will be cosmetic only (a renaming/altering of representation) and will not affect user balances or proportional ownership.",
+      "category": "development",
+      "impact": "low",
+      "context": "Users' percentage ownership of total or circulating supply will remain unchanged after the rebase.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa (Black Tuesday)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-23"
+      },
+      "extracted_at": "2025-06-30T23:43:49.986278"
+    },
+    {
+      "fact": "A deflationary monetary policy hard fork (HF) is planned and will be specified the week after network syncing and mining resume.",
+      "category": "governance",
+      "impact": "high",
+      "context": "The upcoming HF will impact Kaspa’s monetary policy; details to be released after network stabilization.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa (Black Tuesday)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-23"
+      },
+      "extracted_at": "2025-06-30T23:43:49.986284"
+    },
+    {
+      "fact": "For network recovery after the crash, the team sought the latest state with a certainly-valid UTXO commitment, not an arbitrary rollback to an old state.",
+      "category": "consensus",
+      "impact": "medium",
+      "context": "This approach ensures the preservation of valid transaction history and UTXO set continuity.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa (Black Tuesday)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-23"
+      },
+      "extracted_at": "2025-06-30T23:43:49.986289"
+    },
+    {
+      "fact": "The UTXO commitment obtained during network recovery matched the commitment in the latest block, specifically hash 710f27df423e63aa6cdb72b89ea5a06cffa399d66f167704455b5af59def8e20.",
+      "category": "security",
+      "impact": "high",
+      "context": "Validates that the DAG UTXO algebra remained correct, confirming integrity of the ledger after the recovery attempt.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa (Black Tuesday)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-23"
+      },
+      "extracted_at": "2025-06-30T23:43:49.986294"
+    },
+    {
+      "fact": "The network crash was attributed to a memory problem, not to an error in the DAG UTXO algebra.",
+      "category": "security",
+      "impact": "medium",
+      "context": "Indicates that the underlying design is sound but susceptible to infrastructure issues, suggesting need for module architecture improvements.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa (Black Tuesday)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-23"
+      },
+      "extracted_at": "2025-06-30T23:43:49.986298"
+    },
+    {
+      "fact": "Kaspa's monetary policy will be deflationary, with a halving schedule that is more aggressive than Bitcoin's.",
+      "category": "technical",
+      "impact": "high",
+      "context": "Aggressive deflationary schedules directly impact coin supply, scarcity, and long-term economic incentives for miners and holders.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606825"
+    },
+    {
+      "fact": "The initial block reward and activation timing for the deflationary schedule are still to be determined, with decisions likely in the following week.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "The specific numbers for initial rewards and schedule will determine mining incentives and emission rates.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606840"
+    },
+    {
+      "fact": "Kaspa uses a custom proof-of-work algorithm: a Kaspa variant of heavy-hash, referred to as \"k-heavy-hash.\"",
+      "category": "mining",
+      "impact": "high",
+      "context": "Choice of proof-of-work impacts hardware compatibility, security, and energy consumption.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606846"
+    },
+    {
+      "fact": "\"k-heavy-hash\" is designed to be CapEx heavy, aiming for energy efficiency and greater miner commitment.",
+      "category": "mining",
+      "impact": "medium",
+      "context": "CapEx heavy algorithms aim to reduce operational costs and encourage longer-term investment in mining infrastructure.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606851"
+    },
+    {
+      "fact": "Kaspa's development is maintained by a small number of part-time developers, some funded by DAGlabs, with no formal company or overarching entity behind the project.",
+      "category": "governance",
+      "impact": "medium",
+      "context": "Project governance and decentralization can affect development speed, security, and community trust.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606856"
+    },
+    {
+      "fact": "Near-term development priorities include increasing the block rate to 10 blocks per second and implementing an upgrade to the consensus protocol, pending theoretical research results.",
+      "category": "development",
+      "impact": "high",
+      "context": "Boosting block throughput and improving consensus directly affects scalability, transaction speed, and underlying protocol security.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606861"
+    },
+    {
+      "fact": "Upcoming hard fork (HF) planned for the next week to fix a bug and reduce header size.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Regular hard forks for bug fixes and optimizations keep the network secure and efficient, affecting node and miner operations.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606866"
+    },
+    {
+      "fact": "Another hard fork is planned a few weeks later to implement the finalized monetary policy.",
+      "category": "technical",
+      "impact": "high",
+      "context": "Embedding monetary policy at the protocol level locks in economic parameters for the network.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606870"
+    },
+    {
+      "fact": "Deployment of a block explorer is planned for the following week.",
       "category": "technical",
       "impact": "low",
-      "context": "Holders will retain the same percentage of tokens (total or circulating supply) after the rebase, with no effect on balances.",
+      "context": "A block explorer increases transparency and usability for users and developers interacting with the blockchain.",
       "source": {
         "type": "medium_article",
-        "title": "Kaspa (Black Tuesday)",
+        "title": "Kaspa launch plan (responding to reality)",
         "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-23"
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
       },
-      "extracted_at": "2025-06-30T22:34:55.001023"
+      "extracted_at": "2025-06-30T23:43:56.606875"
     },
     {
-      "fact": "Details of a planned deflationary monetary policy hard fork (HF) for the Kaspa network will be specified in the week following network recovery.",
+      "fact": "The network encourages stress testing for UTXO throughput, but advises waiting until the system is stable for at least two weeks after major changes.",
+      "category": "technical",
+      "impact": "low",
+      "context": "Stress testing helps identify potential scalability and stability issues under load after updates.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan (responding to reality)",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+        "published": "2021-11-18"
+      },
+      "extracted_at": "2025-06-30T23:43:56.606879"
+    },
+    {
+      "fact": "Kaspa is proposed to launch in \"gamenet mode,\" which is a research-oriented experimental network rather than a standard mainnet cryptocurrency launch.",
       "category": "development",
       "impact": "high",
-      "context": "The deflationary HF is a significant protocol change that will affect token economics and mining rewards, but specifics were not finalized at the time of the article.",
+      "context": "Gamenet mode is designed to enable experimentation and attack simulations before transitioning to a commercial mainnet, allowing for robust testing of the protocol.",
       "source": {
         "type": "medium_article",
-        "title": "Kaspa (Black Tuesday)",
+        "title": "Kaspa launch plan",
         "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-23"
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+        "published": "2021-09-22"
       },
-      "extracted_at": "2025-06-30T22:34:55.001029"
+      "extracted_at": "2025-06-30T23:44:06.866572"
     },
     {
-      "fact": "In restoring the Kaspa network after the crash, developers did not pursue a traditional rollback but instead searched for the latest state with a verifiable UTXO commitment.",
-      "category": "security",
-      "impact": "high",
-      "context": "This approach preserved chain integrity and minimized loss by ensuring only the most recent valid, consensual state was used for recovery.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa (Black Tuesday)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-23"
-      },
-      "extracted_at": "2025-06-30T22:34:55.001034"
-    },
-    {
-      "fact": "The developers validated the state by comparing reconstructed UTXO commitments against those embedded in the latest block, successfully matching the hash 710f27df423e63aa6cdb72b89ea5a06cffa399d66f167704455b5af59def8e20.",
-      "category": "security",
-      "impact": "medium",
-      "context": "Confirming the UTXO commitment ensured that the DAG UTXO algebra was correct and that the crash was due to a memory issue, not a protocol error.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa (Black Tuesday)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-23"
-      },
-      "extracted_at": "2025-06-30T22:34:55.001039"
-    },
-    {
-      "fact": "The network failure was attributed to a memory problem affecting the state database, not to an inherent flaw in the UTXO commitment or DAG architecture.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "This distinction guides future development focus towards improving module architecture to safeguard against database-related failures.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa (Black Tuesday)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-23"
-      },
-      "extracted_at": "2025-06-30T22:34:55.001043"
-    },
-    {
-      "fact": "Kaspa’s monetary policy will be deflationary, with halvings scheduled to be more aggressive than Bitcoin’s due to faster market discovery.",
+      "fact": "The initial Kaspa token will have a deliberately uncertain and semi-scarce monetary policy, making it unsuitable for commercialization and exchange listing.",
       "category": "technical",
       "impact": "high",
-      "context": "This will affect coin supply, issuance rate, and overall economics of the network.",
+      "context": "The intention is to discourage the token from becoming a tradable asset in early stages, focusing instead on drawing in hardcore crypto communities interested in research and experimentation.",
       "source": {
         "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
+        "title": "Kaspa launch plan",
         "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+        "published": "2021-09-22"
       },
-      "extracted_at": "2025-06-30T22:35:04.177387"
+      "extracted_at": "2025-06-30T23:44:06.866588"
     },
     {
-      "fact": "The initial block reward and the timeline for activating deflationary scheduling are to be determined, but the current average block reward is approximately 500 Kaspa.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "Initial reward and schedule directly set issuance and motivate network participation.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177402"
-    },
-    {
-      "fact": "Kaspa uses a variant of the heavy-hash proof-of-work algorithm, named k-heavy-hash.",
-      "category": "mining",
-      "impact": "high",
-      "context": "The PoW algorithm determines mining hardware requirements and ASIC resistance.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177408"
-    },
-    {
-      "fact": "K-heavy-hash is designed with the goal of being CapEx heavy (more reliant on hardware investment) rather than OpEx heavy (energy consumption).",
+      "fact": "Kaspa's platform is designed to be CPU/GPU mineable, with Ethash being suggested as a neutral mining algorithm candidate.",
       "category": "mining",
       "impact": "medium",
-      "context": "CapEx heavy PoW aims for energy efficiency and greater miner commitment.",
+      "context": "CPU/GPU mining supports broader accessibility and participation in the early experimental network phase.",
       "source": {
         "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
+        "title": "Kaspa launch plan",
         "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+        "published": "2021-09-22"
       },
-      "extracted_at": "2025-06-30T22:35:04.177413"
+      "extracted_at": "2025-06-30T23:44:06.866594"
     },
     {
-      "fact": "The Kaspa project is maintained by a small number of part-time developers, some of whom are part-funded by DAGlabs, but there is no central company or official entity responsible for the network, wallets, or miners.",
+      "fact": "The initial gamenet launch will feature deliberately low security and low hashrate due to uncertain token scarcity and noncommercial nature.",
+      "category": "security",
+      "impact": "medium",
+      "context": "This environment is intended for experimentation, including attack simulations, rather than commercial use.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+        "published": "2021-09-22"
+      },
+      "extracted_at": "2025-06-30T23:44:06.866599"
+    },
+    {
+      "fact": "The gamenet's block rewards are designed to incentivize real-world attack simulations, such as reward-based and MEV-based reorgs, including selfish mining and miner extractable value (MEV) exploits.",
+      "category": "security",
+      "impact": "high",
+      "context": "The network is intended as a live testbed for studying the effects and dynamics of advanced cryptoeconomic attacks in practice.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+        "published": "2021-09-22"
+      },
+      "extracted_at": "2025-06-30T23:44:06.866614"
+    },
+    {
+      "fact": "Gamenet 2.0 is proposed to include the development of an Ethereum bridge to simulate and practice MEV-reorgs, in order to test and demonstrate DAG consensus antifragility.",
+      "category": "development",
+      "impact": "high",
+      "context": "Integrating with Ethereum enables the replication of real-world MEV dynamics and tests of the consensus algorithm's robustness.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+        "published": "2021-09-22"
+      },
+      "extracted_at": "2025-06-30T23:44:06.866619"
+    },
+    {
+      "fact": "Kaspa currently lacks EVM (Ethereum Virtual Machine) support.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Without EVM support, smart contract compatibility and broader market integration are limited in the early stages.",
+      "source": {
+        "type": "medium_article",
+        "title": "Kaspa launch plan",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+        "published": "2021-09-22"
+      },
+      "extracted_at": "2025-06-30T23:44:06.866624"
+    },
+    {
+      "fact": "The proposal calls for attracting research and developer groups to compete, collaborate, and experiment on the live gamenet system, for the study of consensus and attack vectors in practical settings.",
       "category": "governance",
       "impact": "medium",
-      "context": "Decentralized, community-led development may impact support and speed of technical responses.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177418"
-    },
-    {
-      "fact": "A hard fork is planned next week to fix a bug and decrease the header size.",
-      "category": "development",
-      "impact": "high",
-      "context": "Node operators and miners must update their software to remain compatible and secure.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177422"
-    },
-    {
-      "fact": "A subsequent hard fork will take place a few weeks later to embed the new monetary policy.",
-      "category": "development",
-      "impact": "high",
-      "context": "Embedding monetary policy in consensus will change economic parameters network-wide.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177427"
-    },
-    {
-      "fact": "The roadmap includes the plan to gradually accelerate the block rate to 10 blocks per second, following bug fixes and version updates.",
-      "category": "technical",
-      "impact": "high",
-      "context": "Increased block rate enhances network scalability and transaction throughput.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177432"
-    },
-    {
-      "fact": "An upgrade to the consensus protocol is planned, pending theoretical research results from Michael Sutton.",
-      "category": "consensus",
-      "impact": "medium",
-      "context": "Consensus upgrades can improve performance, security, and future capabilities.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177437"
-    },
-    {
-      "fact": "There is an intention to implement privacy enhancements, such as Bulletproofs, alongside ongoing development.",
-      "category": "security",
-      "impact": "medium",
-      "context": "Bulletproofs or similar privacy features would increase transaction confidentiality.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177442"
-    },
-    {
-      "fact": "Stress testing for UTXO throughput is open, but bug fixes may be delayed due to limited developer resources. It is suggested to wait until the system is stable for at least two weeks before intensive testing.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "Throughput and stability tests must balance discovery of weaknesses with available dev support for fixes.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177461"
-    },
-    {
-      "fact": "A block explorer is planned for deployment by developers in the upcoming week.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "A block explorer provides transparency and usability for network participants.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan (responding to reality)",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-        "published": "2021-11-18"
-      },
-      "extracted_at": "2025-06-30T22:35:04.177470"
-    },
-    {
-      "fact": "Kaspa is proposed to launch in \"gamenet mode,\" a research-oriented experimental network rather than a standard mainnet.",
-      "category": "development",
-      "impact": "high",
-      "context": "Launching in experimental mode allows for real-world cryptoeconomic testing and innovation before transitioning to a commercial blockchain.",
+      "context": "Engaging the R&D community helps generate credible insights into cryptoeconomic dynamics and stress-test the protocol.",
       "source": {
         "type": "medium_article",
         "title": "Kaspa launch plan",
@@ -630,55 +770,13 @@
         "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
         "published": "2021-09-22"
       },
-      "extracted_at": "2025-06-30T22:35:12.295197"
+      "extracted_at": "2025-06-30T23:44:06.866631"
     },
     {
-      "fact": "Kaspa will inject deliberate \"fragility\" via a random, semi-scarce monetary policy during its gamenet phase.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "Introducing uncertain supply mechanics encourages experimentation and prevents early commercialization.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-        "published": "2021-09-22"
-      },
-      "extracted_at": "2025-06-30T22:35:12.295233"
-    },
-    {
-      "fact": "Gamenet will serve as a testbed for reward-based and MEV (Miner Extractable Value)-based chain reorganizations (reorgs).",
-      "category": "consensus",
-      "impact": "high",
-      "context": "Testing reorgs and MEV scenarios provides insights into the network's resistance to various attack vectors.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-        "published": "2021-09-22"
-      },
-      "extracted_at": "2025-06-30T22:35:12.295239"
-    },
-    {
-      "fact": "Initial mining will be open to CPU/GPU miners, with Ethash suggested as the candidate PoW algorithm.",
-      "category": "mining",
-      "impact": "medium",
-      "context": "Allowing CPU/GPU mining promotes decentralization and accessibility in the network's early stages.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-        "published": "2021-09-22"
-      },
-      "extracted_at": "2025-06-30T22:35:12.295243"
-    },
-    {
-      "fact": "The initial Kaspa token will be \"deliberately unfit for commercialization\" with supply characteristics designed to avoid exchange listings.",
+      "fact": "There is a planned transition phase (cryptoeconomics phase 2) in which Kaspa will solidify its monetary policy, recover token scarcity, and compensate early participants as the network matures.",
       "category": "governance",
       "impact": "medium",
-      "context": "Prevents premature commercialization and encourages participation for research and development purposes rather than profit.",
+      "context": "As the network and community grow, sustainable economics and security are to be established for a commercial mainnet launch.",
       "source": {
         "type": "medium_article",
         "title": "Kaspa launch plan",
@@ -686,83 +784,27 @@
         "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
         "published": "2021-09-22"
       },
-      "extracted_at": "2025-06-30T22:35:12.295248"
+      "extracted_at": "2025-06-30T23:44:06.866635"
     },
     {
-      "fact": "During the gamenet phase, the platform will operate with low hashrate and security, functioning primarily as a sandbox environment.",
-      "category": "security",
-      "impact": "medium",
-      "context": "Lower security is accepted at this stage to enable experimentation, with an understanding that this is not yet a production environment.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-        "published": "2021-09-22"
-      },
-      "extracted_at": "2025-06-30T22:35:12.295253"
-    },
-    {
-      "fact": "Gamenet activities include incentivizing reorgs/selfish-mining and simulating MEV exploits similar to those observed in DeFi platforms like Ethereum.",
-      "category": "consensus",
+      "fact": "SPV (Simplified Payment Verification) sync mode based on multiplicative-hash UTXO-commitments is referenced as a technical approach.",
+      "category": "technical",
       "impact": "high",
-      "context": "Provides an environment for strategic manipulation and analysis of vulnerabilities, contributing to better mitigation strategies.",
+      "context": "Multiplicative-hash UTXO-commitments are referenced as a basis for an SPV mode, suggesting a method for lightweight clients to securely sync with limited resources.",
       "source": {
         "type": "medium_article",
-        "title": "Kaspa launch plan",
+        "title": "In which mayday mayday we are syncing about*",
         "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-        "published": "2021-09-22"
+        "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
+        "published": "2021-05-05"
       },
-      "extracted_at": "2025-06-30T22:35:12.295258"
+      "extracted_at": "2025-06-30T23:44:10.623474"
     },
     {
-      "fact": "The plan includes development of an Ethereum bridge in \"gamenet 2.0\" to simulate/practice MEV-reorgs and test the DAG consensus’ antifragility.",
-      "category": "development",
-      "impact": "medium",
-      "context": "Interacting with Ethereum enhances the realism and value of MEV/reorg simulations on Kaspa.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-        "published": "2021-09-22"
-      },
-      "extracted_at": "2025-06-30T22:35:12.295264"
-    },
-    {
-      "fact": "The ultimate transition from gamenet to mainnet will involve solidifying the monetary policy and instituting full scarcity, rewarding early gamenet miners retrospectively.",
-      "category": "governance",
+      "fact": "Cryptocurrencies’ main technical advantages are predictable issuance and censorship resistance.",
+      "category": "technical",
       "impact": "high",
-      "context": "Ensures early community participants are compensated and allows the blockchain to evolve from research to production-grade.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-        "published": "2021-09-22"
-      },
-      "extracted_at": "2025-06-30T22:35:12.295269"
-    },
-    {
-      "fact": "Kaspa currently has no EVM support.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "Limits current DeFi and smart contract compatibility, indicating a focus on core consensus and cryptoeconomic experiments.",
-      "source": {
-        "type": "medium_article",
-        "title": "Kaspa launch plan",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-        "published": "2021-09-22"
-      },
-      "extracted_at": "2025-06-30T22:35:12.295273"
-    },
-    {
-      "fact": "SPV (Simple Payment Verification) sync mode can be based on multiplicative-hash UTXO-commitments.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "This proposes a way to achieve efficient syncing for lightweight clients by leveraging multiplicative-hash commitments to the UTXO set, rather than downloading and validating the full historical chain.",
+      "context": "Predictable issuance ensures transparent and scheduled supply, while censorship resistance ensures transactions cannot be arbitrarily blocked or controlled.",
       "source": {
         "type": "medium_article",
         "title": "In which mayday mayday we are syncing about*",
@@ -770,55 +812,13 @@
         "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
         "published": "2021-05-05"
       },
-      "extracted_at": "2025-06-30T22:35:18.298968"
+      "extracted_at": "2025-06-30T23:44:10.623488"
     },
     {
-      "fact": "The article asserts that verifying by yourself the proper functioning of all external systems you rely on (such as money, transportation, etc.) is infeasible and unscalable.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "This highlights the trade-off between trust and verification mechanisms in decentralized systems, suggesting full validation by every user is not practical at scale.",
-      "source": {
-        "type": "medium_article",
-        "title": "In which mayday mayday we are syncing about*",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
-        "published": "2021-05-05"
-      },
-      "extracted_at": "2025-06-30T22:35:18.298985"
-    },
-    {
-      "fact": "Predictable issuance and censorship resistance are identified as the primary advantages of cryptocurrencies over fiat currencies.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "This refocuses technical priorities in cryptocurrency design and user assessment on issuance schedule predictability and transaction censorship resistance, rather than on perfect historical consistency.",
-      "source": {
-        "type": "medium_article",
-        "title": "In which mayday mayday we are syncing about*",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
-        "published": "2021-05-05"
-      },
-      "extracted_at": "2025-06-30T22:35:18.298990"
-    },
-    {
-      "fact": "The article claims that, for users joining a cryptocurrency system, checking its issuance and decentralization is more important than checking the historical validity of all past transactions.",
-      "category": "technical",
-      "impact": "medium",
-      "context": "This suggests a potential shift in implementation and usage norm, where efficient validation methods (like UTXO-commitments) may be preferable to full node historical validation for the majority of users.",
-      "source": {
-        "type": "medium_article",
-        "title": "In which mayday mayday we are syncing about*",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
-        "published": "2021-05-05"
-      },
-      "extracted_at": "2025-06-30T22:35:18.298995"
-    },
-    {
-      "fact": "The primary goal of consensus systems is stated to be facilitating agreement, not necessarily enforcing historical consistency.",
+      "fact": "The author asserts that the primary goal of consensus systems is facilitating agreement, not enforcing consistency.",
       "category": "consensus",
       "impact": "medium",
-      "context": "This represents an explicit prioritization within consensus protocol design, influencing how settlement finality and validation should be approached.",
+      "context": "This suggests a philosophical and technical distinction in blockchain design priorities, potentially impacting consensus protocol implementations.",
       "source": {
         "type": "medium_article",
         "title": "In which mayday mayday we are syncing about*",
@@ -826,27 +826,13 @@
         "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
         "published": "2021-05-05"
       },
-      "extracted_at": "2025-06-30T22:35:18.299001"
+      "extracted_at": "2025-06-30T23:44:10.623493"
     },
     {
-      "fact": "Cryptocurrency users' safety against unsafe networks is partially predicated on the ability to efficiently communicate and diffuse information about protocol breaches or fraud, with the internet serving this role.",
-      "category": "security",
-      "impact": "medium",
-      "context": "This highlights the importance of timely and broad communication mechanisms for network health, possibly reducing reliance on strict historical validation if information on breaches can quickly reach all users.",
-      "source": {
-        "type": "medium_article",
-        "title": "In which mayday mayday we are syncing about*",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
-        "published": "2021-05-05"
-      },
-      "extracted_at": "2025-06-30T22:35:18.299005"
-    },
-    {
-      "fact": "Bitcoin’s confirmation time is commonly referenced as being governed by its average 10-minute block interval, with users often waiting for multiple subsequent blocks to increase finality.",
+      "fact": "Faster block times (block liveness) can reduce confirmation times for crypto payments, depending on the paradigm used for transaction authorization.",
       "category": "consensus",
-      "impact": "high",
-      "context": "The speed at which blocks are produced directly relates to how quickly transactions can be considered safe from reversal, affecting user experience and practical utility.",
+      "impact": "medium",
+      "context": "If users or merchants wait for a certain number of blocks for transaction finality, then accelerating block production directly decreases the waiting time until a transaction is considered confirmed, improving usability for real-time payments.",
       "source": {
         "type": "medium_article",
         "title": "In which I have no patience to wait ’til by and by*",
@@ -854,13 +840,13 @@
         "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
         "published": "2020-12-28"
       },
-      "extracted_at": "2025-06-30T22:35:28.779161"
+      "extracted_at": "2025-06-30T23:44:18.601366"
     },
     {
-      "fact": "There are two paradigms for how merchants (or users) wait for transaction confirmation: (1) waiting for a certain number of blocks to be mined after a transaction, or (2) waiting for a fixed amount of time to pass after the transaction.",
+      "fact": "There are two paradigms for authorizing cryptocurrency payments: one based on the number of blocks elapsed (block-based confirmation), and another based on elapsed absolute time (time-based confirmation).",
       "category": "consensus",
       "impact": "medium",
-      "context": "The paradigm chosen affects whether reducing block time actually shortens confirmation time from the viewpoint of transaction security.",
+      "context": "The paradigm chosen affects whether faster block rates actually result in faster practical confirmation for users and merchants.",
       "source": {
         "type": "medium_article",
         "title": "In which I have no patience to wait ’til by and by*",
@@ -868,41 +854,13 @@
         "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
         "published": "2020-12-28"
       },
-      "extracted_at": "2025-06-30T22:35:28.779176"
+      "extracted_at": "2025-06-30T23:44:18.601381"
     },
     {
-      "fact": "In the paradigm where a certain number of blocks is required for confirmation, faster block times reduce the waiting/confirmation time directly.",
-      "category": "consensus",
-      "impact": "medium",
-      "context": "Network parameter choices such as block interval have an immediate effect on transaction finality for users and businesses.",
-      "source": {
-        "type": "medium_article",
-        "title": "In which I have no patience to wait ’til by and by*",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
-        "published": "2020-12-28"
-      },
-      "extracted_at": "2025-06-30T22:35:28.779181"
-    },
-    {
-      "fact": "In the paradigm where a specific time interval must pass to confirm transactions, reducing block times does not reduce confirmation waiting, since absolute elapsed time is the security metric.",
-      "category": "consensus",
-      "impact": "medium",
-      "context": "Some security models use elapsed time rather than block count to judge transaction safety, placing less emphasis on block interval as a security or usability factor.",
-      "source": {
-        "type": "medium_article",
-        "title": "In which I have no patience to wait ’til by and by*",
-        "author": "Yonatan Sompolinsky",
-        "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
-        "published": "2020-12-28"
-      },
-      "extracted_at": "2025-06-30T22:35:28.779186"
-    },
-    {
-      "fact": "The post refers to the concept of security budget, quantifying the hourly spending by miners (e.g., miners’ operational costs) versus the much larger total asset value of the Bitcoin network.",
+      "fact": "The security budget in cryptocurrency mining (e.g., Bitcoin) refers to the revenue miners receive for securing the network, which is substantially smaller than the total value secured by the network.",
       "category": "security",
       "impact": "high",
-      "context": "The relationship between security budget and network value is important for assessing potential vulnerabilities such as 51% or reorg attacks, especially by well-resourced adversaries.",
+      "context": "Discrepancy between the network’s value and its security budget can pose risks, as attackers might be able to spend more attacking the network than the total mining reward intended to prevent such attacks.",
       "source": {
         "type": "medium_article",
         "title": "In which I have no patience to wait ’til by and by*",
@@ -910,13 +868,13 @@
         "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
         "published": "2020-12-28"
       },
-      "extracted_at": "2025-06-30T22:35:28.779191"
+      "extracted_at": "2025-06-30T23:44:18.601388"
     },
     {
-      "fact": "A link is provided to the Kaspa cryptocurrency’s GitHub at https://github.com/kaspanet, referencing an alternative cryptocurrency aiming for fast block times.",
-      "category": "development",
+      "fact": "In Bitcoin, if the security model is based on block confirmations, higher block rates can improve security against certain classes of attacks by reducing the window for attackers to outpace the honest chain.",
+      "category": "security",
       "impact": "medium",
-      "context": "Kaspa is positioned as an example of a cryptocurrency designed to address user-facing liveness/confirmation issues through technical means such as faster block production.",
+      "context": "This affects how quickly transactions can be regarded as final and potentially deters short-term double-spend or reorganization attacks.",
       "source": {
         "type": "medium_article",
         "title": "In which I have no patience to wait ’til by and by*",
@@ -924,16 +882,44 @@
         "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
         "published": "2020-12-28"
       },
-      "extracted_at": "2025-06-30T22:35:28.779196"
+      "extracted_at": "2025-06-30T23:44:18.601393"
+    },
+    {
+      "fact": "If a time-based paradigm for confirmation is used (waiting a fixed amount of time rather than a number of blocks), faster block rates do not improve confirmation times.",
+      "category": "consensus",
+      "impact": "medium",
+      "context": "In such models, increasing block production has no direct impact on user-experienced transaction finality.",
+      "source": {
+        "type": "medium_article",
+        "title": "In which I have no patience to wait ’til by and by*",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
+        "published": "2020-12-28"
+      },
+      "extracted_at": "2025-06-30T23:44:18.601397"
+    },
+    {
+      "fact": "The design trade-off between faster confirmation times and network resilience, decentralization, or social scalability is a recognized consideration in blockchain consensus protocol development.",
+      "category": "consensus",
+      "impact": "medium",
+      "context": "Protocol designers must balance user experience (UX) against core security and scalability objectives.",
+      "source": {
+        "type": "medium_article",
+        "title": "In which I have no patience to wait ’til by and by*",
+        "author": "Yonatan Sompolinsky",
+        "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
+        "published": "2020-12-28"
+      },
+      "extracted_at": "2025-06-30T23:44:18.601401"
     }
   ],
   "facts_by_category": {
     "technical": [
       {
-        "fact": "Kaspa's Crescendo protocol achieves a 6000x improvement over Satoshi’s original Bitcoin protocol while maintaining the same trust model.",
+        "fact": "Kaspa's Crescendo achieves a 6000x improvement over Satoshi’s protocol while maintaining the same trust model.",
         "category": "technical",
         "impact": "high",
-        "context": "This emphasizes that Kaspa’s technical architecture represents a significant performance and scalability improvement over Bitcoin, while still adhering to a decentralized, anonymous-miner-driven trust structure.",
+        "context": "This improvement refers to scalability and/or performance enhancements in Kaspa over Bitcoin, while preserving a decentralized, trust-minimized architecture with anonymous miners.",
         "source": {
           "type": "medium_article",
           "title": "In which we are all faceless until we have faces (Part I)*",
@@ -941,13 +927,27 @@
           "url": "https://hashdag.medium.com/in-which-we-are-all-faceless-until-we-have-faces-part-i-5f100e0555a4?source=rss-400d0e2aab3b------2",
           "published": "2025-04-04"
         },
-        "extracted_at": "2025-06-30T22:34:11.862930"
+        "extracted_at": "2025-06-30T23:42:25.269716"
       },
       {
-        "fact": "DAGKNIGHT (DK) is a protocol designed by Sutton and Yonatan Sompolinsky, intended for real-world deployment in Kaspa, with outstanding technical TODOs documented in KIP #2.",
+        "fact": "Kaspa positions itself as a p2p electronic cash system and a trustworthy store of value, aiming to compete in the broader crypto and financial markets.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "This establishes Kaspa’s technical ambition to occupy a similar user and value proposition space as Bitcoin.",
+        "source": {
+          "type": "medium_article",
+          "title": "In which we are all faceless until we have faces (Part I)*",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/in-which-we-are-all-faceless-until-we-have-faces-part-i-5f100e0555a4?source=rss-400d0e2aab3b------2",
+          "published": "2025-04-04"
+        },
+        "extracted_at": "2025-06-30T23:42:25.269749"
+      },
+      {
+        "fact": "DAGKNIGHT (DK) is a protocol developed by Yonatan Sompolinsky and Sutton, intended for integration with Kaspa, and its main technical TODOs are detailed in KIP #2.",
         "category": "technical",
         "impact": "high",
-        "context": "DAGKNIGHT could affect Kaspa's core consensus protocol, and its TODOs are documented in the public KIP #2, guiding ongoing and future development.",
+        "context": "Introducing and implementing the DAGKNIGHT protocol is a major consensus and performance upgrade for Kaspa, and KIP #2 formally documents the steps needed.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part III)",
@@ -955,153 +955,97 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
           "published": "2022-12-14"
         },
-        "extracted_at": "2025-06-30T22:34:24.644644"
+        "extracted_at": "2025-06-30T23:43:20.953740"
       },
       {
-        "fact": "DAGKNIGHT is characterized as core infrastructure (infra) development for Kaspa, not targeting the smart contracts or application layer.",
+        "fact": "Kaspa's monetary policy will be deflationary, with a halving schedule that is more aggressive than Bitcoin's.",
         "category": "technical",
-        "impact": "medium",
-        "context": "Clarifies that DK focuses on foundational protocol improvements rather than user-facing functionality or financial applications.",
+        "impact": "high",
+        "context": "Aggressive deflationary schedules directly impact coin supply, scarcity, and long-term economic incentives for miners and holders.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa where to (Part III)",
+          "title": "Kaspa launch plan (responding to reality)",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-          "published": "2022-12-14"
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-18"
         },
-        "extracted_at": "2025-06-30T22:34:24.644690"
+        "extracted_at": "2025-06-30T23:43:56.606825"
       },
       {
-        "fact": "The current Kaspad codebase is adapted from the Bitcoin client btcd and is written in Golang.",
+        "fact": "The initial block reward and activation timing for the deflationary schedule are still to be determined, with decisions likely in the following week.",
         "category": "technical",
         "impact": "medium",
-        "context": "The use of Golang and legacy code from btcd has resulted in technical debt and code complexity, presenting barriers for new contributors.",
+        "context": "The specific numbers for initial rewards and schedule will determine mining incentives and emission rates.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa where to (Part I)",
+          "title": "Kaspa launch plan (responding to reality)",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
-          "published": "2022-07-05"
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-18"
         },
-        "extracted_at": "2025-06-30T22:34:41.092973"
+        "extracted_at": "2025-06-30T23:43:56.606840"
       },
       {
-        "fact": "Kaspa was originally launched in a mode called \"gamenet\", described as a \"testnet with incentives\".",
+        "fact": "Upcoming hard fork (HF) planned for the next week to fix a bug and reduce header size.",
         "category": "technical",
         "impact": "medium",
-        "context": "\"Gamenet\" reflects Kaspa's experimental and iterative development approach, distinguishing it from standard mainnet/testnet launches.",
+        "context": "Regular hard forks for bug fixes and optimizations keep the network secure and efficient, affecting node and miner operations.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa where to (Part I)",
+          "title": "Kaspa launch plan (responding to reality)",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
-          "published": "2022-07-05"
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-18"
         },
-        "extracted_at": "2025-06-30T22:34:41.092988"
+        "extracted_at": "2025-06-30T23:43:56.606866"
       },
       {
-        "fact": "The upcoming Kaspa rebase is a cosmetic change; it alters only the representation of amounts but does not affect users' proportional ownership of the token supply.",
+        "fact": "Another hard fork is planned a few weeks later to implement the finalized monetary policy.",
+        "category": "technical",
+        "impact": "high",
+        "context": "Embedding monetary policy at the protocol level locks in economic parameters for the network.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa launch plan (responding to reality)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-18"
+        },
+        "extracted_at": "2025-06-30T23:43:56.606870"
+      },
+      {
+        "fact": "Deployment of a block explorer is planned for the following week.",
         "category": "technical",
         "impact": "low",
-        "context": "Holders will retain the same percentage of tokens (total or circulating supply) after the rebase, with no effect on balances.",
+        "context": "A block explorer increases transparency and usability for users and developers interacting with the blockchain.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa (Black Tuesday)",
+          "title": "Kaspa launch plan (responding to reality)",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-23"
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-18"
         },
-        "extracted_at": "2025-06-30T22:34:55.001023"
+        "extracted_at": "2025-06-30T23:43:56.606875"
       },
       {
-        "fact": "The network failure was attributed to a memory problem affecting the state database, not to an inherent flaw in the UTXO commitment or DAG architecture.",
+        "fact": "The network encourages stress testing for UTXO throughput, but advises waiting until the system is stable for at least two weeks after major changes.",
         "category": "technical",
-        "impact": "medium",
-        "context": "This distinction guides future development focus towards improving module architecture to safeguard against database-related failures.",
+        "impact": "low",
+        "context": "Stress testing helps identify potential scalability and stability issues under load after updates.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa (Black Tuesday)",
+          "title": "Kaspa launch plan (responding to reality)",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-23"
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-18"
         },
-        "extracted_at": "2025-06-30T22:34:55.001043"
+        "extracted_at": "2025-06-30T23:43:56.606879"
       },
       {
-        "fact": "Kaspa’s monetary policy will be deflationary, with halvings scheduled to be more aggressive than Bitcoin’s due to faster market discovery.",
+        "fact": "The initial Kaspa token will have a deliberately uncertain and semi-scarce monetary policy, making it unsuitable for commercialization and exchange listing.",
         "category": "technical",
         "impact": "high",
-        "context": "This will affect coin supply, issuance rate, and overall economics of the network.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
-        },
-        "extracted_at": "2025-06-30T22:35:04.177387"
-      },
-      {
-        "fact": "The initial block reward and the timeline for activating deflationary scheduling are to be determined, but the current average block reward is approximately 500 Kaspa.",
-        "category": "technical",
-        "impact": "medium",
-        "context": "Initial reward and schedule directly set issuance and motivate network participation.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
-        },
-        "extracted_at": "2025-06-30T22:35:04.177402"
-      },
-      {
-        "fact": "The roadmap includes the plan to gradually accelerate the block rate to 10 blocks per second, following bug fixes and version updates.",
-        "category": "technical",
-        "impact": "high",
-        "context": "Increased block rate enhances network scalability and transaction throughput.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
-        },
-        "extracted_at": "2025-06-30T22:35:04.177432"
-      },
-      {
-        "fact": "Stress testing for UTXO throughput is open, but bug fixes may be delayed due to limited developer resources. It is suggested to wait until the system is stable for at least two weeks before intensive testing.",
-        "category": "technical",
-        "impact": "medium",
-        "context": "Throughput and stability tests must balance discovery of weaknesses with available dev support for fixes.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
-        },
-        "extracted_at": "2025-06-30T22:35:04.177461"
-      },
-      {
-        "fact": "A block explorer is planned for deployment by developers in the upcoming week.",
-        "category": "technical",
-        "impact": "medium",
-        "context": "A block explorer provides transparency and usability for network participants.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
-        },
-        "extracted_at": "2025-06-30T22:35:04.177470"
-      },
-      {
-        "fact": "Kaspa will inject deliberate \"fragility\" via a random, semi-scarce monetary policy during its gamenet phase.",
-        "category": "technical",
-        "impact": "medium",
-        "context": "Introducing uncertain supply mechanics encourages experimentation and prevents early commercialization.",
+        "context": "The intention is to discourage the token from becoming a tradable asset in early stages, focusing instead on drawing in hardcore crypto communities interested in research and experimentation.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa launch plan",
@@ -1109,13 +1053,13 @@
           "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
           "published": "2021-09-22"
         },
-        "extracted_at": "2025-06-30T22:35:12.295233"
+        "extracted_at": "2025-06-30T23:44:06.866588"
       },
       {
-        "fact": "Kaspa currently has no EVM support.",
+        "fact": "Kaspa currently lacks EVM (Ethereum Virtual Machine) support.",
         "category": "technical",
         "impact": "medium",
-        "context": "Limits current DeFi and smart contract compatibility, indicating a focus on core consensus and cryptoeconomic experiments.",
+        "context": "Without EVM support, smart contract compatibility and broader market integration are limited in the early stages.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa launch plan",
@@ -1123,13 +1067,13 @@
           "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
           "published": "2021-09-22"
         },
-        "extracted_at": "2025-06-30T22:35:12.295273"
+        "extracted_at": "2025-06-30T23:44:06.866624"
       },
       {
-        "fact": "SPV (Simple Payment Verification) sync mode can be based on multiplicative-hash UTXO-commitments.",
+        "fact": "SPV (Simplified Payment Verification) sync mode based on multiplicative-hash UTXO-commitments is referenced as a technical approach.",
         "category": "technical",
-        "impact": "medium",
-        "context": "This proposes a way to achieve efficient syncing for lightweight clients by leveraging multiplicative-hash commitments to the UTXO set, rather than downloading and validating the full historical chain.",
+        "impact": "high",
+        "context": "Multiplicative-hash UTXO-commitments are referenced as a basis for an SPV mode, suggesting a method for lightweight clients to securely sync with limited resources.",
         "source": {
           "type": "medium_article",
           "title": "In which mayday mayday we are syncing about*",
@@ -1137,13 +1081,13 @@
           "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
           "published": "2021-05-05"
         },
-        "extracted_at": "2025-06-30T22:35:18.298968"
+        "extracted_at": "2025-06-30T23:44:10.623474"
       },
       {
-        "fact": "The article asserts that verifying by yourself the proper functioning of all external systems you rely on (such as money, transportation, etc.) is infeasible and unscalable.",
+        "fact": "Cryptocurrencies’ main technical advantages are predictable issuance and censorship resistance.",
         "category": "technical",
-        "impact": "medium",
-        "context": "This highlights the trade-off between trust and verification mechanisms in decentralized systems, suggesting full validation by every user is not practical at scale.",
+        "impact": "high",
+        "context": "Predictable issuance ensures transparent and scheduled supply, while censorship resistance ensures transactions cannot be arbitrarily blocked or controlled.",
         "source": {
           "type": "medium_article",
           "title": "In which mayday mayday we are syncing about*",
@@ -1151,43 +1095,15 @@
           "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
           "published": "2021-05-05"
         },
-        "extracted_at": "2025-06-30T22:35:18.298985"
-      },
-      {
-        "fact": "Predictable issuance and censorship resistance are identified as the primary advantages of cryptocurrencies over fiat currencies.",
-        "category": "technical",
-        "impact": "medium",
-        "context": "This refocuses technical priorities in cryptocurrency design and user assessment on issuance schedule predictability and transaction censorship resistance, rather than on perfect historical consistency.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which mayday mayday we are syncing about*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
-          "published": "2021-05-05"
-        },
-        "extracted_at": "2025-06-30T22:35:18.298990"
-      },
-      {
-        "fact": "The article claims that, for users joining a cryptocurrency system, checking its issuance and decentralization is more important than checking the historical validity of all past transactions.",
-        "category": "technical",
-        "impact": "medium",
-        "context": "This suggests a potential shift in implementation and usage norm, where efficient validation methods (like UTXO-commitments) may be preferable to full node historical validation for the majority of users.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which mayday mayday we are syncing about*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
-          "published": "2021-05-05"
-        },
-        "extracted_at": "2025-06-30T22:35:18.298995"
+        "extracted_at": "2025-06-30T23:44:10.623488"
       }
     ],
     "consensus": [
       {
-        "fact": "Kaspa delegates control over its network to an anonymous set of miners.",
+        "fact": "Kaspa’s trust model is center-less, delegating control over the network to an anonymous set of miners.",
         "category": "consensus",
-        "impact": "medium",
-        "context": "The protocol's consensus mechanism entrusts network security and operation to a decentralized group of miners, aligning incentives for network security through competition among egoistic entities.",
+        "impact": "high",
+        "context": "This affirms that Kaspa’s protocol is designed to operate without a central authority, relying on anonymous miners whose incentives are aligned with network security.",
         "source": {
           "type": "medium_article",
           "title": "In which we are all faceless until we have faces (Part I)*",
@@ -1195,13 +1111,41 @@
           "url": "https://hashdag.medium.com/in-which-we-are-all-faceless-until-we-have-faces-part-i-5f100e0555a4?source=rss-400d0e2aab3b------2",
           "published": "2025-04-04"
         },
-        "extracted_at": "2025-06-30T22:34:11.862947"
+        "extracted_at": "2025-06-30T23:42:25.269734"
       },
       {
-        "fact": "The DAGKNIGHT (DK) protocol, published by Michal Sutton and Yonatan Sompolinsky, is a proof-of-work (POW) consensus protocol that is responsive to the network’s adversarial latency and is resilient to 49% byzantine attackers.",
+        "fact": "Kaspa’s consensus layer prioritizes speed of confirmation, with secondary goals including increased throughput capacity and decentralization, and plans for MEV resistance in the future.",
         "category": "consensus",
         "impact": "high",
-        "context": "This represents a major advancement in consensus protocols, potentially allowing higher security and network responsiveness than previous designs.",
+        "context": "Focusing on fast confirmations and scalability helps Kaspa compete as a next-generation blockchain, while MEV resistance is important for fairness and long-term integrity.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part IV, last)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+          "published": "2023-05-03"
+        },
+        "extracted_at": "2025-06-30T23:43:09.029181"
+      },
+      {
+        "fact": "For Kaspa, virtually instantaneous confirmation times in a permissionless consensus require a CapEx-heavy (ASIC-dominated) mining environment.",
+        "category": "consensus",
+        "impact": "high",
+        "context": "Instant confirmation times are only sustainable if the mining market is illiquid (mostly CapEx), reducing 51% attack risks and aligning with Kaspa’s aims for fast, secure transactions.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part IV, last)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+          "published": "2023-05-03"
+        },
+        "extracted_at": "2025-06-30T23:43:09.029196"
+      },
+      {
+        "fact": "The DAGKNIGHT (DK) protocol, published by Michal Sutton and Yonatan Sompolinsky, claims to be the first Proof-of-Work (PoW) consensus protocol that is responsive to the network’s actual adversarial latency while being resilient to 49% Byzantine attackers.",
+        "category": "consensus",
+        "impact": "high",
+        "context": "This represents a new design in PoW consensus, offering improved security and responsiveness under real network conditions.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part II)",
@@ -1209,13 +1153,13 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
           "published": "2022-11-26"
         },
-        "extracted_at": "2025-06-30T22:34:31.913366"
+        "extracted_at": "2025-06-30T23:43:39.498894"
       },
       {
-        "fact": "DK, similar to GHOSTDAG, enables high blocks-per-second (bps) rates with much faster confirmation times, but research is required to determine optimal bps due to wider DAGs and larger block headers possibly mitigating confirmation time improvements.",
+        "fact": "DK enables high blocks-per-second (bps) like Kaspa’s existing GHOSTDAG but provides much faster confirmation times.",
         "category": "consensus",
-        "impact": "medium",
-        "context": "Increasing block rates may not always lower confirmation time due to network and structural trade-offs.",
+        "impact": "high",
+        "context": "Improved confirmation time can significantly enhance user experience and transaction finality in high-throughput blockchain environments.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part II)",
@@ -1223,13 +1167,27 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
           "published": "2022-11-26"
         },
-        "extracted_at": "2025-06-30T22:34:31.913393"
+        "extracted_at": "2025-06-30T23:43:39.498910"
       },
       {
-        "fact": "Kaspa's consensus is based on a novel \"DAG vision\" and the project was initially intended as a demonstration of a new paradigm for permissionless consensus.",
+        "fact": "DK uniquely supports features such as flexcaps, allowing miners to create blocks with variable sizes and difficulties without predefined DAG width constraints.",
         "category": "consensus",
         "impact": "medium",
-        "context": "Understanding the original purpose clarifies ongoing efforts to optimize and grow the network’s base protocol.",
+        "context": "Flexcaps can help handle peak demand by temporarily increasing throughput, which is challenging in other protocols due to DAG width requirements.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part II)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+          "published": "2022-11-26"
+        },
+        "extracted_at": "2025-06-30T23:43:39.498931"
+      },
+      {
+        "fact": "Kaspa was initially launched as a live demonstration of a novel permissionless consensus paradigm.",
+        "category": "consensus",
+        "impact": "medium",
+        "context": "The project's primary goal was to showcase new consensus concepts, influencing design and development priorities.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part I)",
@@ -1237,141 +1195,13 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
           "published": "2022-07-05"
         },
-        "extracted_at": "2025-06-30T22:34:41.092984"
+        "extracted_at": "2025-06-30T23:43:44.732173"
       },
       {
-        "fact": "An upgrade to the consensus protocol is planned, pending theoretical research results from Michael Sutton.",
+        "fact": "For network recovery after the crash, the team sought the latest state with a certainly-valid UTXO commitment, not an arbitrary rollback to an old state.",
         "category": "consensus",
         "impact": "medium",
-        "context": "Consensus upgrades can improve performance, security, and future capabilities.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
-        },
-        "extracted_at": "2025-06-30T22:35:04.177437"
-      },
-      {
-        "fact": "Gamenet will serve as a testbed for reward-based and MEV (Miner Extractable Value)-based chain reorganizations (reorgs).",
-        "category": "consensus",
-        "impact": "high",
-        "context": "Testing reorgs and MEV scenarios provides insights into the network's resistance to various attack vectors.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-          "published": "2021-09-22"
-        },
-        "extracted_at": "2025-06-30T22:35:12.295239"
-      },
-      {
-        "fact": "Gamenet activities include incentivizing reorgs/selfish-mining and simulating MEV exploits similar to those observed in DeFi platforms like Ethereum.",
-        "category": "consensus",
-        "impact": "high",
-        "context": "Provides an environment for strategic manipulation and analysis of vulnerabilities, contributing to better mitigation strategies.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-          "published": "2021-09-22"
-        },
-        "extracted_at": "2025-06-30T22:35:12.295258"
-      },
-      {
-        "fact": "The primary goal of consensus systems is stated to be facilitating agreement, not necessarily enforcing historical consistency.",
-        "category": "consensus",
-        "impact": "medium",
-        "context": "This represents an explicit prioritization within consensus protocol design, influencing how settlement finality and validation should be approached.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which mayday mayday we are syncing about*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
-          "published": "2021-05-05"
-        },
-        "extracted_at": "2025-06-30T22:35:18.299001"
-      },
-      {
-        "fact": "Bitcoin’s confirmation time is commonly referenced as being governed by its average 10-minute block interval, with users often waiting for multiple subsequent blocks to increase finality.",
-        "category": "consensus",
-        "impact": "high",
-        "context": "The speed at which blocks are produced directly relates to how quickly transactions can be considered safe from reversal, affecting user experience and practical utility.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which I have no patience to wait ’til by and by*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
-          "published": "2020-12-28"
-        },
-        "extracted_at": "2025-06-30T22:35:28.779161"
-      },
-      {
-        "fact": "There are two paradigms for how merchants (or users) wait for transaction confirmation: (1) waiting for a certain number of blocks to be mined after a transaction, or (2) waiting for a fixed amount of time to pass after the transaction.",
-        "category": "consensus",
-        "impact": "medium",
-        "context": "The paradigm chosen affects whether reducing block time actually shortens confirmation time from the viewpoint of transaction security.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which I have no patience to wait ’til by and by*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
-          "published": "2020-12-28"
-        },
-        "extracted_at": "2025-06-30T22:35:28.779176"
-      },
-      {
-        "fact": "In the paradigm where a certain number of blocks is required for confirmation, faster block times reduce the waiting/confirmation time directly.",
-        "category": "consensus",
-        "impact": "medium",
-        "context": "Network parameter choices such as block interval have an immediate effect on transaction finality for users and businesses.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which I have no patience to wait ’til by and by*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
-          "published": "2020-12-28"
-        },
-        "extracted_at": "2025-06-30T22:35:28.779181"
-      },
-      {
-        "fact": "In the paradigm where a specific time interval must pass to confirm transactions, reducing block times does not reduce confirmation waiting, since absolute elapsed time is the security metric.",
-        "category": "consensus",
-        "impact": "medium",
-        "context": "Some security models use elapsed time rather than block count to judge transaction safety, placing less emphasis on block interval as a security or usability factor.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which I have no patience to wait ’til by and by*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
-          "published": "2020-12-28"
-        },
-        "extracted_at": "2025-06-30T22:35:28.779186"
-      }
-    ],
-    "mining": [
-      {
-        "fact": "Kaspa's future arrival of ASICs is anticipated and seen as overall positive for the network, including GPU miners.",
-        "category": "mining",
-        "impact": "high",
-        "context": "ASIC adoption shifts mining towards higher capital expenditure (CapEx), increasing network security and maturing the mining ecosystem.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part IV, last)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-          "published": "2023-05-03"
-        },
-        "extracted_at": "2025-06-30T22:34:16.789285"
-      },
-      {
-        "fact": "The Kaspa network removed the random block reward and replaced it with a deterministic block reward of 500 KAS per block.",
-        "category": "mining",
-        "impact": "medium",
-        "context": "This change simplifies the reward system by making block payouts predictable and easier to debug, maintaining the same daily issuance rate (86,400 x 500 = 43,200,000 KAS/day).",
+        "context": "This approach ensures the preservation of valid transaction history and UTXO set continuity.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa (Black Tuesday)",
@@ -1379,121 +1209,127 @@
           "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
           "published": "2021-11-23"
         },
-        "extracted_at": "2025-06-30T22:34:55.001006"
+        "extracted_at": "2025-06-30T23:43:49.986289"
       },
       {
-        "fact": "Kaspa uses a variant of the heavy-hash proof-of-work algorithm, named k-heavy-hash.",
-        "category": "mining",
-        "impact": "high",
-        "context": "The PoW algorithm determines mining hardware requirements and ASIC resistance.",
+        "fact": "The author asserts that the primary goal of consensus systems is facilitating agreement, not enforcing consistency.",
+        "category": "consensus",
+        "impact": "medium",
+        "context": "This suggests a philosophical and technical distinction in blockchain design priorities, potentially impacting consensus protocol implementations.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
+          "title": "In which mayday mayday we are syncing about*",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
+          "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
+          "published": "2021-05-05"
         },
-        "extracted_at": "2025-06-30T22:35:04.177408"
+        "extracted_at": "2025-06-30T23:44:10.623493"
       },
       {
-        "fact": "K-heavy-hash is designed with the goal of being CapEx heavy (more reliant on hardware investment) rather than OpEx heavy (energy consumption).",
-        "category": "mining",
+        "fact": "Faster block times (block liveness) can reduce confirmation times for crypto payments, depending on the paradigm used for transaction authorization.",
+        "category": "consensus",
         "impact": "medium",
-        "context": "CapEx heavy PoW aims for energy efficiency and greater miner commitment.",
+        "context": "If users or merchants wait for a certain number of blocks for transaction finality, then accelerating block production directly decreases the waiting time until a transaction is considered confirmed, improving usability for real-time payments.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
+          "title": "In which I have no patience to wait ’til by and by*",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
+          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
+          "published": "2020-12-28"
         },
-        "extracted_at": "2025-06-30T22:35:04.177413"
+        "extracted_at": "2025-06-30T23:44:18.601366"
       },
       {
-        "fact": "Initial mining will be open to CPU/GPU miners, with Ethash suggested as the candidate PoW algorithm.",
-        "category": "mining",
+        "fact": "There are two paradigms for authorizing cryptocurrency payments: one based on the number of blocks elapsed (block-based confirmation), and another based on elapsed absolute time (time-based confirmation).",
+        "category": "consensus",
         "impact": "medium",
-        "context": "Allowing CPU/GPU mining promotes decentralization and accessibility in the network's early stages.",
+        "context": "The paradigm chosen affects whether faster block rates actually result in faster practical confirmation for users and merchants.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa launch plan",
+          "title": "In which I have no patience to wait ’til by and by*",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-          "published": "2021-09-22"
+          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
+          "published": "2020-12-28"
         },
-        "extracted_at": "2025-06-30T22:35:12.295243"
-      }
-    ],
-    "mining/security": [
+        "extracted_at": "2025-06-30T23:44:18.601381"
+      },
       {
-        "fact": "As of the article's writing, approximately 5.3% of the Kaspa network's hashrate is accessible via NiceHash.",
-        "category": "mining/security",
+        "fact": "If a time-based paradigm for confirmation is used (waiting a fixed amount of time rather than a number of blocks), faster block rates do not improve confirmation times.",
+        "category": "consensus",
         "impact": "medium",
-        "context": "Indicates Kaspa mining is still relatively illiquid, reducing the risk of large-scale hashrate rental attacks like 51% attacks.",
+        "context": "In such models, increasing block production has no direct impact on user-experienced transaction finality.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa where to (Part IV, last)",
+          "title": "In which I have no patience to wait ’til by and by*",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-          "published": "2023-05-03"
+          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
+          "published": "2020-12-28"
         },
-        "extracted_at": "2025-06-30T22:34:16.789306"
-      }
-    ],
-    "mining/consensus": [
+        "extracted_at": "2025-06-30T23:44:18.601397"
+      },
       {
-        "fact": "Kaspa relies on heavy CapEx mining for its long-term vision, especially to achieve its goal of near-instantaneous confirmation times in a permissionless consensus environment.",
-        "category": "mining/consensus",
-        "impact": "high",
-        "context": "CapEx-heavy (ASIC-dominated) mining environments are less susceptible to transient attacks since attackers cannot easily rent short-term hashrate.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part IV, last)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-          "published": "2023-05-03"
-        },
-        "extracted_at": "2025-06-30T22:34:16.789312"
-      }
-    ],
-    "mining/energy efficiency": [
-      {
-        "fact": "CapEx-heavy mining (ASICs vs. GPUs) is more energy-efficient, with a greater fraction of the security budget invested in durable infrastructure rather than ongoing energy expenditure.",
-        "category": "mining/energy efficiency",
-        "impact": "high",
-        "context": "Improved energy efficiency is important for Kaspa's long-term adoption, particularly after issuance ends (no KAS minting), and in responding to environmental and political concerns about Proof-of-Work energy use.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part IV, last)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-          "published": "2023-05-03"
-        },
-        "extracted_at": "2025-06-30T22:34:16.789319"
-      }
-    ],
-    "consensus/security": [
-      {
-        "fact": "Kaspa's consensus layer is designed to provide faster confirmation times and, downstream, greater resistance to MEV (Miner Extractable Value).",
-        "category": "consensus/security",
+        "fact": "The design trade-off between faster confirmation times and network resilience, decentralization, or social scalability is a recognized consideration in blockchain consensus protocol development.",
+        "category": "consensus",
         "impact": "medium",
-        "context": "Fast confirmations and MEV resistance improve user experience and security, supporting Kaspa's aim for mass adoption.",
+        "context": "Protocol designers must balance user experience (UX) against core security and scalability objectives.",
         "source": {
           "type": "medium_article",
-          "title": "Kaspa where to (Part IV, last)",
+          "title": "In which I have no patience to wait ’til by and by*",
           "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
-          "published": "2023-05-03"
+          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
+          "published": "2020-12-28"
         },
-        "extracted_at": "2025-06-30T22:34:16.789324"
+        "extracted_at": "2025-06-30T23:44:18.601401"
       }
     ],
     "governance": [
       {
-        "fact": "The current grant proposal for DAGKNIGHT implementation on Kaspa requests 70 million KAS tokens (70 MKAS), equivalent to approximately 0.5% of the circulating supply.",
+        "fact": "The primary social media account for Kaspa was renamed from “Kaspa” to “Kaspa (Unofficial)”.",
+        "category": "governance",
+        "impact": "medium",
+        "context": "This action reflects a move to reinforce Kaspa’s decentralized and center-less ethos, reducing the influence or perception of official centralized control.",
+        "source": {
+          "type": "medium_article",
+          "title": "In which we are all faceless until we have faces (Part I)*",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/in-which-we-are-all-faceless-until-we-have-faces-part-i-5f100e0555a4?source=rss-400d0e2aab3b------2",
+          "published": "2025-04-04"
+        },
+        "extracted_at": "2025-06-30T23:42:25.269741"
+      },
+      {
+        "fact": "The previous community-funded development grant for Kaspa was 100 million KAS (MKAS), equivalent to approximately 1% of the then circulating supply.",
+        "category": "governance",
+        "impact": "medium",
+        "context": "Establishes a precedent for the scale of funding given to core protocol upgrades via community consensus.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part III)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
+          "published": "2022-12-14"
+        },
+        "extracted_at": "2025-06-30T23:43:20.953755"
+      },
+      {
+        "fact": "A new development grant proposal for implementing DAGKNIGHT on Kaspa has been submitted, requesting 70 MKAS (~0.5% of circulating supply).",
+        "category": "governance",
+        "impact": "medium",
+        "context": "This mirrors the funding approach used for KAS protocol development, reflecting ongoing use of on-chain/in-community funding for major network upgrades.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part III)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
+          "published": "2022-12-14"
+        },
+        "extracted_at": "2025-06-30T23:43:20.953761"
+      },
+      {
+        "fact": "The development and release of Kaspa mainnet by DAGlabs was done without a premine, heads-up on mining, founders' rewards, or similar incentives.",
         "category": "governance",
         "impact": "high",
-        "context": "The grant size and its share of circulating supply are significant for project resource allocation and governance implications.",
+        "context": "This highlights the protocol’s launch — notable for its absence of private or early allocation, meaning all coins were publicly mined from genesis.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part III)",
@@ -1501,41 +1337,13 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
           "published": "2022-12-14"
         },
-        "extracted_at": "2025-06-30T22:34:24.644665"
+        "extracted_at": "2025-06-30T23:43:20.953767"
       },
       {
-        "fact": "The previous funded grant in the Kaspa community was 100 million KAS (100 MKAS), about 1% of the then circulating supply.",
+        "fact": "Any consensus upgrade (such as implementing DK) will require a new grant proposal to the Kaspa community, similar to the recent Rust upgrade.",
         "category": "governance",
         "impact": "medium",
-        "context": "Establishes a precedent for the scale of funding for major development efforts in Kaspa.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part III)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-          "published": "2022-12-14"
-        },
-        "extracted_at": "2025-06-30T22:34:24.644671"
-      },
-      {
-        "fact": "Previous and current Kaspa grants for development have been denominated in KAS tokens, not USD.",
-        "category": "governance",
-        "impact": "medium",
-        "context": "Tying developer incentives to the native asset aligns interests with the success of the protocol and reflects community norm.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part III)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-          "published": "2022-12-14"
-        },
-        "extracted_at": "2025-06-30T22:34:24.644676"
-      },
-      {
-        "fact": "Deploying DK in Kaspa, like the previous Rust upgrade, will require a new community grant request to fund its implementation.",
-        "category": "governance",
-        "impact": "medium",
-        "context": "Significant protocol upgrades in Kaspa involve community governance and funding processes.",
+        "context": "Community governance and funding are necessary for coordinating and implementing major protocol changes.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part II)",
@@ -1543,127 +1351,13 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
           "published": "2022-11-26"
         },
-        "extracted_at": "2025-06-30T22:34:31.913407"
+        "extracted_at": "2025-06-30T23:43:39.498944"
       },
       {
-        "fact": "The Kaspa project is maintained by a small number of part-time developers, some of whom are part-funded by DAGlabs, but there is no central company or official entity responsible for the network, wallets, or miners.",
+        "fact": "Kaspa was originally released in a \"gamenet\" mode, described as \"testnet with incentives.\"",
         "category": "governance",
         "impact": "medium",
-        "context": "Decentralized, community-led development may impact support and speed of technical responses.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
-        },
-        "extracted_at": "2025-06-30T22:35:04.177418"
-      },
-      {
-        "fact": "The initial Kaspa token will be \"deliberately unfit for commercialization\" with supply characteristics designed to avoid exchange listings.",
-        "category": "governance",
-        "impact": "medium",
-        "context": "Prevents premature commercialization and encourages participation for research and development purposes rather than profit.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-          "published": "2021-09-22"
-        },
-        "extracted_at": "2025-06-30T22:35:12.295248"
-      },
-      {
-        "fact": "The ultimate transition from gamenet to mainnet will involve solidifying the monetary policy and instituting full scarcity, rewarding early gamenet miners retrospectively.",
-        "category": "governance",
-        "impact": "high",
-        "context": "Ensures early community participants are compensated and allows the blockchain to evolve from research to production-grade.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-          "published": "2021-09-22"
-        },
-        "extracted_at": "2025-06-30T22:35:12.295269"
-      }
-    ],
-    "development": [
-      {
-        "fact": "Public discussion about development funding models for Kaspa includes: (1) unpaid open-source weekend projects, (2) community grants (e.g., via Gitcoin), and (3) for-profit enterprise funding akin to what IBM does with Linux.",
-        "category": "development",
-        "impact": "medium",
-        "context": "The evolution of developer funding models influences project sustainability and speed of technical progress.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part III)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-          "published": "2022-12-14"
-        },
-        "extracted_at": "2025-06-30T22:34:24.644681"
-      },
-      {
-        "fact": "The implementation of DAGKNIGHT in Kaspa may proceed even if the community does not approve the grant, but would then occur without a specified timeline and as a spare-time effort by the authors.",
-        "category": "development",
-        "impact": "medium",
-        "context": "Indicates the prospect of implementation but with less predictability in absence of structured funding.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part III)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
-          "published": "2022-12-14"
-        },
-        "extracted_at": "2025-06-30T22:34:24.644686"
-      },
-      {
-        "fact": "DAGKNIGHT is currently in an academic state with several missing details in its proof section; it requires preparation for peer review and efficient algorithmic implementation for real-world use.",
-        "category": "development",
-        "impact": "medium",
-        "context": "Before consideration for Kaspa, DK needs further theoretical work, peer review, and practical algorithm optimizations.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part II)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-          "published": "2022-11-26"
-        },
-        "extracted_at": "2025-06-30T22:34:31.913381"
-      },
-      {
-        "fact": "Adapting DK for cryptocurrency use (such as in Kaspa) will require addressing additional requirements like minting regulation, difficulty control, and pruning, which necessitate a responsive synchronous protocol versus DK’s current partially synchronous mode.",
-        "category": "development",
-        "impact": "high",
-        "context": "Additional engineering is needed to make DK a suitable drop-in replacement for established blockchain consensus protocols.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part II)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-          "published": "2022-11-26"
-        },
-        "extracted_at": "2025-06-30T22:34:31.913387"
-      },
-      {
-        "fact": "DK can enable features such as \"flexcaps\" (flexible block sizes and difficulties), originally proposed for Bitcoin but only practical at high block rates with a protocol like DK that does not bound DAG width in advance.",
-        "category": "development",
-        "impact": "medium",
-        "context": "Flexcaps could help accommodate peak transaction demand and variable resource limits.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa where to (Part II)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
-          "published": "2022-11-26"
-        },
-        "extracted_at": "2025-06-30T22:34:31.913398"
-      },
-      {
-        "fact": "Michael Sutton, a core Kaspa developer, proposed a plan to significantly enhance Kaspad full-node performance by refactoring the codebase and rewriting it in Rust.",
-        "category": "development",
-        "impact": "high",
-        "context": "A Rust rewrite could improve node performance, maintainability, and attract more developer contributions.",
+        "context": "This launch mode provided real-world testing conditions with incentivized participation, influencing network reliability and growth.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part I)",
@@ -1671,13 +1365,13 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
           "published": "2022-07-05"
         },
-        "extracted_at": "2025-06-30T22:34:41.092958"
+        "extracted_at": "2025-06-30T23:43:44.732178"
       },
       {
-        "fact": "The proposed refactoring explicitly aims to make the Kaspad codebase modular and more readable, in addition to performance improvements.",
-        "category": "development",
-        "impact": "high",
-        "context": "Improved modularity and legibility would facilitate future developments and open-source contributions, thereby strengthening the ecosystem.",
+        "fact": "Kaspa’s development and treasury are managed by a small group of volunteers, and the treasury is contribution-based.",
+        "category": "governance",
+        "impact": "medium",
+        "context": "The limited resources affect the rate and direction of development, including decisions about major technical undertakings like a Rust rewrite.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part I)",
@@ -1685,13 +1379,13 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
           "published": "2022-07-05"
         },
-        "extracted_at": "2025-06-30T22:34:41.092979"
+        "extracted_at": "2025-06-30T23:43:44.732182"
       },
       {
-        "fact": "Details of a planned deflationary monetary policy hard fork (HF) for the Kaspa network will be specified in the week following network recovery.",
-        "category": "development",
+        "fact": "A deflationary monetary policy hard fork (HF) is planned and will be specified the week after network syncing and mining resume.",
+        "category": "governance",
         "impact": "high",
-        "context": "The deflationary HF is a significant protocol change that will affect token economics and mining rewards, but specifics were not finalized at the time of the article.",
+        "context": "The upcoming HF will impact Kaspa’s monetary policy; details to be released after network stabilization.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa (Black Tuesday)",
@@ -1699,13 +1393,13 @@
           "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
           "published": "2021-11-23"
         },
-        "extracted_at": "2025-06-30T22:34:55.001029"
+        "extracted_at": "2025-06-30T23:43:49.986284"
       },
       {
-        "fact": "A hard fork is planned next week to fix a bug and decrease the header size.",
-        "category": "development",
-        "impact": "high",
-        "context": "Node operators and miners must update their software to remain compatible and secure.",
+        "fact": "Kaspa's development is maintained by a small number of part-time developers, some funded by DAGlabs, with no formal company or overarching entity behind the project.",
+        "category": "governance",
+        "impact": "medium",
+        "context": "Project governance and decentralization can affect development speed, security, and community trust.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa launch plan (responding to reality)",
@@ -1713,13 +1407,113 @@
           "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
           "published": "2021-11-18"
         },
-        "extracted_at": "2025-06-30T22:35:04.177422"
+        "extracted_at": "2025-06-30T23:43:56.606856"
       },
       {
-        "fact": "A subsequent hard fork will take place a few weeks later to embed the new monetary policy.",
-        "category": "development",
+        "fact": "The proposal calls for attracting research and developer groups to compete, collaborate, and experiment on the live gamenet system, for the study of consensus and attack vectors in practical settings.",
+        "category": "governance",
+        "impact": "medium",
+        "context": "Engaging the R&D community helps generate credible insights into cryptoeconomic dynamics and stress-test the protocol.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa launch plan",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+          "published": "2021-09-22"
+        },
+        "extracted_at": "2025-06-30T23:44:06.866631"
+      },
+      {
+        "fact": "There is a planned transition phase (cryptoeconomics phase 2) in which Kaspa will solidify its monetary policy, recover token scarcity, and compensate early participants as the network matures.",
+        "category": "governance",
+        "impact": "medium",
+        "context": "As the network and community grow, sustainable economics and security are to be established for a commercial mainnet launch.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa launch plan",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+          "published": "2021-09-22"
+        },
+        "extracted_at": "2025-06-30T23:44:06.866635"
+      }
+    ],
+    "mining": [
+      {
+        "fact": "The arrival of ASIC miners is anticipated for the Kaspa network and is considered an overall positive development, even for existing GPU miners.",
+        "category": "mining",
         "impact": "high",
-        "context": "Embedding monetary policy in consensus will change economic parameters network-wide.",
+        "context": "The introduction of ASICs will increase the capital expenditure (CapEx) required for mining, contributing to the network’s security and signifying a maturing ecosystem.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part IV, last)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+          "published": "2023-05-03"
+        },
+        "extracted_at": "2025-06-30T23:43:09.029161"
+      },
+      {
+        "fact": "Kaspa’s model emphasizes moving toward CapEx-heavy (ASIC-dominated) mining for security and efficiency.",
+        "category": "mining",
+        "impact": "high",
+        "context": "CapEx-heavy mining makes it economically harder for attackers to rent large amounts of temporary hashrate, thereby increasing network security and energy efficiency.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part IV, last)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+          "published": "2023-05-03"
+        },
+        "extracted_at": "2025-06-30T23:43:09.029186"
+      },
+      {
+        "fact": "CapEx-heavy mining is more energy efficient because a smaller fraction of the network’s security budget is consumed with each new block produced.",
+        "category": "mining",
+        "impact": "medium",
+        "context": "Improved energy efficiency is critical for addressing concerns about Proof-of-Work mining’s environmental and political viability, especially as Kaspa plans for mass adoption.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part IV, last)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+          "published": "2023-05-03"
+        },
+        "extracted_at": "2025-06-30T23:43:09.029191"
+      },
+      {
+        "fact": "In Kaspa, capital expenditure (CapEx)—rather than operational expenditure (OpEx, e.g., GPU mining)—is being positioned as the dominant cost in mining’s future.",
+        "category": "mining",
+        "impact": "medium",
+        "context": "High CapEx entry requirements reduce the ability for attackers to cheaply influence network consensus, increasing network resilience.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part IV, last)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+          "published": "2023-05-03"
+        },
+        "extracted_at": "2025-06-30T23:43:09.029200"
+      },
+      {
+        "fact": "The random block reward has been removed; Kaspa now uses a deterministic block reward of 500 Kaspa per block.",
+        "category": "mining",
+        "impact": "medium",
+        "context": "Simplifies logic and debugging; ensures predictable daily mining rewards of 43,200,000 Kaspa.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa (Black Tuesday)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-23"
+        },
+        "extracted_at": "2025-06-30T23:43:49.986264"
+      },
+      {
+        "fact": "Kaspa uses a custom proof-of-work algorithm: a Kaspa variant of heavy-hash, referred to as \"k-heavy-hash.\"",
+        "category": "mining",
+        "impact": "high",
+        "context": "Choice of proof-of-work impacts hardware compatibility, security, and energy consumption.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa launch plan (responding to reality)",
@@ -1727,13 +1521,27 @@
           "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
           "published": "2021-11-18"
         },
-        "extracted_at": "2025-06-30T22:35:04.177427"
+        "extracted_at": "2025-06-30T23:43:56.606846"
       },
       {
-        "fact": "Kaspa is proposed to launch in \"gamenet mode,\" a research-oriented experimental network rather than a standard mainnet.",
-        "category": "development",
-        "impact": "high",
-        "context": "Launching in experimental mode allows for real-world cryptoeconomic testing and innovation before transitioning to a commercial blockchain.",
+        "fact": "\"k-heavy-hash\" is designed to be CapEx heavy, aiming for energy efficiency and greater miner commitment.",
+        "category": "mining",
+        "impact": "medium",
+        "context": "CapEx heavy algorithms aim to reduce operational costs and encourage longer-term investment in mining infrastructure.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa launch plan (responding to reality)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-18"
+        },
+        "extracted_at": "2025-06-30T23:43:56.606851"
+      },
+      {
+        "fact": "Kaspa's platform is designed to be CPU/GPU mineable, with Ethash being suggested as a neutral mining algorithm candidate.",
+        "category": "mining",
+        "impact": "medium",
+        "context": "CPU/GPU mining supports broader accessibility and participation in the early experimental network phase.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa launch plan",
@@ -1741,43 +1549,29 @@
           "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
           "published": "2021-09-22"
         },
-        "extracted_at": "2025-06-30T22:35:12.295197"
-      },
-      {
-        "fact": "The plan includes development of an Ethereum bridge in \"gamenet 2.0\" to simulate/practice MEV-reorgs and test the DAG consensus’ antifragility.",
-        "category": "development",
-        "impact": "medium",
-        "context": "Interacting with Ethereum enhances the realism and value of MEV/reorg simulations on Kaspa.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
-          "published": "2021-09-22"
-        },
-        "extracted_at": "2025-06-30T22:35:12.295264"
-      },
-      {
-        "fact": "A link is provided to the Kaspa cryptocurrency’s GitHub at https://github.com/kaspanet, referencing an alternative cryptocurrency aiming for fast block times.",
-        "category": "development",
-        "impact": "medium",
-        "context": "Kaspa is positioned as an example of a cryptocurrency designed to address user-facing liveness/confirmation issues through technical means such as faster block production.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which I have no patience to wait ’til by and by*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
-          "published": "2020-12-28"
-        },
-        "extracted_at": "2025-06-30T22:35:28.779196"
+        "extracted_at": "2025-06-30T23:44:06.866594"
       }
     ],
     "security": [
       {
-        "fact": "DK's design supports possible implementations of increased MEV resistance features, including stealth transactions and advanced transaction fee mechanisms, leveraging the protocol’s asynchrony and many miners being able to build in parallel.",
+        "fact": "Kaspa currently has about 5.3% of its network hashrate available for rent via NiceHash.",
         "category": "security",
         "impact": "medium",
-        "context": "These features could help protect users and support innovative fee/MEV solutions.",
+        "context": "The low proportion of NiceHash-able hashrate means the mining market is still relatively illiquid, reducing vulnerability to 51% attacks based on rented hashrate.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part IV, last)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iv-last-c68717a8d309?source=rss-400d0e2aab3b------2",
+          "published": "2023-05-03"
+        },
+        "extracted_at": "2025-06-30T23:43:09.029175"
+      },
+      {
+        "fact": "DK’s protocol asynchrony in high bps environments could be utilized to enhance privacy (via stealth transactions) and reduce Miner Extractable Value (MEV), supporting advanced fee mechanisms similar to those proposed by Flashbots’ SUAVE.",
+        "category": "security",
+        "impact": "medium",
+        "context": "These features could make the protocol more resilient to front-running and other MEV-related behaviors, enhancing user security and privacy.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa where to (Part II)",
@@ -1785,13 +1579,13 @@
           "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
           "published": "2022-11-26"
         },
-        "extracted_at": "2025-06-30T22:34:31.913403"
+        "extracted_at": "2025-06-30T23:43:39.498935"
       },
       {
-        "fact": "In restoring the Kaspa network after the crash, developers did not pursue a traditional rollback but instead searched for the latest state with a verifiable UTXO commitment.",
+        "fact": "The UTXO commitment obtained during network recovery matched the commitment in the latest block, specifically hash 710f27df423e63aa6cdb72b89ea5a06cffa399d66f167704455b5af59def8e20.",
         "category": "security",
         "impact": "high",
-        "context": "This approach preserved chain integrity and minimized loss by ensuring only the most recent valid, consensual state was used for recovery.",
+        "context": "Validates that the DAG UTXO algebra remained correct, confirming integrity of the ledger after the recovery attempt.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa (Black Tuesday)",
@@ -1799,13 +1593,13 @@
           "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
           "published": "2021-11-23"
         },
-        "extracted_at": "2025-06-30T22:34:55.001034"
+        "extracted_at": "2025-06-30T23:43:49.986294"
       },
       {
-        "fact": "The developers validated the state by comparing reconstructed UTXO commitments against those embedded in the latest block, successfully matching the hash 710f27df423e63aa6cdb72b89ea5a06cffa399d66f167704455b5af59def8e20.",
+        "fact": "The network crash was attributed to a memory problem, not to an error in the DAG UTXO algebra.",
         "category": "security",
         "impact": "medium",
-        "context": "Confirming the UTXO commitment ensured that the DAG UTXO algebra was correct and that the crash was due to a memory issue, not a protocol error.",
+        "context": "Indicates that the underlying design is sound but susceptible to infrastructure issues, suggesting need for module architecture improvements.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa (Black Tuesday)",
@@ -1813,27 +1607,13 @@
           "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
           "published": "2021-11-23"
         },
-        "extracted_at": "2025-06-30T22:34:55.001039"
+        "extracted_at": "2025-06-30T23:43:49.986298"
       },
       {
-        "fact": "There is an intention to implement privacy enhancements, such as Bulletproofs, alongside ongoing development.",
+        "fact": "The initial gamenet launch will feature deliberately low security and low hashrate due to uncertain token scarcity and noncommercial nature.",
         "category": "security",
         "impact": "medium",
-        "context": "Bulletproofs or similar privacy features would increase transaction confidentiality.",
-        "source": {
-          "type": "medium_article",
-          "title": "Kaspa launch plan (responding to reality)",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
-          "published": "2021-11-18"
-        },
-        "extracted_at": "2025-06-30T22:35:04.177442"
-      },
-      {
-        "fact": "During the gamenet phase, the platform will operate with low hashrate and security, functioning primarily as a sandbox environment.",
-        "category": "security",
-        "impact": "medium",
-        "context": "Lower security is accepted at this stage to enable experimentation, with an understanding that this is not yet a production environment.",
+        "context": "This environment is intended for experimentation, including attack simulations, rather than commercial use.",
         "source": {
           "type": "medium_article",
           "title": "Kaspa launch plan",
@@ -1841,27 +1621,27 @@
           "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
           "published": "2021-09-22"
         },
-        "extracted_at": "2025-06-30T22:35:12.295253"
+        "extracted_at": "2025-06-30T23:44:06.866599"
       },
       {
-        "fact": "Cryptocurrency users' safety against unsafe networks is partially predicated on the ability to efficiently communicate and diffuse information about protocol breaches or fraud, with the internet serving this role.",
-        "category": "security",
-        "impact": "medium",
-        "context": "This highlights the importance of timely and broad communication mechanisms for network health, possibly reducing reliance on strict historical validation if information on breaches can quickly reach all users.",
-        "source": {
-          "type": "medium_article",
-          "title": "In which mayday mayday we are syncing about*",
-          "author": "Yonatan Sompolinsky",
-          "url": "https://hashdag.medium.com/in-which-mayday-mayday-we-are-syncing-about-bf05ad58957a?source=rss-400d0e2aab3b------2",
-          "published": "2021-05-05"
-        },
-        "extracted_at": "2025-06-30T22:35:18.299005"
-      },
-      {
-        "fact": "The post refers to the concept of security budget, quantifying the hourly spending by miners (e.g., miners’ operational costs) versus the much larger total asset value of the Bitcoin network.",
+        "fact": "The gamenet's block rewards are designed to incentivize real-world attack simulations, such as reward-based and MEV-based reorgs, including selfish mining and miner extractable value (MEV) exploits.",
         "category": "security",
         "impact": "high",
-        "context": "The relationship between security budget and network value is important for assessing potential vulnerabilities such as 51% or reorg attacks, especially by well-resourced adversaries.",
+        "context": "The network is intended as a live testbed for studying the effects and dynamics of advanced cryptoeconomic attacks in practice.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa launch plan",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+          "published": "2021-09-22"
+        },
+        "extracted_at": "2025-06-30T23:44:06.866614"
+      },
+      {
+        "fact": "The security budget in cryptocurrency mining (e.g., Bitcoin) refers to the revenue miners receive for securing the network, which is substantially smaller than the total value secured by the network.",
+        "category": "security",
+        "impact": "high",
+        "context": "Discrepancy between the network’s value and its security budget can pose risks, as attackers might be able to spend more attacking the network than the total mining reward intended to prevent such attacks.",
         "source": {
           "type": "medium_article",
           "title": "In which I have no patience to wait ’til by and by*",
@@ -1869,31 +1649,211 @@
           "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
           "published": "2020-12-28"
         },
-        "extracted_at": "2025-06-30T22:35:28.779191"
+        "extracted_at": "2025-06-30T23:44:18.601388"
+      },
+      {
+        "fact": "In Bitcoin, if the security model is based on block confirmations, higher block rates can improve security against certain classes of attacks by reducing the window for attackers to outpace the honest chain.",
+        "category": "security",
+        "impact": "medium",
+        "context": "This affects how quickly transactions can be regarded as final and potentially deters short-term double-spend or reorganization attacks.",
+        "source": {
+          "type": "medium_article",
+          "title": "In which I have no patience to wait ’til by and by*",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/in-which-i-have-no-patience-to-wait-til-by-and-by-b79ce53726b3?source=rss-400d0e2aab3b------2",
+          "published": "2020-12-28"
+        },
+        "extracted_at": "2025-06-30T23:44:18.601393"
+      }
+    ],
+    "development": [
+      {
+        "fact": "The timeline and completion of DAGKNIGHT integration on Kaspa are not strictly dependent on grant approval: the protocol authors intend to implement it regardless, but formal grant funding would accelerate development.",
+        "category": "development",
+        "impact": "high",
+        "context": "If the grant is not approved by the community, progress on DAGKNIGHT may be slower or completed on a non-specific timeline, potentially affecting upgrade timing.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part III)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-iii-72ddd0bbe6ae?source=rss-400d0e2aab3b------2",
+          "published": "2022-12-14"
+        },
+        "extracted_at": "2025-06-30T23:43:20.953771"
+      },
+      {
+        "fact": "Further research is necessary to determine the optimal blocks-per-second for DK, as increasing block rates may widen the DAG and increase block header size, potentially offsetting confirmation time improvements.",
+        "category": "development",
+        "impact": "medium",
+        "context": "Tuning block rates is critical for network performance and efficiency.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part II)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+          "published": "2022-11-26"
+        },
+        "extracted_at": "2025-06-30T23:43:39.498916"
+      },
+      {
+        "fact": "The current DK pseudocode is highly inefficient and must be refined for real-world implementation, focusing on devising efficient algorithms.",
+        "category": "development",
+        "impact": "medium",
+        "context": "Practical deployment requires the protocol to be computationally and resource efficient.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part II)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+          "published": "2022-11-26"
+        },
+        "extracted_at": "2025-06-30T23:43:39.498921"
+      },
+      {
+        "fact": "The DK protocol must be adapted to manage cryptocurrency-specific requirements such as minting regulation, difficulty control, and pruning, which require a responsive synchronous protocol, instead of DK’s current partially synchronous operation mode.",
+        "category": "development",
+        "impact": "high",
+        "context": "Without these adaptations, DK cannot be deployed as a working consensus mechanism for cryptocurrencies like Kaspa.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part II)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+          "published": "2022-11-26"
+        },
+        "extracted_at": "2025-06-30T23:43:39.498926"
+      },
+      {
+        "fact": "Completing DK’s formal proof, paper for peer-review, and efficient implementation are prerequisites before the protocol is considered for inclusion in Kaspa.",
+        "category": "development",
+        "impact": "high",
+        "context": "Academic scrutiny and technical readiness are essential before any consensus upgrade.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part II)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-ii-c080bcef2f3a?source=rss-400d0e2aab3b------2",
+          "published": "2022-11-26"
+        },
+        "extracted_at": "2025-06-30T23:43:39.498940"
+      },
+      {
+        "fact": "One of Kaspa’s core developers, Michael Sutton, proposed refactoring the Kaspad full-node codebase and rewriting it in Rust to significantly enhance performance.",
+        "category": "development",
+        "impact": "high",
+        "context": "Transitioning to Rust is expected to improve modularity, code legibility, and potentially order-of-magnitude performance increases for Kaspa nodes.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part I)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+          "published": "2022-07-05"
+        },
+        "extracted_at": "2025-06-30T23:43:44.732147"
+      },
+      {
+        "fact": "The current Kaspad codebase is an adaptation of the Bitcoin client btcd and is written in Golang.",
+        "category": "development",
+        "impact": "medium",
+        "context": "The inherited structure leads to technical debt and code complexity, making contributions difficult for new developers.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part I)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+          "published": "2022-07-05"
+        },
+        "extracted_at": "2025-06-30T23:43:44.732162"
+      },
+      {
+        "fact": "The proposed refactor aims to make the codebase more modular and easier to understand, beyond just improving performance.",
+        "category": "development",
+        "impact": "high",
+        "context": "Improved structure and readability can enhance community contribution and the maintainability of the project.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa where to (Part I)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-where-to-part-i-ce6a1a2c8eb0?source=rss-400d0e2aab3b------2",
+          "published": "2022-07-05"
+        },
+        "extracted_at": "2025-06-30T23:43:44.732168"
+      },
+      {
+        "fact": "A rebase of Kaspa is planned, which will be cosmetic only (a renaming/altering of representation) and will not affect user balances or proportional ownership.",
+        "category": "development",
+        "impact": "low",
+        "context": "Users' percentage ownership of total or circulating supply will remain unchanged after the rebase.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa (Black Tuesday)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-black-tuesday-8c7f4fa35834?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-23"
+        },
+        "extracted_at": "2025-06-30T23:43:49.986278"
+      },
+      {
+        "fact": "Near-term development priorities include increasing the block rate to 10 blocks per second and implementing an upgrade to the consensus protocol, pending theoretical research results.",
+        "category": "development",
+        "impact": "high",
+        "context": "Boosting block throughput and improving consensus directly affects scalability, transaction speed, and underlying protocol security.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa launch plan (responding to reality)",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-responding-to-reality-6b4bec449037?source=rss-400d0e2aab3b------2",
+          "published": "2021-11-18"
+        },
+        "extracted_at": "2025-06-30T23:43:56.606861"
+      },
+      {
+        "fact": "Kaspa is proposed to launch in \"gamenet mode,\" which is a research-oriented experimental network rather than a standard mainnet cryptocurrency launch.",
+        "category": "development",
+        "impact": "high",
+        "context": "Gamenet mode is designed to enable experimentation and attack simulations before transitioning to a commercial mainnet, allowing for robust testing of the protocol.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa launch plan",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+          "published": "2021-09-22"
+        },
+        "extracted_at": "2025-06-30T23:44:06.866572"
+      },
+      {
+        "fact": "Gamenet 2.0 is proposed to include the development of an Ethereum bridge to simulate and practice MEV-reorgs, in order to test and demonstrate DAG consensus antifragility.",
+        "category": "development",
+        "impact": "high",
+        "context": "Integrating with Ethereum enables the replication of real-world MEV dynamics and tests of the consensus algorithm's robustness.",
+        "source": {
+          "type": "medium_article",
+          "title": "Kaspa launch plan",
+          "author": "Yonatan Sompolinsky",
+          "url": "https://hashdag.medium.com/kaspa-launch-plan-9a63f4d754a6?source=rss-400d0e2aab3b------2",
+          "published": "2021-09-22"
+        },
+        "extracted_at": "2025-06-30T23:44:06.866619"
       }
     ]
   },
   "statistics": {
-    "total_facts": 66,
+    "total_facts": 65,
     "by_category": {
-      "technical": 18,
-      "consensus": 12,
-      "mining": 5,
-      "mining/security": 1,
-      "mining/consensus": 1,
-      "mining/energy efficiency": 1,
-      "consensus/security": 1,
-      "governance": 7,
-      "development": 13,
-      "security": 7
+      "technical": 13,
+      "consensus": 13,
+      "governance": 11,
+      "mining": 8,
+      "security": 8,
+      "development": 12
     },
     "by_impact": {
-      "high": 23,
-      "medium": 42,
-      "low": 1
+      "high": 28,
+      "medium": 34,
+      "low": 3
     },
     "sources": {
-      "medium": 66
+      "medium": 65
     }
   },
   "metadata": {
