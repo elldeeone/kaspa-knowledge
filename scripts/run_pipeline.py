@@ -37,7 +37,8 @@ def run_command(command, description):
             return True, "success"
         elif result.returncode == 2 and "medium_ingest" in command:
             print(
-                f"ℹ️  {description} found no new content - skipping downstream processing"
+                f"ℹ️  {description} found no new content - "
+                "skipping downstream processing"
             )
             return True, "no_new_content"
         else:
@@ -87,7 +88,8 @@ def run_full_pipeline():
             success_count += 1
             if status == "success":
                 ingestion_found_new_content = True
-            # Note: "no_new_content" is also considered success, but won't trigger downstream processing
+            # Note: "no_new_content" is also considered success, but won't
+            # trigger downstream processing
         elif step["required"]:
             print(f"\n❌ Required step failed: {step['description']}")
             print("🛑 Stopping pipeline due to critical failure")

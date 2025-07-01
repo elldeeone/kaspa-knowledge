@@ -11,7 +11,6 @@ import json
 import feedparser
 import argparse
 import requests
-import glob
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
@@ -467,7 +466,7 @@ regular operations, full-history for comprehensive backfill operations.
             print("\n🎯 Smart deduplication result:")
             print(f"   - Articles fetched: {len(all_articles)}")
             print(f"   - Unique in this run: {len(unique_articles_this_run)}")
-            print(f"   - New articles (not in database): 0")
+            print("   - New articles (not in database): 0")
             print("\n✨ No new articles found - skipping file creation and processing!")
             print("ℹ️  Use --force flag to bypass deduplication if needed.")
             import sys
