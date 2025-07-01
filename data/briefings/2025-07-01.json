@@ -1,6 +1,6 @@
 {
   "date": "2025-07-01",
-  "generated_at": "2025-07-01T22:47:55.473862",
+  "generated_at": "2025-07-01T22:51:15.261277",
   "sources": {
     "medium": {
       "summary": "No Medium articles found for this date.",
@@ -26,7 +26,7 @@
     }
   },
   "metadata": {
-    "total_sources_processed": 0,
+    "total_sources_processed": 1,
     "briefing_version": "1.0.0",
     "llm_model": "openai/gpt-4.1"
   }
