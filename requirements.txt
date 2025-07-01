@@ -12,6 +12,9 @@ feedparser>=6.0.10
 # Discord API integration
 discord.py>=2.3.0
 
+# Telegram API integration
+telethon>=1.34.0
+
 # GitHub API integration
 PyGithub>=1.59.0
 

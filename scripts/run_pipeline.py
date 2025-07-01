@@ -33,7 +33,9 @@ def run_command(command, description):
         if result.returncode == 0:
             print(f"✅ {description} completed successfully")
             return True, "success"
-        elif result.returncode == 2 and "medium_ingest" in command:
+        elif result.returncode == 2 and (
+            "medium_ingest" in command or "telegram_ingest" in command
+        ):
             print(
                 f"ℹ️  {description} found no new content - "
                 "skipping downstream processing"
@@ -63,6 +65,11 @@ def run_full_pipeline():
             "command": "python -m scripts.medium_ingest",
             "description": "Medium Articles Ingestion",
             "required": True,
+        },
+        {
+            "command": "python -m scripts.telegram_ingest",
+            "description": "Telegram Group Ingestion",
+            "required": False,
         },
         # TODO: Add other source ingestion commands when available
         # {
@@ -176,10 +183,19 @@ def run_full_pipeline():
 def run_ingestion_only():
     """Run only the data ingestion steps."""
     print("\n🔄 Running ingestion-only pipeline")
-    success, status = run_command(
-        "python -m scripts.medium_ingest", "Medium Articles Ingestion"
-    )
-    return success
+
+    steps = [
+        ("python -m scripts.medium_ingest", "Medium Articles Ingestion"),
+        ("python -m scripts.telegram_ingest", "Telegram Group Ingestion"),
+    ]
+
+    success_count = 0
+    for command, description in steps:
+        success, status = run_command(command, description)
+        if success:
+            success_count += 1
+
+    return success_count > 0
 
 
 def run_aggregation_only():

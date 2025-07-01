@@ -1,6 +1,6 @@
 {
   "date": "2025-07-01",
-  "generated_at": "2025-07-01T11:30:44.545153",
+  "generated_at": "2025-07-01T12:36:28.390239",
   "sources": {
     "medium_articles": [
       {
@@ -134,6 +134,35 @@
         "rss_url": "manual_scrape"
       }
     ],
+    "telegram_messages": [
+      {
+        "message_id": 1001,
+        "topic_id": 123,
+        "topic_title": "General Discussion",
+        "text": "Just heard about the latest Kaspa developments! Very exciting stuff.",
+        "date": "2025-07-01T10:15:30+00:00",
+        "sender_username": "kaspa_enthusiast",
+        "group": "KaspaCoreRD"
+      },
+      {
+        "message_id": 1002,
+        "topic_id": 456,
+        "topic_title": "Technical Updates",
+        "text": "The new DAG pruning implementation looks very promising for scalability.",
+        "date": "2025-07-01T11:22:45+00:00",
+        "sender_username": "tech_researcher",
+        "group": "KaspaCoreRD"
+      },
+      {
+        "message_id": 2001,
+        "topic_id": null,
+        "topic_title": null,
+        "text": "Anyone else following the latest mining pool statistics?",
+        "date": "2025-07-01T14:30:15+00:00",
+        "sender_username": "miner_joe",
+        "group": "AnotherKaspaGroup"
+      }
+    ],
     "github_activity": [],
     "discord_messages": [],
     "forum_posts": [],
@@ -142,11 +171,12 @@
     "documentation": []
   },
   "metadata": {
-    "total_items": 13,
+    "total_items": 16,
     "processing_time": "0.00s",
     "pipeline_version": "2.0.0",
     "sources_processed": [
-      "medium: 13 items"
+      "medium: 13 items",
+      "telegram: 3 items"
     ]
   }
 }

@@ -1,0 +1,22 @@
+{
+  "telegram_groups": [
+    {
+      "username": "KaspaCoreRD",
+      "has_topics": true,
+      "backfill_on_first_run": true,
+      "enabled": true
+    },
+    {
+      "username": "AnotherKaspaGroup",
+      "has_topics": false,
+      "backfill_on_first_run": false,
+      "enabled": true
+    },
+    {
+      "username": "SomeOtherChannel",
+      "has_topics": false,
+      "backfill_on_first_run": true,
+      "enabled": false
+    }
+  ]
+} 

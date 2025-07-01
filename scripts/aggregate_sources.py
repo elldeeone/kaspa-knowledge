@@ -15,6 +15,7 @@ class SourcesAggregator:
         # Define source mappings - which source folder maps to which aggregated key
         self.source_mappings = {
             "medium": "medium_articles",
+            "telegram": "telegram_messages",
             "github": "github_activity",
             "discord": "discord_messages",
             "forum": "forum_posts",
@@ -27,6 +28,9 @@ class SourcesAggregator:
 
     def load_source_data(self, source_name: str, date: str) -> List[Dict]:
         """Load data from a specific source for a given date."""
+        if source_name == "telegram":
+            return self.load_telegram_data(date)
+
         source_path = self.sources_dir / source_name / f"{date}.json"
 
         if not source_path.exists():
@@ -41,6 +45,42 @@ class SourcesAggregator:
         except Exception as e:
             print(f"⚠️  Error loading {source_name} data: {e}")
             return []
+
+    def load_telegram_data(self, date: str) -> List[Dict]:
+        """Load Telegram data from all group directories for a given date."""
+        telegram_dir = self.sources_dir / "telegram"
+        all_messages = []
+
+        if not telegram_dir.exists():
+            print("📁 No Telegram directory found")
+            return []
+
+        group_count = 0
+        for group_dir in telegram_dir.iterdir():
+            if group_dir.is_dir():
+                daily_file = group_dir / f"{date}.json"
+                if daily_file.exists():
+                    try:
+                        with open(daily_file, "r", encoding="utf-8") as f:
+                            group_data = json.load(f)
+                            all_messages.extend(group_data)
+                            group_count += 1
+                            print(
+                                f"📁 Loaded {len(group_data)} messages "
+                                f"from {group_dir.name}"
+                            )
+                    except Exception as e:
+                        print(f"⚠️  Error loading {group_dir.name} data: {e}")
+
+        if group_count == 0:
+            print(f"📁 No Telegram data found for {date}")
+        else:
+            print(
+                f"📁 Loaded {len(all_messages)} total Telegram messages "
+                f"from {group_count} groups"
+            )
+
+        return all_messages
 
     def aggregate_daily_sources(self, date: str = None) -> Dict[str, Any]:
         """Aggregate all sources for a given date into raw aggregated data."""
