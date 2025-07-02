@@ -2,50 +2,63 @@
 
 An automated knowledge aggregation and processing system for the Kaspa cryptocurrency ecosystem. This project creates a comprehensive, daily-updated knowledge corpus by ingesting, processing, and synthesizing information from multiple sources across the Kaspa community.
 
-## 🎯 Purpose
+## Purpose
 
 The Kaspa Knowledge Hub serves as a centralized intelligence system that:
 
-- **Aggregates Information**: Automatically collects data from key Kaspa sources including developer blogs, GitHub repositories, Discord channels, research forums, and on-chain metrics
+- **Aggregates Information**: Automatically collects data from key Kaspa sources including developer blogs, GitHub repositories, Discourse research forums, Telegram channels, and news sources
 - **Processes with AI**: Uses advanced language models to extract key facts, generate insights, and create structured summaries
 - **Delivers Daily Briefings**: Produces concise, narrative-style briefings highlighting important developments and trends
 - **Enables RAG Integration**: Optimizes all outputs for ingestion into vector databases and Retrieval-Augmented Generation (RAG) systems
+- **Smart Deduplication**: Intelligent content filtering prevents duplicate processing and reduces resource consumption
 
-## 🏗️ Architecture
+## Architecture
 
-The system operates with clean a separation between raw data ingestion, aggregation, and AI processing:
+The system operates with clean separation between raw data ingestion, aggregation, and AI processing:
 
 ```
 kaspa-knowledge/
 ├── sources/                  # Raw data ingestion (no AI processing)
 │   ├── medium/               # Raw Medium RSS article data
 │   ├── github/               # Raw GitHub activity data
-│   ├── discord/              # Raw Discord messages
-│   ├── forum/                # Raw research forum posts
-│   └── news/                 # Raw news articles
+│   ├── github_summaries/     # AI-processed GitHub summaries
+│   ├── telegram/             # Raw Telegram messages
+│   ├── forum/                # Raw Discourse forum posts
+│   ├── discord/              # Raw Discord messages (future)
+│   └── news/                 # Raw news articles (future)
 ├── data/                     # Processed data outputs
 │   ├── aggregated/           # Raw combined daily data (no AI)
 │   ├── briefings/            # AI-generated executive briefings
 │   └── facts/                # AI-extracted technical facts
 ├── scripts/                  # Pipeline processing scripts
-│   ├── medium_ingest.py      # Multi-feed Medium RSS ingestion with full history support
+│   ├── medium_ingest.py      # Multi-feed Medium RSS ingestion
+│   ├── github_ingest.py      # GitHub repository activity ingestion
+│   ├── discourse_ingest.py   # Discourse forum post ingestion
+│   ├── telegram_ingest.py    # Telegram message ingestion
+│   ├── summarize_github.py   # AI-powered GitHub activity summarization
 │   ├── aggregate_sources.py  # Raw data aggregation
 │   ├── generate_briefing.py  # AI briefing generation
-│   ├── extract_facts.py      # AI fact extraction
+│   ├── extract_facts.py      # AI fact extraction with deduplication
 │   ├── run_pipeline.py       # Complete pipeline runner
-│   └── llm_interface.py      # LLM integration
+│   └── llm_interface.py      # OpenRouter LLM integration
 ├── docs/                     # Static documentation
+├── config/                   # Configuration files
 ├── .taskmaster/              # Taskmaster project management
 ├── .github/workflows/        # GitHub Actions automation
 └── README.md
 ```
 
-### 🔄 Three-Stage Pipeline Process
+### Four-Stage Pipeline Process
 
 **Stage 1: Raw Data Ingestion**
 - Collects pure, unprocessed data from various sources
 - Saves to `sources/` directory with date-stamped files
+- Smart deduplication prevents processing duplicate content
 - No AI processing or transformation
+
+**Stage 1.5: Data Pre-Processing**
+- GitHub Activity Summarization: AI-powered summaries of repository activity
+- Processes GitHub data into human-readable summaries
 
 **Stage 2: Raw Data Aggregation**  
 - Combines all sources into daily aggregated files
@@ -57,28 +70,31 @@ kaspa-knowledge/
 - Generates separate outputs for different use cases:
   - **Briefings**: Executive summaries and high-level insights
   - **Facts**: Structured technical facts with categories and impact levels
+- Smart deduplication avoids reprocessing existing content
 
 ### Data Sources
 
 - **Medium RSS Feeds**: Multiple author feeds for comprehensive coverage of developer blogs and articles
-- **GitHub Repositories**: Commits, pull requests, issues from key Kaspa repos  
-- **Discord Channels**: High-signal conversations from development channels
-- **Research Forum**: Discussions from https://research.kas.pa/
-- **On-Chain Data**: Daily network statistics (hashrate, BPS, transaction volume)
-- **News Sources**: Industry news and announcements
+- **GitHub Repositories**: Commits, pull requests, issues from key Kaspa repos with AI summarization
+- **Discourse Forums**: Research discussions from https://research.kas.pa/ with incremental updates
+- **Telegram Channels**: Community conversations and announcements (optional)
+- **Discord Channels**: High-signal conversations from development channels (future)
+- **News Sources**: Industry news and announcements (future)
 
-### 🎯 Externalized Prompt System
+### Externalized Prompt System
 
-The system uses a clean separation between application logic and AI prompts:
+The system uses clean separation between application logic and AI prompts:
 
 ```
 scripts/prompts/
-├── extract_kaspa_facts.txt         # Main facts extraction prompt
-├── extract_kaspa_facts_system.txt  # System prompt for facts extraction
-├── generate_article_summary.txt    # Article summarization prompt
-├── generate_article_summary_system.txt
-├── generate_daily_briefing.txt     # Daily briefing generation prompt
-└── generate_daily_briefing_system.txt
+├── extract_kaspa_facts.txt                 # Main facts extraction prompt
+├── extract_kaspa_facts_system.txt          # System prompt for facts extraction
+├── generate_article_summary.txt            # Article summarization prompt
+├── generate_article_summary_system.txt     # System prompt for article summaries
+├── generate_daily_briefing.txt             # Daily briefing generation prompt
+├── generate_daily_briefing_system.txt      # System prompt for briefings
+├── summarize_github_activity.txt           # GitHub activity summarization prompt
+└── summarize_github_activity_system.txt    # System prompt for GitHub summaries
 ```
 
 **Benefits:**
@@ -87,33 +103,38 @@ scripts/prompts/
 - **Version Control**: Track prompt changes independently from code changes
 - **Collaboration**: Non-technical users can contribute to prompt optimization
 
-## 🚀 Features
+## Features
 
 - **Clean Pipeline Architecture**: Separation between raw data and AI processing
+- **Smart Deduplication**: Intelligent content filtering across all components
 - **Automated Daily Workflow**: Fully automated via GitHub Actions  
 - **Multi-Source Integration**: Comprehensive coverage of the Kaspa ecosystem
-- **AI-Powered Analysis**: Advanced fact extraction and summarization
+- **Multi-Model AI**: Access to OpenAI, Anthropic, Google, Mistral, and other models via OpenRouter
+- **Incremental Processing**: Only processes new content, avoiding redundant operations
 - **Modular Design**: Each pipeline stage can be run independently
 - **Quality Controls**: Built-in validation and error handling
 - **Rate Limiting**: Respectful API usage with comprehensive rate limiting
+- **Code Quality**: Integrated black and flake8 formatting with CI validation
 - **RAG Optimization**: All outputs optimized for vector database ingestion
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Python**: Core data processing and AI integration
-- **GitHub Actions**: Automation and orchestration  
-- **OpenRouter API**: AI processing and analysis (supports OpenAI, Anthropic, and other models)
+- **GitHub Actions**: Automation and orchestration with comprehensive CI/CD
+- **OpenRouter API**: Unified access to multiple LLM providers (OpenAI, Anthropic, Google, Mistral, etc.)
 - **Feedparser**: RSS feed processing
+- **Requests**: HTTP client for API interactions
 - **JSON**: Structured data storage and exchange
+- **Black & Flake8**: Code formatting and quality assurance
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Python 3.8+
 - Git
 - GitHub repository with Actions enabled
-- OpenRouter API key (supports OpenAI, Anthropic, and other models)
+- OpenRouter API key (provides access to OpenAI, Anthropic, Google, Mistral, and other LLM providers)
 
-## ⚙️ Setup & Installation
+## Setup & Installation
 
 1. **Clone the repository**:
    ```bash
@@ -135,30 +156,51 @@ scripts/prompts/
 4. **Configure environment variables**:
    ```bash
    cp .env.example .env
-   # Edit .env with your API keys:
-   # OPENROUTER_API_KEY=your_openrouter_api_key
-   # MEDIUM_RSS_URLS=https://hashdag.medium.com/feed,https://kaspadev.medium.com/feed
+   # Edit .env with your OpenRouter API key and configuration
    ```
 
 5. **Set up GitHub Actions secrets** (for automation):
-   - `OPENROUTER_API_KEY`: For AI processing
-   - Additional API keys as needed for data sources
+   See the GitHub Actions Setup section below for required secrets.
 
-## 🔧 Configuration
+## Configuration
 
 Configuration is managed through:
 
-- **Environment variables** (`.env` file): OpenRouter API keys and RSS feed URLs
+- **Environment variables** (`.env` file): OpenRouter API key and source URLs
+- **Config files** (`config/sources.config.json`): Source-specific settings
 - **Script parameters**: Configurable within individual processing scripts  
 - **Pipeline settings**: Located in `scripts/run_pipeline.py`
 
+### LLM Integration via OpenRouter
+
+All AI processing is handled through OpenRouter, which provides access to multiple LLM providers:
+
+**Available Models via OpenRouter:**
+- OpenAI (GPT-3.5, GPT-4, GPT-4-turbo, GPT-4o)
+- Anthropic (Claude-3-haiku, Claude-3-sonnet, Claude-3-opus)
+- Google (Gemini Pro, Gemini Flash)
+- Mistral (Various models)
+- Meta (Llama models)
+- And many other providers
+
+**Configuration:**
+```bash
+# OpenRouter API access (provides access to all LLM providers)
+OPENROUTER_API_KEY=your_openrouter_api_key
+
+# Medium RSS feeds (comma-separated)
+MEDIUM_RSS_URLS=https://hashdag.medium.com/feed,https://kaspadev.medium.com/feed
+```
+
+**Model Selection:**
+The default model is `openai/gpt-4.1`, but you can specify any model available through OpenRouter in the LLM interface.
+
 ### Enhanced Medium RSS Configuration
 
-The system supports multiple Medium author RSS feeds and full history backfill:
+The system supports multiple Medium author RSS feeds:
 
 **Multiple RSS Feeds:**
 ```bash
-# Configure multiple Medium authors (comma-separated)
 MEDIUM_RSS_URLS=https://hashdag.medium.com/feed,https://kaspadev.medium.com/feed,https://medium.com/feed/@kaspa_currency
 ```
 
@@ -167,10 +209,55 @@ To get any Medium author's RSS feed URL, simply add `/feed` to their profile URL
 - Profile: `https://author-name.medium.com/` 
 - RSS Feed: `https://author-name.medium.com/feed`
 
-**Backward Compatibility:**
-The system still supports the legacy single URL format (`MEDIUM_RSS_URL`) for existing configurations.
+### Discourse Forum Configuration
 
-## 🏃‍♂️ Usage
+Configure access to Discourse forums in `config/sources.config.json`:
+
+```json
+{
+  "discourse": {
+    "forums": [
+      {
+        "name": "kaspa_research",
+        "url": "https://research.kas.pa",
+        "enabled": true
+      }
+    ]
+  }
+}
+```
+
+**Optional Authentication:**
+For private forums, set environment variables:
+```bash
+DISCOURSE_API_USERNAME=your_username
+DISCOURSE_API_KEY=your_api_key
+```
+
+### GitHub Repository Configuration
+
+Configure GitHub repositories in `config/sources.config.json`:
+
+```json
+{
+  "github": {
+    "repositories": [
+      {
+        "owner": "kaspanet",
+        "repo": "rusty-kaspa",
+        "enabled": true
+      },
+      {
+        "owner": "kaspanet", 
+        "repo": "kaspad",
+        "enabled": true
+      }
+    ]
+  }
+}
+```
+
+## Usage
 
 ### Manual Execution
 
@@ -182,18 +269,37 @@ python -m scripts.run_pipeline
 **Run individual stages:**
 ```bash
 # Stage 1: Ingest raw data
-python -m scripts.medium_ingest                    # Daily sync (saves to dated file)
-python -m scripts.medium_ingest --full-history     # Full history backfill (saves to full_history.json)
-python -m scripts.medium_ingest --manual-urls URL1 URL2  # Manual scraping (bypasses RSS limit)
+python -m scripts.medium_ingest
+python -m scripts.github_ingest
+python -m scripts.discourse_ingest
+python -m scripts.telegram_ingest
+
+# Stage 1.5: Pre-process data
+python -m scripts.summarize_github
 
 # Stage 2: Aggregate raw sources  
 python -m scripts.aggregate_sources
 
-# Stage 3a: Generate briefings
+# Stage 3: AI processing
 python -m scripts.generate_briefing
-
-# Stage 3b: Extract facts
 python -m scripts.extract_facts
+```
+
+### Smart Deduplication
+
+All components include intelligent deduplication:
+
+**Automatic Deduplication:**
+- Medium: Compares article URLs and publication dates
+- GitHub: Tracks processed commits, PRs, and issues
+- Forum: Incremental post fetching with state management
+- Facts: Detects existing facts files to avoid reprocessing
+
+**Force Processing:**
+```bash
+# Override deduplication for any component
+python -m scripts.extract_facts --force
+python -m scripts.medium_ingest --force
 ```
 
 ### Medium Ingestion Options
@@ -202,70 +308,64 @@ python -m scripts.extract_facts
 ```bash
 python -m scripts.medium_ingest
 ```
-- Fetches all articles available in RSS feeds (limited to 10 most recent per author by Medium)
+- Fetches articles from configured RSS feeds
+- Smart deduplication prevents duplicate processing
 - Saves to `sources/medium/YYYY-MM-DD.json`
-- Used by daily automated pipeline
 
 **Full History Backfill:**
 ```bash
 python -m scripts.medium_ingest --full-history
 ```
-- Fetches all articles available in RSS feeds (same 10-article limit applies)
+- Fetches all available articles from RSS feeds
 - Saves to `sources/medium/full_history.json`
-- **Run only once** to establish historical baseline  
-- Intended for comprehensive backfill operations
-- Processes multiple feeds simultaneously
-- Automatically removes duplicates across feeds
+- **Run only once** to establish historical baseline
 
-**Manual URL Scraping (NEW):**
+**Manual URL Scraping:**
 ```bash
-# Scrape specific articles that aren't in RSS feeds
 python -m scripts.medium_ingest --manual-urls https://hashdag.medium.com/article1 https://hashdag.medium.com/article2
-
-# Combine with RSS feeds for comprehensive collection
-python -m scripts.medium_ingest --full-history --manual-urls https://hashdag.medium.com/old-article1 https://hashdag.medium.com/old-article2
 ```
-- **Bypasses RSS limitation** - can scrape any accessible Medium article
-- Perfect for capturing older articles not available in RSS feeds
-- Can be combined with regular RSS ingestion
+- Bypasses RSS limitations
+- Can scrape any accessible Medium article
 - Automatically extracts title, author, content, and publication date
-- Integrates seamlessly with existing data structure
 
-**IMPORTANT LIMITATION:** Medium RSS feeds are hard-limited to the **10 most recent articles per author** by Medium's platform design. **Solution**: Use `--manual-urls` to scrape specific older articles that aren't available via RSS feeds.
+### GitHub Repository Processing
 
-### Working Around RSS Limitations
-
-**Strategy 1: Manual URL Scraping (RECOMMENDED)**
+**Standard Processing:**
 ```bash
-# For Yonatan (hashdag) who has 13 total articles but RSS only shows 10:
-# 1. Visit https://hashdag.medium.com/ to find older articles
-# 2. Copy URLs of the 3 missing articles
-# 3. Scrape them manually:
-python -m scripts.medium_ingest --manual-urls \
-  https://hashdag.medium.com/older-article-1 \
-  https://hashdag.medium.com/older-article-2 \
-  https://hashdag.medium.com/older-article-3
+python -m scripts.github_ingest
 ```
+- Fetches commits, PRs, and issues from configured repositories
+- Includes rate limiting and smart pagination
+- Saves raw data to `sources/github/YYYY-MM-DD.json`
 
-**Strategy 2: Regular Historical Collection**
+**AI Summarization:**
 ```bash
-# Run weekly/monthly to capture articles before they disappear from RSS
-python -m scripts.medium_ingest --full-history
-# Manually merge with previous full_history.json files to build complete archive
+python -m scripts.summarize_github
 ```
+- Processes raw GitHub data into human-readable summaries
+- Generates concise summaries for repositories with activity
+- Saves to `sources/github_summaries/YYYY-MM-DD.md`
 
-**Strategy 3: Timeline Reconstruction**
+### Discourse Forum Processing
+
+**Standard Processing:**
 ```bash
-# If you've been running daily, older articles might be in dated files
-ls sources/medium/  # Check for articles in previous YYYY-MM-DD.json files
+python -m scripts.discourse_ingest
 ```
+- Incremental fetching of new posts only
+- Maintains state to track processed content
+- Smart pagination and rate limiting
+- Saves to `sources/forum/YYYY-MM-DD.json`
 
 ### Automated Execution
-The system runs automatically via GitHub Actions on a daily schedule. Check the `.github/workflows/` directory for automation configuration.
 
-## 📊 Output Structure
+The system runs automatically via GitHub Actions on a daily schedule. The workflow includes:
+- Complete pipeline execution
+- Code quality validation (black, flake8)
+- Artifact generation and storage
+- Error handling and notifications
 
-The system generates several types of structured output:
+## Output Structure
 
 ### Raw Aggregated Data (`data/aggregated/`)
 - **Purpose**: Complete daily dataset combining all sources
@@ -281,59 +381,99 @@ The system generates several types of structured output:
 - **Purpose**: Structured technical facts and insights
 - **Format**: JSON with categorized facts, impact levels, and source attribution
 - **Use Case**: Knowledge base building, RAG applications
+- **Features**: Smart deduplication prevents reprocessing existing facts
 
-## 🤖 AI Processing
+### GitHub Summaries (`sources/github_summaries/`)
+- **Purpose**: Human-readable summaries of repository activity
+- **Format**: Markdown with structured summaries per repository
+- **Use Case**: Quick understanding of development progress
 
-The system uses advanced language models (via OpenRouter) to:
+## AI Processing
+
+The system uses advanced language models to:
 
 - **Extract Key Facts**: Automatically identify and categorize important technical information
 - **Generate Summaries**: Create concise, readable summaries of complex technical content  
 - **Assess Impact**: Classify information by relevance and importance
 - **Maintain Context**: Preserve source attribution and publication dates
 - **Ensure Quality**: Validate and structure all extracted information
+- **Avoid Duplication**: Smart processing prevents redundant AI operations
 
 ## GitHub Actions Setup
 
-For the automated daily pipeline to work correctly, you need to configure the following repository secrets in GitHub:
+For the automated daily pipeline to work correctly, configure these repository secrets:
 
 ### Required Secrets
-- `OPENROUTER_API_KEY` - Your OpenRouter API key for LLM access
-- `GH_TOKEN` - GitHub Personal Access Token for repository data access
+- `OPENROUTER_API_KEY` - OpenRouter API key (provides access to OpenAI, Anthropic, Google, Mistral, and other LLM providers)
 
 ### Optional Secrets (enable specific features)
-- `DISCOURSE_API_USERNAME` - Your Discourse forum username
-- `DISCOURSE_API_KEY` - Your Discourse API key for forum access
-- `MEDIUM_RSS_URL` - Medium RSS feed URLs (comma-separated)
+- `GH_TOKEN` - GitHub Personal Access Token for repository data access
+- `DISCOURSE_API_USERNAME` - Discourse forum username for private forum access
+- `DISCOURSE_API_KEY` - Discourse API key for authenticated forum access
+- `TELEGRAM_API_ID` - Telegram API ID for message ingestion
+- `TELEGRAM_API_HASH` - Telegram API hash for message ingestion
+- `TELEGRAM_BOT_TOKEN` - Telegram bot token (alternative auth method)
+- `MEDIUM_RSS_URLS` - Medium RSS feed URLs (comma-separated)
+
+### Configuration Sources
+- `SOURCES_CONFIG` - JSON configuration for sources (optional, uses defaults if not provided)
 
 **To add secrets**: Go to your repository → Settings → Secrets and variables → Actions → New repository secret
 
-**Note**: Without the Discourse credentials, forum ingestion will be skipped but the pipeline will continue running other sources.
+**Note**: The pipeline gracefully handles missing optional credentials by skipping those data sources while continuing to process available sources.
 
-## Configuration
+## Code Quality
 
-See `.env.example` for all available configuration options including:
-- AI model selection (OpenRouter, OpenAI, Anthropic, etc.)
-- Source-specific API credentials
-- Pipeline timing and processing limits
+The project maintains high code quality standards:
 
-## Architecture
+**Automated Formatting:**
+```bash
+# Format code with black
+black scripts/
 
+# Check code quality with flake8  
+flake8 scripts/
 ```
-Sources → Raw Data → Aggregation → AI Processing → Outputs
-  ↓         ↓           ↓             ↓            ↓
-GitHub    sources/   data/        data/        Facts &
-Medium      ↓       aggregated/  briefings/   Briefings
-Forums    JSON        JSON         JSON         JSON
+
+**CI Integration:**
+- GitHub Actions automatically validates code formatting
+- All commits must pass black and flake8 checks
+- Consistent code style across the entire project
+
+## Development
+
+**Setup Development Environment:**
+```bash
+# Install development dependencies
+pip install black flake8
+
+# Set up pre-commit hooks (optional)
+pip install pre-commit
+pre-commit install
+```
+
+**Testing:**
+```bash
+# Run the complete pipeline in test mode
+python -m scripts.run_pipeline
+
+# Test individual components
+python -m scripts.medium_ingest --test
+python -m scripts.github_ingest --test
 ```
 
 ## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Ensure code quality (`black scripts/ && flake8 scripts/`)
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+**Code Standards:**
+- Follow PEP 8 style guidelines
+- Use black for code formatting
+- Ensure flake8 validation passes
+- Include appropriate documentation
+- Add tests for new functionality
