@@ -6,11 +6,15 @@ from typing import Dict, List, Any
 
 class SourcesAggregator:
     def __init__(
-        self, sources_dir: str = "sources", output_dir: str = "data/aggregated"
+        self,
+        sources_dir: str = "sources",
+        output_dir: str = "data/aggregated",
+        force: bool = False,
     ):
         self.sources_dir = Path(sources_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.force = force
 
         # Mapping of source directories to aggregated data keys
         self.source_mappings = {
@@ -344,6 +348,34 @@ class SourcesAggregator:
         print(f"\n🔄 Aggregating raw sources for {date}")
         print("=" * 50)
 
+        # Check if aggregated data already exists for this date (deduplication)
+        if not self.force:
+            existing_aggregated_path = self.get_daily_file_path(date)
+            if existing_aggregated_path.exists():
+                try:
+                    with open(existing_aggregated_path, "r", encoding="utf-8") as f:
+                        existing_data = json.load(f)
+
+                    # Check if existing aggregated file has substantial content
+                    if existing_data and existing_data.get("sources"):
+                        print("📋 Aggregated data already exists for this date")
+                        print("⚡ Skipping aggregation to avoid duplicates")
+                        print("ℹ️  Use --force flag to override this behavior")
+
+                        # Return existing data to maintain consistency
+                        print("\n💾 Using existing aggregated data")
+                        print(f"   📁 {existing_aggregated_path}")
+
+                        # Mark this data as loaded from existing file for summary logic
+                        existing_data["_loaded_from_existing"] = True
+                        return existing_data
+
+                except (json.JSONDecodeError, IOError) as e:
+                    print(f"⚠️  Warning: Could not read existing aggregated file: {e}")
+                    print("🔄 Proceeding with fresh aggregation...")
+        else:
+            print("⚠️  Force flag used - bypassing deduplication checks")
+
         # Initialize aggregated data structure
         aggregated_data = {
             "date": date,
@@ -403,23 +435,64 @@ class SourcesAggregator:
         # Aggregate all sources
         aggregated_data = self.aggregate_daily_sources(date)
 
-        # Save to file
-        output_path = self.save_aggregated_data(aggregated_data, date)
+        # Check if data was loaded from existing file (deduplication)
+        loaded_from_existing = aggregated_data.pop("_loaded_from_existing", False)
 
-        print("\n✅ Raw aggregation complete!")
-        print(f"📁 Output: {output_path}")
-        print(f"📊 Total items: {aggregated_data['metadata']['total_items']}")
-        print("📋 Sources processed:")
-        for source in aggregated_data["metadata"]["sources_processed"]:
-            print(f"   - {source}")
+        # Save to file (only if new aggregation)
+        if not loaded_from_existing:
+            output_path = self.save_aggregated_data(aggregated_data, date)
+        else:
+            # Don't save, just reference existing path
+            output_path = self.get_daily_file_path(date)
 
-        return str(output_path)
+        # Show brief summary if loaded from existing, detailed if newly aggregated
+        if loaded_from_existing:
+            print(
+                "\nℹ️  Raw Sources Aggregation found existing content - "
+                "skipping downstream processing"
+            )
+            success_msg = (
+                "Raw sources aggregation skipped - using existing aggregated data"
+            )
+        else:
+            # Print detailed summary for new aggregations
+            print("\n✅ Raw aggregation complete!")
+            print(f"📁 Output: {output_path}")
+            print(f"📊 Total items: {aggregated_data['metadata']['total_items']}")
+            print("📋 Sources processed:")
+            for source in aggregated_data["metadata"]["sources_processed"]:
+                print(f"   - {source}")
+
+            success_msg = (
+                f"🎯 Raw sources aggregation completed! Saved to {output_path}"
+            )
+
+        return success_msg
 
 
 def main():
-    aggregator = SourcesAggregator()
-    result_path = aggregator.run_aggregation()
-    print(f"\n🎉 Successfully aggregated raw sources to: {result_path}")
+    """CLI entry point."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Aggregate raw sources from Kaspa knowledge data"
+    )
+    parser.add_argument(
+        "--date",
+        help="Date to process (YYYY-MM-DD format). Defaults to today.",
+        default=None,
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-aggregation even if data already exists for this date",
+    )
+
+    args = parser.parse_args()
+
+    aggregator = SourcesAggregator(force=args.force)
+    result = aggregator.run_aggregation(args.date)
+    print(f"\n🎯 {result}")
 
 
 if __name__ == "__main__":

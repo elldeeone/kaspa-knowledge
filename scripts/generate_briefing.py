@@ -16,11 +16,15 @@ from scripts.prompt_loader import prompt_loader
 
 class BriefingGenerator:
     def __init__(
-        self, input_dir: str = "data/aggregated", output_dir: str = "data/briefings"
+        self,
+        input_dir: str = "data/aggregated",
+        output_dir: str = "data/briefings",
+        force: bool = False,
     ):
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.force = force
 
         # Initialize LLM interface
         self.llm = LLMInterface()
@@ -339,6 +343,34 @@ class BriefingGenerator:
         print(f"\n🔄 Generating daily briefing for {date}")
         print("=" * 50)
 
+        # Check if briefing already exists for this date (deduplication)
+        if not self.force:
+            existing_briefing_path = self.output_dir / f"{date}.json"
+            if existing_briefing_path.exists():
+                try:
+                    with open(existing_briefing_path, "r", encoding="utf-8") as f:
+                        existing_data = json.load(f)
+
+                    # Check if existing briefing file has substantial content
+                    if existing_data and existing_data.get("sources"):
+                        print("📋 Briefing already exists for this date")
+                        print("⚡ Skipping generation to avoid duplicates")
+                        print("ℹ️  Use --force flag to override this behavior")
+
+                        # Return existing data to maintain consistency
+                        print("\n💾 Using existing briefing")
+                        print(f"   📁 {existing_briefing_path}")
+
+                        # Mark this data as loaded from existing file for summary logic
+                        existing_data["_loaded_from_existing"] = True
+                        return existing_data
+
+                except (json.JSONDecodeError, IOError) as e:
+                    print(f"⚠️  Warning: Could not read existing briefing file: {e}")
+                    print("🔄 Proceeding with fresh generation...")
+        else:
+            print("⚠️  Force flag used - bypassing deduplication checks")
+
         # Load raw data
         daily_data = self.load_daily_data(date)
 
@@ -390,37 +422,74 @@ class BriefingGenerator:
         # Generate briefing
         briefing = self.generate_daily_briefing(date)
 
-        # Save to file
-        output_path = self.save_briefing(briefing, date)
+        # Check if briefing was loaded from existing file (deduplication)
+        loaded_from_existing = briefing.pop("_loaded_from_existing", False)
 
-        print("\n✅ Briefing generation complete!")
-        print(f"📁 Output: {output_path}")
-        print(
-            f"📊 Sources processed: {briefing['metadata']['total_sources_processed']}"
-        )
+        # Save to file (only if new generation)
+        if not loaded_from_existing:
+            output_path = self.save_briefing(briefing, date)
+        else:
+            # Don't save, just reference existing path
+            output_path = self.output_dir / f"{date}.json"
 
-        # Print summary stats
-        medium_briefing = briefing["sources"]["medium"]
-        if isinstance(medium_briefing, dict) and "article_count" in medium_briefing:
-            print(f"📰 Medium articles: {medium_briefing['article_count']}")
-            print(f"🏷️  Key topics: {', '.join(medium_briefing['key_topics'][:5])}")
-
-        forum_briefing = briefing["sources"]["forum"]
-        if isinstance(forum_briefing, dict) and "post_count" in forum_briefing:
+        # Show brief summary if loaded from existing, detailed if newly generated
+        if loaded_from_existing:
             print(
-                f"🏛️  Forum posts: {forum_briefing['post_count']} across "
-                f"{forum_briefing.get('topic_count', 0)} topics"
+                "\nℹ️  Daily Briefing Generation found existing content - "
+                "skipping downstream processing"
             )
-            if forum_briefing.get("key_topics"):
-                print(f"🔬 Forum topics: {', '.join(forum_briefing['key_topics'][:5])}")
+            success_msg = "Briefing generation skipped - using existing briefing"
+        else:
+            # Print detailed summary for new generations
+            print("\n✅ Briefing generation complete!")
+            print(f"📁 Output: {output_path}")
+            print(f"📊 Sources: {briefing['metadata']['total_sources_processed']}")
 
-        return str(output_path)
+            # Print summary stats
+            medium_briefing = briefing["sources"]["medium"]
+            if isinstance(medium_briefing, dict) and "article_count" in medium_briefing:
+                print(f"📰 Medium articles: {medium_briefing['article_count']}")
+                print(f"🏷️  Key topics: {', '.join(medium_briefing['key_topics'][:5])}")
+
+            forum_briefing = briefing["sources"]["forum"]
+            if isinstance(forum_briefing, dict) and "post_count" in forum_briefing:
+                print(
+                    f"🏛️  Forum posts: {forum_briefing['post_count']} across "
+                    f"{forum_briefing.get('topic_count', 0)} topics"
+                )
+                if forum_briefing.get("key_topics"):
+                    print(
+                        f"🔬 Forum topics: {', '.join(forum_briefing['key_topics'][:5])}"
+                    )
+
+            success_msg = f"🎯 Briefing generation completed! Saved to {output_path}"
+
+        return success_msg
 
 
 def main():
-    generator = BriefingGenerator()
-    result_path = generator.run_briefing_generation()
-    print(f"\n🎉 Successfully generated briefing: {result_path}")
+    """CLI entry point."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Generate daily briefings from aggregated Kaspa knowledge data"
+    )
+    parser.add_argument(
+        "--date",
+        help="Date to process (YYYY-MM-DD format). Defaults to today.",
+        default=None,
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-generation even if briefing already exists for this date",
+    )
+
+    args = parser.parse_args()
+
+    generator = BriefingGenerator(force=args.force)
+    result = generator.run_briefing_generation(args.date)
+    print(f"\n🎯 {result}")
 
 
 if __name__ == "__main__":

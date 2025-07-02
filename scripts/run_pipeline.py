@@ -9,6 +9,7 @@ This script orchestrates the full data pipeline:
 """
 
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -50,7 +51,7 @@ def run_command(command, description):
         return False, "failed"
 
 
-def run_full_pipeline():
+def run_full_pipeline(force=False):
     """Run the complete data pipeline."""
     # Define pipeline date for consistent file naming
     pipeline_date = datetime.now().strftime("%Y-%m-%d")
@@ -58,6 +59,8 @@ def run_full_pipeline():
     print("\n🚀 Starting Kaspa Knowledge Hub Pipeline")
     print(f"📅 Pipeline Date: {pipeline_date} ({datetime.now().strftime('%H:%M:%S')})")
     print("🏗️  Pipeline Version: 2.0.0")
+    if force:
+        print("⚠️  Force mode enabled - bypassing duplicate checks")
 
     success_count = 0
     total_steps = 0
@@ -151,8 +154,9 @@ def run_full_pipeline():
     print("=" * 60)
 
     total_steps += 1
+    force_flag = " --force" if force else ""
     success, status = run_command(
-        "python -m scripts.aggregate_sources", "Raw Sources Aggregation"
+        f"python -m scripts.aggregate_sources{force_flag}", "Raw Sources Aggregation"
     )
     if success:
         success_count += 1
@@ -164,12 +168,12 @@ def run_full_pipeline():
     # Step 3: AI Processing (separate outputs)
     ai_steps = [
         {
-            "command": "python -m scripts.generate_briefing",
+            "command": f"python -m scripts.generate_briefing{force_flag}",
             "description": "Daily Briefing Generation",
             "required": False,
         },
         {
-            "command": "python -m scripts.extract_facts",
+            "command": f"python -m scripts.extract_facts{force_flag}",
             "description": "Daily Facts Extraction",
             "required": False,
         },
@@ -233,22 +237,27 @@ def run_ingestion_only():
     return success_count > 0
 
 
-def run_aggregation_only():
+def run_aggregation_only(force=False):
     """Run only the raw aggregation step."""
     print("\n🔄 Running aggregation-only pipeline")
+    force_flag = " --force" if force else ""
     success, status = run_command(
-        "python -m scripts.aggregate_sources", "Raw Sources Aggregation"
+        f"python -m scripts.aggregate_sources{force_flag}", "Raw Sources Aggregation"
     )
     return success
 
 
-def run_ai_processing_only():
+def run_ai_processing_only(force=False):
     """Run only the AI processing steps."""
     print("\n🔄 Running AI processing pipeline")
 
+    force_flag = " --force" if force else ""
     steps = [
-        ("python -m scripts.generate_briefing", "Daily Briefing Generation"),
-        ("python -m scripts.extract_facts", "Daily Facts Extraction"),
+        (
+            f"python -m scripts.generate_briefing{force_flag}",
+            "Daily Briefing Generation",
+        ),
+        (f"python -m scripts.extract_facts{force_flag}", "Daily Facts Extraction"),
     ]
 
     success_count = 0
@@ -262,26 +271,34 @@ def run_ai_processing_only():
 
 def main():
     """Main entry point with command line argument support."""
-    import sys
+    import argparse
 
-    if len(sys.argv) > 1:
-        mode = sys.argv[1].lower()
+    parser = argparse.ArgumentParser(
+        description="Kaspa Knowledge Hub Data Pipeline Runner"
+    )
+    parser.add_argument(
+        "mode",
+        nargs="?",
+        choices=["ingest", "aggregate", "ai", "full"],
+        default="full",
+        help="Pipeline mode to run (default: full)",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-processing even if data already exists",
+    )
 
-        if mode == "ingest":
-            success = run_ingestion_only()
-        elif mode == "aggregate":
-            success = run_aggregation_only()
-        elif mode == "ai":
-            success = run_ai_processing_only()
-        elif mode == "full":
-            success = run_full_pipeline()
-        else:
-            print(f"❌ Unknown mode: {mode}")
-            print("Available modes: ingest, aggregate, ai, full")
-            sys.exit(1)
-    else:
-        # Default to full pipeline
-        success = run_full_pipeline()
+    args = parser.parse_args()
+
+    if args.mode == "ingest":
+        success = run_ingestion_only()
+    elif args.mode == "aggregate":
+        success = run_aggregation_only(force=args.force)
+    elif args.mode == "ai":
+        success = run_ai_processing_only(force=args.force)
+    elif args.mode == "full":
+        success = run_full_pipeline(force=args.force)
 
     if success:
         print("\n🎯 Pipeline completed successfully!")
