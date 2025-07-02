@@ -398,9 +398,7 @@ class FactsExtractor:
                         return existing_data
 
                 except (json.JSONDecodeError, IOError) as e:
-                    print(
-                        f"⚠️  Warning: Could not read existing facts file: {e}"
-                    )
+                    print(f"⚠️  Warning: Could not read existing facts file: {e}")
                     print("🔄 Proceeding with fresh extraction...")
         else:
             print("⚠️  Force flag used - bypassing deduplication checks")
