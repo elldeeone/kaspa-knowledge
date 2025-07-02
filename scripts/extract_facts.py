@@ -213,18 +213,30 @@ class FactsExtractor:
             return []
 
         print(f"🔍 Extracting facts from {len(posts)} forum posts...")
+        print(
+            f"⏰ Note: Processing {len(posts)} posts may take "
+            f"{len(posts) * 5}-{len(posts) * 10} seconds..."
+        )
 
         all_facts = []
 
         for i, post in enumerate(posts, 1):
-            print(f"  {i}/{len(posts)} - Post: {post.get('title', 'untitled')[:60]}...")
+            # Get post info for better progress display
+            post_author = post.get("author", "Unknown")
+            post_topic = post.get("topic_title") or post.get("title") or "untitled"
+            post_id = post.get("post_id", "unknown")
+
+            print(
+                f"  {i}/{len(posts)} - Post #{post_id} by {post_author}: "
+                f"{post_topic[:60]}..."
+            )
 
             source_info = {
                 "type": "forum_post",
-                "title": post.get("title", "Untitled Forum Post"),
-                "author": post.get("author", "Unknown"),
+                "title": post_topic,
+                "author": post_author,
                 "url": post.get("url", "Unknown"),
-                "date": post.get("date", "unknown"),
+                "date": post.get("created_at", post.get("date", "unknown")),
             }
 
             facts = self.extract_facts_from_content(
@@ -234,7 +246,10 @@ class FactsExtractor:
 
             if facts:
                 print(f"    ✅ Extracted {len(facts)} facts")
+            else:
+                print("    ℹ️  No facts extracted")
 
+        print(f"🏛️ Forum processing complete: {len(all_facts)} total facts extracted")
         return all_facts
 
     def extract_news_facts(self, articles: List[Dict]) -> List[Dict[str, Any]]:

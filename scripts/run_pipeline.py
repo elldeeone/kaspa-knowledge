@@ -79,6 +79,11 @@ def run_full_pipeline():
             "description": "GitHub Repository Ingestion",
             "required": False,
         },
+        {
+            "command": "python -m scripts.discourse_ingest",
+            "description": "Discourse Forum Ingestion",
+            "required": False,
+        },
     ]
 
     print("\n📋 STAGE 1: RAW DATA INGESTION")

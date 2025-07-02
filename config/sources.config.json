@@ -25,6 +25,22 @@
       "description": "Official Kaspa documentation"
     }
   ],
+  "discourse_forums": [
+    {
+      "name": "kaspa_research",
+      "base_url": "https://research.kas.pa",
+      "enabled": true,
+      "description": "Kaspa Research Forum",
+      "api_endpoints": {
+        "latest": "/latest.json",
+        "topic": "/t/{topic_id}.json",
+        "categories": "/categories.json"
+      },
+      "rate_limit_seconds": 0.5,
+      "request_timeout": 30,
+      "max_posts_per_request": 100
+    }
+  ],
   "telegram_groups": [
     {
       "username": "KaspaCoreRD",

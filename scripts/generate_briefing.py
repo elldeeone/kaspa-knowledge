@@ -199,6 +199,138 @@ class BriefingGenerator:
             },
         }
 
+    def generate_forum_briefing(self, forum_posts: List[Dict]) -> Dict[str, Any]:
+        """Generate a briefing for forum posts from Discourse."""
+        if not forum_posts:
+            return {
+                "summary": "No forum activity found for this date.",
+                "post_count": 0,
+                "topics": [],
+                "key_discussions": [],
+            }
+
+        print(f"🤖 Generating briefing for {len(forum_posts)} forum posts...")
+
+        # Group posts by topic for better analysis
+        topics = {}
+        for post in forum_posts:
+            topic_id = post.get("topic_id")
+            topic_title = post.get("topic_title", "Unknown Topic")
+
+            if topic_id not in topics:
+                topics[topic_id] = {
+                    "title": topic_title,
+                    "posts": [],
+                    "authors": set(),
+                }
+
+            topics[topic_id]["posts"].append(post)
+            if post.get("author"):
+                topics[topic_id]["authors"].add(post.get("author"))
+
+        # Convert sets to lists for JSON serialization
+        for topic_data in topics.values():
+            topic_data["authors"] = list(topic_data["authors"])
+
+        # Prepare content for AI summarization (focus on most active topics)
+        most_active_topics = sorted(
+            topics.items(), key=lambda x: len(x[1]["posts"]), reverse=True
+        )[
+            :5
+        ]  # Top 5 most active topics
+
+        forum_content = ""
+        for topic_id, topic_data in most_active_topics:
+            forum_content += f"\n## Topic: {topic_data['title']}\n"
+            forum_content += (
+                f"Posts: {len(topic_data['posts'])}, "
+                f"Authors: {len(topic_data['authors'])}\n"
+            )
+
+            # Include content from recent posts in this topic
+            recent_posts = topic_data["posts"][:3]  # Most recent posts
+            for post in recent_posts:
+                content = post.get("raw_content") or post.get("content", "")
+                if content:
+                    # Truncate very long posts
+                    if len(content) > 500:
+                        content = content[:500] + "..."
+                    forum_content += f"- {post.get('author', 'Unknown')}: {content}\n"
+
+        # Generate AI briefing
+        try:
+            forum_summary = self.llm.call_llm(
+                prompt=(
+                    f"Summarize this Discourse forum activity, focusing on key "
+                    f"discussions, technical topics, and community insights:\n\n"
+                    f"{forum_content[:4000]}"
+                ),
+                system_prompt=(
+                    "You are a community manager and technical analyst. Summarize "
+                    "forum discussions focusing on key technical topics, important "
+                    "questions, solutions shared, and community sentiment. "
+                    "Highlight any significant developments or trends."
+                ),
+            )
+
+            print(f"    ✅ Generated forum briefing ({len(forum_summary)} chars)")
+
+        except Exception as e:
+            print(f"    ⚠️  Failed to generate forum briefing: {e}")
+            forum_summary = f"[Forum briefing generation failed: {str(e)}]"
+
+        # Extract key topics and discussions
+        key_discussions = []
+        for topic_id, topic_data in most_active_topics:
+            key_discussions.append(
+                {
+                    "title": topic_data["title"],
+                    "post_count": len(topic_data["posts"]),
+                    "author_count": len(topic_data["authors"]),
+                    "topic_id": topic_id,
+                }
+            )
+
+        # Extract technical terms mentioned
+        all_content = " ".join(
+            [
+                post.get("raw_content", "") or post.get("content", "")
+                for post in forum_posts
+            ]
+        ).lower()
+
+        technical_terms = [
+            "dagknight",
+            "kaspa",
+            "consensus",
+            "pow",
+            "mining",
+            "asic",
+            "optical",
+            "blockchain",
+            "cryptocurrency",
+            "ghostdag",
+            "research",
+            "protocol",
+            "scalability",
+            "throughput",
+            "finality",
+        ]
+
+        key_topics = [term for term in technical_terms if term in all_content]
+
+        return {
+            "summary": forum_summary,
+            "post_count": len(forum_posts),
+            "topic_count": len(topics),
+            "key_discussions": key_discussions,
+            "key_topics": key_topics,
+            "most_active_topics": [
+                {"title": topic_data["title"], "posts": len(topic_data["posts"])}
+                for _, topic_data in most_active_topics
+            ],
+        }
+
     def generate_daily_briefing(self, date: str = None) -> Dict[str, Any]:
         """Generate a comprehensive daily briefing from all sources."""
         if date is None:
@@ -222,7 +354,9 @@ class BriefingGenerator:
                 ),
                 "telegram": {"summary": "Telegram processing not yet implemented."},
                 "discord": {"summary": "Discord processing not yet implemented."},
-                "forum": {"summary": "Forum processing not yet implemented."},
+                "forum": self.generate_forum_briefing(
+                    daily_data["sources"].get("forum_posts", [])
+                ),
                 "news": {"summary": "News articles processing not yet implemented."},
             },
             "metadata": {
@@ -270,6 +404,15 @@ class BriefingGenerator:
         if isinstance(medium_briefing, dict) and "article_count" in medium_briefing:
             print(f"📰 Medium articles: {medium_briefing['article_count']}")
             print(f"🏷️  Key topics: {', '.join(medium_briefing['key_topics'][:5])}")
+
+        forum_briefing = briefing["sources"]["forum"]
+        if isinstance(forum_briefing, dict) and "post_count" in forum_briefing:
+            print(
+                f"🏛️  Forum posts: {forum_briefing['post_count']} across "
+                f"{forum_briefing.get('topic_count', 0)} topics"
+            )
+            if forum_briefing.get("key_topics"):
+                print(f"🔬 Forum topics: {', '.join(forum_briefing['key_topics'][:5])}")
 
         return str(output_path)
 

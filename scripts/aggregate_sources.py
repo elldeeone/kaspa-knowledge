@@ -55,6 +55,11 @@ class SourcesAggregator:
                 items = data.get("messages", [])
                 print(f"📁 Loaded {len(items)} items from {source_name}")
                 return items
+            elif isinstance(data, dict) and "forum_posts" in data:
+                # Handle Discourse forum's new structure with metadata
+                items = data.get("forum_posts", [])
+                print(f"📁 Loaded {len(items)} items from {source_name}")
+                return items
             elif isinstance(data, list):
                 # Handle legacy structure (list of items)
                 print(f"📁 Loaded {len(data)} items from {source_name}")

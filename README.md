@@ -291,3 +291,49 @@ The system uses advanced language models (via OpenRouter) to:
 - **Assess Impact**: Classify information by relevance and importance
 - **Maintain Context**: Preserve source attribution and publication dates
 - **Ensure Quality**: Validate and structure all extracted information
+
+## GitHub Actions Setup
+
+For the automated daily pipeline to work correctly, you need to configure the following repository secrets in GitHub:
+
+### Required Secrets
+- `OPENROUTER_API_KEY` - Your OpenRouter API key for LLM access
+- `GH_TOKEN` - GitHub Personal Access Token for repository data access
+
+### Optional Secrets (enable specific features)
+- `DISCOURSE_API_USERNAME` - Your Discourse forum username
+- `DISCOURSE_API_KEY` - Your Discourse API key for forum access
+- `MEDIUM_RSS_URL` - Medium RSS feed URLs (comma-separated)
+
+**To add secrets**: Go to your repository → Settings → Secrets and variables → Actions → New repository secret
+
+**Note**: Without the Discourse credentials, forum ingestion will be skipped but the pipeline will continue running other sources.
+
+## Configuration
+
+See `.env.example` for all available configuration options including:
+- AI model selection (OpenRouter, OpenAI, Anthropic, etc.)
+- Source-specific API credentials
+- Pipeline timing and processing limits
+
+## Architecture
+
+```
+Sources → Raw Data → Aggregation → AI Processing → Outputs
+  ↓         ↓           ↓             ↓            ↓
+GitHub    sources/   data/        data/        Facts &
+Medium      ↓       aggregated/  briefings/   Briefings
+Forums    JSON        JSON         JSON         JSON
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

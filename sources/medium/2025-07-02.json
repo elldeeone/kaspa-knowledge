@@ -1,6 +1,6 @@
 {
   "date": "2025-07-02",
-  "generated_at": "2025-07-02T07:50:05.055645",
+  "generated_at": "2025-07-02T10:34:59.255547",
   "source": "medium",
   "status": "no_new_content",
   "articles": [],
@@ -9,7 +9,7 @@
     "successful_feeds": 1,
     "articles_fetched_total": 10,
     "unique_articles_this_run": 10,
-    "existing_articles_in_database": 13,
+    "existing_articles_in_database": 10,
     "processing_mode": "daily_sync",
     "deduplication_enabled": true
   }
