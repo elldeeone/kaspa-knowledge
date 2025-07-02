@@ -392,10 +392,15 @@ class FactsExtractor:
 
                         # Return existing data to maintain consistency
                         print(f"\n💾 Using existing facts from: {existing_facts_path}")
+
+                        # Mark this data as loaded from existing file for summary logic
+                        existing_data["_loaded_from_existing"] = True
                         return existing_data
 
                 except (json.JSONDecodeError, IOError) as e:
-                    print(f"⚠️  Warning: Could not read existing facts file: {e}")
+                    print(
+                        f"⚠️  Warning: Could not read existing facts file: {e}"
+                    )
                     print("🔄 Proceeding with fresh extraction...")
         else:
             print("⚠️  Force flag used - bypassing deduplication checks")
@@ -542,44 +547,64 @@ class FactsExtractor:
             # Extract facts
             facts_data = self.extract_daily_facts(date)
 
-            # Save facts
-            output_path = self.save_facts(facts_data, date)
+            # Check if facts were loaded from existing file (deduplication)
+            loaded_from_existing = facts_data.pop("_loaded_from_existing", False)
 
-            # Print summary
+            # Save facts (only if new extraction)
+            if not loaded_from_existing:
+                output_path = self.save_facts(facts_data, date)
+            else:
+                # Don't save, just reference existing path
+                if date is None:
+                    date = datetime.now().strftime("%Y-%m-%d")
+                output_path = self.output_dir / f"{date}.json"
+
             all_facts = facts_data["facts"]
-            facts_by_category = facts_data["facts_by_category"]
-            fact_stats = facts_data["statistics"]
-            source_stats = fact_stats["by_source"]
 
-            print("\n" + "=" * 60)
-            print("📊 FACTS EXTRACTION SUMMARY")
-            print("=" * 60)
-            print(f"📅 Date: {date}")
-            print(f"📋 Total facts extracted: {len(all_facts)}")
-            print(f"🏷️  Categories: {len(facts_by_category)}")
-            sources_with_facts = len([k for k, v in source_stats.items() if v > 0])
-            print(f"📁 Sources processed: {sources_with_facts}")
+            # Show brief summary if loaded from existing, detailed if newly extracted
+            if loaded_from_existing:
+                print(
+                    "\nℹ️  Daily Facts Extraction found existing content - "
+                    "skipping downstream processing"
+                )
+                success_msg = (
+                    f"Facts extraction skipped - using {len(all_facts)} existing facts"
+                )
+            else:
+                # Print detailed summary for new extractions
+                facts_by_category = facts_data["facts_by_category"]
+                fact_stats = facts_data["statistics"]
+                source_stats = fact_stats["by_source"]
 
-            print("\n📊 BY CATEGORY:")
-            for category, count in sorted(facts_by_category.items()):
-                print(f"  {category}: {count}")
+                print("\n" + "=" * 60)
+                print("📊 FACTS EXTRACTION SUMMARY")
+                print("=" * 60)
+                print(f"📅 Date: {date}")
+                print(f"📋 Total facts extracted: {len(all_facts)}")
+                print(f"🏷️  Categories: {len(facts_by_category)}")
+                sources_with_facts = len([k for k, v in source_stats.items() if v > 0])
+                print(f"📁 Sources processed: {sources_with_facts}")
 
-            print("\n📊 BY IMPACT:")
-            for impact, count in sorted(fact_stats["by_impact"].items()):
-                print(f"  {impact}: {count}")
+                print("\n📊 BY CATEGORY:")
+                for category, count in sorted(fact_stats["by_category"].items()):
+                    print(f"  {category}: {count}")
 
-            print("\n📊 BY SOURCE:")
-            for source, count in source_stats.items():
-                print(f"  {source}: {count}")
+                print("\n📊 BY IMPACT:")
+                for impact, count in sorted(fact_stats["by_impact"].items()):
+                    print(f"  {impact}: {count}")
 
-            print(f"\n💾 Facts saved to: {output_path}")
+                print("\n📊 BY SOURCE:")
+                for source, count in source_stats.items():
+                    print(f"  {source}: {count}")
 
-            total_with_facts = len([k for k, v in source_stats.items() if v > 0])
-            success_msg = (
-                f"🎯 Facts extraction completed! {len(all_facts)} facts "
-                f"extracted from {total_with_facts} sources."
-            )
-            print(f"\n{success_msg}")
+                print(f"\n💾 Facts saved to: {output_path}")
+
+                total_with_facts = len([k for k, v in source_stats.items() if v > 0])
+                success_msg = (
+                    f"🎯 Facts extraction completed! {len(all_facts)} facts "
+                    f"extracted from {total_with_facts} sources."
+                )
+                print(f"\n{success_msg}")
 
             return success_msg
 
