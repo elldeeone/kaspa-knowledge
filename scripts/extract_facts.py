@@ -16,11 +16,15 @@ from scripts.prompt_loader import prompt_loader
 
 class FactsExtractor:
     def __init__(
-        self, input_dir: str = "data/aggregated", output_dir: str = "data/facts"
+        self,
+        input_dir: str = "data/aggregated",
+        output_dir: str = "data/facts",
+        force: bool = False,
     ):
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.force = force
 
         # Initialize LLM interface
         self.llm = LLMInterface()
@@ -370,9 +374,76 @@ class FactsExtractor:
         print(f"\n🔍 Extracting daily facts for {date}")
         print("=" * 50)
 
+        # Check if facts already exist for this date (deduplication)
+        if not self.force:
+            existing_facts_path = self.output_dir / f"{date}.json"
+            if existing_facts_path.exists():
+                try:
+                    with open(existing_facts_path, "r", encoding="utf-8") as f:
+                        existing_data = json.load(f)
+
+                    # Check if existing facts file has substantial content
+                    existing_facts = existing_data.get("facts", [])
+                    if len(existing_facts) > 0:
+                        print("📋 Facts already exist for this date")
+                        print(f"📊 Found {len(existing_facts)} existing facts")
+                        print("⚡ Skipping extraction to avoid duplicates")
+                        print("ℹ️  Use --force flag to override this behavior")
+
+                        # Return existing data to maintain consistency
+                        print(f"\n💾 Using existing facts from: {existing_facts_path}")
+                        return existing_data
+
+                except (json.JSONDecodeError, IOError) as e:
+                    print(f"⚠️  Warning: Could not read existing facts file: {e}")
+                    print("🔄 Proceeding with fresh extraction...")
+        else:
+            print("⚠️  Force flag used - bypassing deduplication checks")
+
         # Load raw data
         daily_data = self.load_daily_data(date)
         sources = daily_data.get("sources", {})
+
+        # Check if there's actually any data to process
+        total_items = sum(
+            len(source_data)
+            for source_data in sources.values()
+            if isinstance(source_data, list)
+        )
+        if total_items == 0:
+            print("📋 No source data available for fact extraction")
+            print("✨ Creating empty facts file with metadata")
+
+            # Create empty facts file with metadata (similar to ingestion scripts)
+            empty_facts_data = {
+                "date": date,
+                "generated_at": datetime.now().isoformat(),
+                "facts": [],
+                "facts_by_category": {},
+                "statistics": {
+                    "total_facts": 0,
+                    "by_category": {},
+                    "by_impact": {"high": 0, "medium": 0, "low": 0},
+                    "by_source": {
+                        "medium": 0,
+                        "github": 0,
+                        "telegram": 0,
+                        "discord": 0,
+                        "forum": 0,
+                        "news": 0,
+                        "documentation": 0,
+                    },
+                },
+                "metadata": {
+                    "extractor_version": "2.0.0",
+                    "llm_model": self.llm.model,
+                    "status": "no_content_available",
+                    "total_sources_processed": 0,
+                    "sources_with_data": [],
+                },
+            }
+
+            return empty_facts_data
 
         # Extract facts from each source
         all_facts = []
@@ -530,10 +601,15 @@ def main():
         help="Date to process (YYYY-MM-DD format). Defaults to today.",
         default=None,
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-extraction even if facts already exist for this date",
+    )
 
     args = parser.parse_args()
 
-    extractor = FactsExtractor()
+    extractor = FactsExtractor(force=args.force)
     result = extractor.run_facts_extraction(args.date)
     print(f"\n🎯 {result}")
 
