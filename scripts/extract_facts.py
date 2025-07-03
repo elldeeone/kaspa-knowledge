@@ -7,9 +7,9 @@ key technical facts, insights, and important developments from ALL sources.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Set
 from scripts.llm_interface import LLMInterface
 from scripts.prompt_loader import prompt_loader
 
@@ -40,6 +40,47 @@ class FactsExtractor:
 
         with open(input_path, "r", encoding="utf-8") as f:
             return json.load(f)
+
+    def load_processed_source_urls(self, days_back: int = 7) -> Set[str]:
+        """Load URLs that have been processed in the last N days to avoid duplication."""
+        processed_urls = set()
+
+        # Get the current date
+        current_date = datetime.now()
+
+        for i in range(1, days_back + 1):  # Check previous N days
+            check_date = (current_date - timedelta(days=i)).strftime("%Y-%m-%d")
+            facts_file = self.output_dir / f"{check_date}.json"
+
+            if facts_file.exists():
+                try:
+                    with open(facts_file, "r", encoding="utf-8") as f:
+                        facts_data = json.load(f)
+
+                    # Extract URLs from all facts
+                    for fact in facts_data.get("facts", []):
+                        source = fact.get("source", {})
+                        url = source.get("url", "")
+                        if url:
+                            processed_urls.add(url)
+
+                except (json.JSONDecodeError, IOError) as e:
+                    print(f"⚠️  Warning: Could not read facts file {facts_file}: {e}")
+                    continue
+
+        if processed_urls:
+            print(
+                f"🔍 Loaded {len(processed_urls)} previously processed source URLs from last {days_back} days"
+            )
+
+        return processed_urls
+
+    def is_duplicate_source(
+        self, source_info: Dict[str, Any], processed_urls: Set[str]
+    ) -> bool:
+        """Check if a source has already been processed based on URL."""
+        url = source_info.get("url", "")
+        return url in processed_urls if url else False
 
     def extract_facts_from_content(
         self, content: str, source_info: Dict[str, Any]
@@ -73,7 +114,9 @@ class FactsExtractor:
             print(f"    ⚠️  Failed to extract facts from {source_info['type']}: {e}")
             return []
 
-    def extract_medium_facts(self, articles: List[Dict]) -> List[Dict[str, Any]]:
+    def extract_medium_facts(
+        self, articles: List[Dict], processed_urls: Set[str]
+    ) -> List[Dict[str, Any]]:
         """Extract key facts from Medium articles."""
         if not articles:
             return []
@@ -81,6 +124,7 @@ class FactsExtractor:
         print(f"🔍 Extracting facts from {len(articles)} Medium articles...")
 
         all_facts = []
+        skipped_count = 0
 
         for i, article in enumerate(articles, 1):
             print(f"  {i}/{len(articles)} - {article['title'][:60]}...")
@@ -93,6 +137,12 @@ class FactsExtractor:
                 "date": article.get("published", "Unknown"),
             }
 
+            # Check for duplicates
+            if self.is_duplicate_source(source_info, processed_urls):
+                print(f"    ⏭️  Skipping - already processed this URL")
+                skipped_count += 1
+                continue
+
             facts = self.extract_facts_from_content(
                 article.get("summary", ""), source_info
             )
@@ -103,10 +153,13 @@ class FactsExtractor:
             else:
                 print("    ℹ️  No facts extracted")
 
+        if skipped_count > 0:
+            print(f"⏭️  Skipped {skipped_count} duplicate Medium articles")
+
         return all_facts
 
     def extract_github_facts(
-        self, github_activities: List[Dict]
+        self, github_activities: List[Dict], processed_urls: Set[str]
     ) -> List[Dict[str, Any]]:
         """Extract key facts from individual GitHub activities with proper metadata."""
         if not github_activities:
@@ -115,6 +168,7 @@ class FactsExtractor:
         print(f"🔍 Extracting facts from {len(github_activities)} GitHub activities...")
 
         all_facts = []
+        skipped_count = 0
 
         for i, activity in enumerate(github_activities, 1):
             activity_type = activity.get("type", "unknown")
@@ -133,6 +187,12 @@ class FactsExtractor:
                 "repository": activity.get("repository", ""),
             }
 
+            # Check for duplicates
+            if self.is_duplicate_source(source_info, processed_urls):
+                print(f"    ⏭️  Skipping - already processed this URL")
+                skipped_count += 1
+                continue
+
             facts = self.extract_facts_from_content(
                 activity.get("content", ""), source_info
             )
@@ -143,9 +203,14 @@ class FactsExtractor:
             else:
                 print("    ℹ️  No facts extracted")
 
+        if skipped_count > 0:
+            print(f"⏭️  Skipped {skipped_count} duplicate GitHub activities")
+
         return all_facts
 
-    def extract_telegram_facts(self, messages: List[Dict]) -> List[Dict[str, Any]]:
+    def extract_telegram_facts(
+        self, messages: List[Dict], processed_urls: Set[str]
+    ) -> List[Dict[str, Any]]:
         """Extract key facts from Telegram messages."""
         if not messages:
             return []
@@ -153,6 +218,7 @@ class FactsExtractor:
         print(f"🔍 Extracting facts from {len(messages)} Telegram messages...")
 
         all_facts = []
+        skipped_count = 0
 
         for i, message in enumerate(messages, 1):
             sender_name = message.get("sender_name", "unknown")
@@ -166,6 +232,12 @@ class FactsExtractor:
                 "date": message.get("date", ""),
             }
 
+            # Check for duplicates
+            if self.is_duplicate_source(source_info, processed_urls):
+                print(f"    ⏭️  Skipping - already processed this URL")
+                skipped_count += 1
+                continue
+
             facts = self.extract_facts_from_content(
                 message.get("content", ""), source_info
             )
@@ -176,9 +248,14 @@ class FactsExtractor:
             else:
                 print("    ℹ️  No facts extracted")
 
+        if skipped_count > 0:
+            print(f"⏭️  Skipped {skipped_count} duplicate Telegram messages")
+
         return all_facts
 
-    def extract_discord_facts(self, messages: List[Dict]) -> List[Dict[str, Any]]:
+    def extract_discord_facts(
+        self, messages: List[Dict], processed_urls: Set[str]
+    ) -> List[Dict[str, Any]]:
         """Extract key facts from Discord messages."""
         if not messages:
             return []
@@ -186,6 +263,7 @@ class FactsExtractor:
         print(f"🔍 Extracting facts from {len(messages)} Discord messages...")
 
         all_facts = []
+        skipped_count = 0
 
         for i, message in enumerate(messages, 1):
             author_name = message.get("author", "unknown")
@@ -199,6 +277,12 @@ class FactsExtractor:
                 "date": message.get("date", ""),
             }
 
+            # Check for duplicates
+            if self.is_duplicate_source(source_info, processed_urls):
+                print(f"    ⏭️  Skipping - already processed this URL")
+                skipped_count += 1
+                continue
+
             facts = self.extract_facts_from_content(
                 message.get("content", ""), source_info
             )
@@ -209,9 +293,14 @@ class FactsExtractor:
             else:
                 print("    ℹ️  No facts extracted")
 
+        if skipped_count > 0:
+            print(f"⏭️  Skipped {skipped_count} duplicate Discord messages")
+
         return all_facts
 
-    def extract_forum_facts(self, posts: List[Dict]) -> List[Dict[str, Any]]:
+    def extract_forum_facts(
+        self, posts: List[Dict], processed_urls: Set[str]
+    ) -> List[Dict[str, Any]]:
         """Extract key facts from forum posts."""
         if not posts:
             return []
@@ -223,6 +312,7 @@ class FactsExtractor:
         )
 
         all_facts = []
+        skipped_count = 0
 
         for i, post in enumerate(posts, 1):
             # Get post info for better progress display
@@ -243,6 +333,12 @@ class FactsExtractor:
                 "date": post.get("created_at", post.get("date", "unknown")),
             }
 
+            # Check for duplicates
+            if self.is_duplicate_source(source_info, processed_urls):
+                print(f"    ⏭️  Skipping - already processed this URL")
+                skipped_count += 1
+                continue
+
             facts = self.extract_facts_from_content(
                 post.get("content", ""), source_info
             )
@@ -253,10 +349,15 @@ class FactsExtractor:
             else:
                 print("    ℹ️  No facts extracted")
 
+        if skipped_count > 0:
+            print(f"⏭️  Skipped {skipped_count} duplicate forum posts")
+
         print(f"🏛️ Forum processing complete: {len(all_facts)} total facts extracted")
         return all_facts
 
-    def extract_news_facts(self, articles: List[Dict]) -> List[Dict[str, Any]]:
+    def extract_news_facts(
+        self, articles: List[Dict], processed_urls: Set[str]
+    ) -> List[Dict[str, Any]]:
         """Extract key facts from news articles."""
         if not articles:
             return []
@@ -264,6 +365,7 @@ class FactsExtractor:
         print(f"🔍 Extracting facts from {len(articles)} news articles...")
 
         all_facts = []
+        skipped_count = 0
 
         for i, article in enumerate(articles, 1):
             print(f"  {i}/{len(articles)} - {article.get('title', 'untitled')[:60]}...")
@@ -276,6 +378,12 @@ class FactsExtractor:
                 "date": article.get("published", "unknown"),
             }
 
+            # Check for duplicates
+            if self.is_duplicate_source(source_info, processed_urls):
+                print(f"    ⏭️  Skipping - already processed this URL")
+                skipped_count += 1
+                continue
+
             facts = self.extract_facts_from_content(
                 article.get("content", article.get("summary", "")), source_info
             )
@@ -284,9 +392,14 @@ class FactsExtractor:
             if facts:
                 print(f"    ✅ Extracted {len(facts)} facts")
 
+        if skipped_count > 0:
+            print(f"⏭️  Skipped {skipped_count} duplicate news articles")
+
         return all_facts
 
-    def extract_documentation_facts(self, docs: List[Dict]) -> List[Dict[str, Any]]:
+    def extract_documentation_facts(
+        self, docs: List[Dict], processed_urls: Set[str]
+    ) -> List[Dict[str, Any]]:
         """Extract key facts from documentation updates."""
         if not docs:
             return []
@@ -294,6 +407,7 @@ class FactsExtractor:
         print(f"🔍 Extracting facts from {len(docs)} documentation items...")
 
         all_facts = []
+        skipped_count = 0
 
         for i, doc in enumerate(docs, 1):
             print(f"  {i}/{len(docs)} - {doc.get('title', 'untitled')[:60]}...")
@@ -306,11 +420,20 @@ class FactsExtractor:
                 "date": doc.get("updated", "unknown"),
             }
 
+            # Check for duplicates
+            if self.is_duplicate_source(source_info, processed_urls):
+                print(f"    ⏭️  Skipping - already processed this URL")
+                skipped_count += 1
+                continue
+
             facts = self.extract_facts_from_content(doc.get("content", ""), source_info)
             all_facts.extend(facts)
 
             if facts:
                 print(f"    ✅ Extracted {len(facts)} facts")
+
+        if skipped_count > 0:
+            print(f"⏭️  Skipped {skipped_count} duplicate documentation items")
 
         return all_facts
 
@@ -453,39 +576,52 @@ class FactsExtractor:
         source_stats = {}
 
         # Medium articles
-        medium_facts = self.extract_medium_facts(sources.get("medium_articles", []))
+        processed_urls = self.load_processed_source_urls()
+        medium_facts = self.extract_medium_facts(
+            sources.get("medium_articles", []), processed_urls
+        )
         all_facts.extend(medium_facts)
         source_stats["medium"] = len(medium_facts)
 
         # GitHub activities (individual activities with metadata)
-        github_facts = self.extract_github_facts(sources.get("github_activities", []))
+        github_facts = self.extract_github_facts(
+            sources.get("github_activities", []), processed_urls
+        )
         all_facts.extend(github_facts)
         source_stats["github"] = len(github_facts)
 
         # Telegram messages
         telegram_facts = self.extract_telegram_facts(
-            sources.get("telegram_messages", [])
+            sources.get("telegram_messages", []), processed_urls
         )
         all_facts.extend(telegram_facts)
         source_stats["telegram"] = len(telegram_facts)
 
         # Discord messages
-        discord_facts = self.extract_discord_facts(sources.get("discord_messages", []))
+        discord_facts = self.extract_discord_facts(
+            sources.get("discord_messages", []), processed_urls
+        )
         all_facts.extend(discord_facts)
         source_stats["discord"] = len(discord_facts)
 
         # Forum posts
-        forum_facts = self.extract_forum_facts(sources.get("forum_posts", []))
+        forum_facts = self.extract_forum_facts(
+            sources.get("forum_posts", []), processed_urls
+        )
         all_facts.extend(forum_facts)
         source_stats["forum"] = len(forum_facts)
 
         # News articles
-        news_facts = self.extract_news_facts(sources.get("news_articles", []))
+        news_facts = self.extract_news_facts(
+            sources.get("news_articles", []), processed_urls
+        )
         all_facts.extend(news_facts)
         source_stats["news"] = len(news_facts)
 
         # Documentation
-        doc_facts = self.extract_documentation_facts(sources.get("documentation", []))
+        doc_facts = self.extract_documentation_facts(
+            sources.get("documentation", []), processed_urls
+        )
         all_facts.extend(doc_facts)
         source_stats["documentation"] = len(doc_facts)
 
