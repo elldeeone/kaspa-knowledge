@@ -462,6 +462,42 @@ python -m scripts.medium_ingest --test
 python -m scripts.github_ingest --test
 ```
 
+## Documentation
+
+### High-Signal Contributor Weighting System
+
+The project includes a sophisticated **High-Signal Contributor Weighting System** that prioritizes contributions from core developers, founders, and researchers. This system ensures protocol-level insights are elevated while maintaining comprehensive coverage.
+
+📖 **[Complete Documentation](docs/HIGH_SIGNAL_CONTRIBUTOR_SYSTEM.md)**
+
+**Key Features:**
+- **Smart Contributor Recognition**: Automatically identifies high-signal contributors by name/alias
+- **Signal-Based Prioritization**: Sorts data to surface protocol-level insights first
+- **AI Prompt Integration**: Instructs LLMs to prioritize high-authority sources
+- **Comprehensive Analysis**: Provides detailed signal distribution metrics
+
+**Quick Start:**
+```json
+// config/sources.config.json
+{
+  "high_signal_contributors": [
+    {
+      "name": "Michael Sutton",
+      "aliases": ["msutton", "Michael Sutton"],
+      "role": "core_developer",
+      "is_lead": true
+    }
+  ]
+}
+```
+
+### Additional Documentation
+
+- **Pipeline Architecture**: See the Architecture section above
+- **AI Prompt System**: Review the Externalized Prompt System section
+- **Configuration Guide**: Check the Configuration section
+- **Development Setup**: Follow the Setup & Installation section
+
 ## Contributing
 
 1. Fork the repository

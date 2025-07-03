@@ -1,4 +1,73 @@
 {
+  "high_signal_contributors": [
+    {
+      "name": "Michael Sutton",
+      "aliases": ["msutton", "Michael Sutton"],
+      "role": "core_developer",
+      "is_lead": true
+    },
+    {
+      "name": "Yonatan Sompolinsky",
+      "aliases": ["hashdag", "Yonatan Sompolinsky"],
+      "role": "founder_researcher",
+      "is_founder": true
+    },
+    {
+      "name": "Ori Newman",
+      "aliases": ["someone235", "Ori Newman"],
+      "role": "core_developer"
+    },
+    {
+      "name": "FreshAir08",
+      "aliases": ["FreshAir08", "freshair08"],
+      "role": "core_developer"
+    },
+    {
+      "name": "Hans Moog", 
+      "aliases": ["hus_hqy"],
+      "role": "core_developer"
+    },
+    {
+      "name": "coderofstuff",
+      "aliases": ["coderofstuff", "coderofstuff_"],
+      "role": "core_developer"
+    },
+    {
+      "name": "Maksim Biriukov",
+      "aliases": ["biryukovmaxim", "Max143672"],
+      "role": "core_developer"
+    },
+    {
+      "name": "Anton Yemelyanov",
+      "aliases": ["ASPECT", "CryptoAspect"],
+      "role": "core_developer"
+    },
+    {
+      "name": "Georges Künzli",
+      "aliases": ["tiram88", "Tiram"],
+      "role": "core_developer"
+    },
+    {
+      "name": "Elichai Turkel",
+      "aliases": ["Elichai2", "elichai"],
+      "role": "core_developer"
+    },
+    {
+      "name": "reshmem",
+      "aliases": ["reshmem"],
+      "role": "core_developer"
+    },
+    {
+      "name": "D-Stacks",
+      "aliases": ["D-Stacks"],
+      "role": "core_developer"
+    },
+    {
+      "name": "tmrlvi",
+      "aliases": ["tmrlvi"],
+      "role": "core_developer"
+    }
+  ],
   "github_repositories": [
     {
       "owner": "kaspanet",
