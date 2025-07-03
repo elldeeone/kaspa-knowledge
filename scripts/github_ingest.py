@@ -305,6 +305,15 @@ def fetch_repository_data(github_client, repo_config, days_back=7):
         return None
 
 
+def check_existing_data(date=None):
+    """Check if GitHub data already exists for the given date"""
+    if date is None:
+        date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    output_file = OUTPUT_DIR / f"{date}.json"
+    return output_file.exists()
+
+
 def save_github_data(all_repo_data, date=None):
     """Save raw GitHub data to JSON file"""
     if date is None:
@@ -360,6 +369,11 @@ def main():
         help="Specific date to use for output file (YYYY-MM-DD format)",
     )
     parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force processing even if data already exists (bypass deduplication)",
+    )
+    parser.add_argument(
         "--validate",
         action="store_true",
         help="Run validation after ingestion to verify data quality",
@@ -369,6 +383,33 @@ def main():
 
     print("🚀 Starting GitHub repository ingestion...")
     print(f"   📅 Fetching data from the last {args.days_back} days")
+
+    # Check for existing data (smart deduplication)
+    target_date = args.date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    if check_existing_data(target_date) and not args.force:
+        print(f"📋 GitHub data already exists for {target_date}")
+        print("⚡ Skipping ingestion to avoid duplicates")
+        print("ℹ️  Use --force flag to override this behavior")
+
+        # Use existing data
+        output_file = OUTPUT_DIR / f"{target_date}.json"
+        print("\n💾 Using existing GitHub data")
+        print(f"   📁 {output_file}")
+
+        print(
+            "\nℹ️  GitHub Repository Ingestion found existing content - "
+            "skipping downstream processing"
+        )
+        print("\n🎯 GitHub ingestion skipped - using existing data")
+        print("\n✅ GitHub Repository Ingestion completed successfully")
+
+        import sys
+
+        sys.exit(2)  # Exit code 2 indicates "no new content"
+
+    if args.force:
+        print("⚠️  Force flag used - bypassing deduplication checks")
 
     # Load configuration
     repo_configs = load_github_config()
