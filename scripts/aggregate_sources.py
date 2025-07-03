@@ -112,16 +112,10 @@ class SourcesAggregator:
                 elif isinstance(data, dict) and "messages" in data:
                     messages = data.get("messages", [])
                     msg_count = len(messages)
-                    print(
-                        f"📁 Loaded {msg_count} Telegram messages from "
-                        f"main file"
-                    )
+                    print(f"📁 Loaded {msg_count} Telegram messages from main")
                     return messages
                 elif isinstance(data, list):
-                    print(
-                        f"📁 Loaded {len(data)} Telegram messages from "
-                        f"main file"
-                    )
+                    print(f"📁 Loaded {len(data)} Telegram messages from main")
                     return data
             except Exception as e:
                 print(f"⚠️  Error loading main Telegram file: {e}")
@@ -165,10 +159,7 @@ class SourcesAggregator:
                                 f"from {group_dir.name}"
                             )
                         else:
-                            print(
-                                f"⚠️  Unexpected data structure in "
-                                f"{group_dir.name}"
-                            )
+                            print(f"⚠️  Unexpected data in {group_dir.name}")
 
                     except Exception as e:
                         print(f"⚠️  Error loading {group_dir.name} data: {e}")
@@ -209,9 +200,7 @@ class SourcesAggregator:
             }
 
             print(f"📁 Loaded GitHub summary ({len(content)} characters)")
-            return [
-                summary_data
-            ]  # Return as single-item list for consistency
+            return [summary_data]  # Return as single-item list for consistency
 
         except Exception as e:
             print(f"⚠️  Error loading GitHub summaries: {e}")
@@ -407,9 +396,7 @@ class SourcesAggregator:
                     )
                     print("🔄 Proceeding with fresh aggregation...")
         else:
-            print(
-                "⚠️  Force flag used - bypassing deduplication checks"
-            )
+            print("⚠️  Force flag used - bypassing deduplication checks")
 
         # Initialize aggregated data structure
         aggregated_data = {
