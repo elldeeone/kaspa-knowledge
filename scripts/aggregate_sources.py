@@ -8,7 +8,7 @@ from typing import Dict, List, Any
 scripts_dir = Path(__file__).parent
 sys.path.insert(0, str(scripts_dir))
 
-from signal_enrichment import SignalEnrichmentService
+from signal_enrichment import SignalEnrichmentService  # noqa: E402
 
 
 class SourcesAggregator:
