@@ -38,6 +38,7 @@ def run_command(command, description):
             "medium_ingest" in command
             or "telegram_ingest" in command
             or "github_ingest" in command
+            or "discourse_ingest" in command
         ):
             print(
                 f"ℹ️  {description} found no new content - "
@@ -114,18 +115,12 @@ def run_full_pipeline(force=False):
 
     # Skip remaining stages if no new content was found
     if not ingestion_found_new_content:
-        print("\n🎯 PIPELINE OPTIMIZATION")
+        print("\n🎉 PIPELINE COMPLETED")
         print("=" * 60)
         print("📊 No new content found during ingestion")
-        print("⚡ Skipping aggregation and AI processing to save resources")
-        print("✨ This is the smart deduplication working as intended!")
-
-        print("\n🎉 PIPELINE COMPLETED (OPTIMIZED)")
-        print("=" * 60)
+        print("⚡ Skipping aggregation and AI processing stages")
         print(f"✅ Successful steps: {success_count}/{total_steps}")
         print(f"📊 Success rate: {(success_count/total_steps)*100:.1f}%")
-        print("🌟 Pipeline completed efficiently - no duplicate processing!")
-        print("\n🎯 Pipeline completed successfully!")
         return True
 
     # Step 1.5: Pre-processing/Summarization (GitHub Activity)
@@ -201,7 +196,7 @@ def run_full_pipeline(force=False):
     print(f"📊 Success rate: {(success_count/total_steps)*100:.1f}%")
 
     if success_count == total_steps:
-        print("🌟 All steps completed successfully!")
+        print("✅ All steps completed successfully")
     elif success_count >= total_steps - 1:
         print("⚠️  Minor issues encountered, but pipeline mostly succeeded")
     else:
