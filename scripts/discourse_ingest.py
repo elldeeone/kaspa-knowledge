@@ -11,6 +11,7 @@ import os
 import json
 import requests
 import argparse
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -313,7 +314,7 @@ def main():
         print("   Skipping forum ingestion.")
         # Still create an empty file for pipeline consistency
         save_forum_data([], args.date)
-        return
+        sys.exit(2)  # Exit code 2 indicates "no new content"
 
     if DISCOURSE_API_USERNAME.startswith("your_") or DISCOURSE_API_KEY.startswith(
         "your_"
@@ -322,14 +323,14 @@ def main():
         print("   Please configure real credentials in .env file")
         # Still create an empty file for pipeline consistency
         save_forum_data([], args.date)
-        return
+        sys.exit(2)  # Exit code 2 indicates "no new content"
 
     # Load configuration
     forum_configs = load_discourse_config()
     if not forum_configs:
         print("⚠️ No enabled Discourse forums found in configuration")
         save_forum_data([], args.date)
-        return
+        sys.exit(2)  # Exit code 2 indicates "no new content"
 
     # Load/reset state
     if args.full_history:
@@ -352,6 +353,10 @@ def main():
             save_state(state)
             print("\n✅ Discourse ingestion completed successfully")
             print(f"📊 Total posts fetched: {len(all_posts)}")
+
+            # Exit with code 2 if no new content found (for pipeline optimization)
+            if len(all_posts) == 0:
+                sys.exit(2)  # Exit code 2 indicates "no new content"
         else:
             print("\n❌ Error occurred during save operation")
 
