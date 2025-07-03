@@ -75,6 +75,11 @@ class FilteredItem:
     @property
     def title(self) -> str:
         """Get item title."""
+        # For forum posts, check topic_title first
+        if "topic_title" in self.original_item:
+            return self.original_item["topic_title"]
+
+        # For other items, use title field
         return self.original_item.get("title", "Untitled")
 
     @property
@@ -231,9 +236,11 @@ class HighSignalFilter:
 
     def _can_score_item(self, item: Dict[str, Any], source_type: str) -> bool:
         """Check if an item can be scored based on available metadata."""
-        # Must have basic required fields
-        required_fields = ["title", "author"]
-        if not all(field in item for field in required_fields):
+        # Must have basic required fields - handle forum posts with topic_title
+        has_title = "title" in item or "topic_title" in item
+        has_author = "author" in item
+
+        if not (has_title and has_author):
             return False
 
         # Include GitHub activities with meaningful content

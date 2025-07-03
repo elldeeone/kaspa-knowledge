@@ -413,9 +413,9 @@ class MarkdownTemplateGenerator:
 
     def _format_high_signal_item(self, item: Dict[str, Any], source_type: str) -> str:
         """Format a high-signal item for display."""
-        title = item.get("title", "Untitled")
+        title = self._get_item_title(item)
         author = item.get("author", "Unknown")
-        content = item.get("content", "")
+        content = self._clean_html_content(item.get("content", ""))
         url = item.get("url", "")
 
         signal_info = item.get("signal", {})
@@ -436,7 +436,7 @@ class MarkdownTemplateGenerator:
 
     def _format_general_item(self, item: Dict[str, Any], source_type: str) -> str:
         """Format a general activity item for display."""
-        title = item.get("title", "Untitled")
+        title = self._get_item_title(item)
         author = item.get("author", "Unknown")
         url = item.get("url", "")
 
@@ -446,6 +446,51 @@ class MarkdownTemplateGenerator:
             formatted += f" ([link]({url}))"
 
         return formatted
+
+    def _get_item_title(self, item: Dict[str, Any]) -> str:
+        """Extract the proper title from an item, handling different data structures."""
+        # For forum posts, check topic_title first
+        if "topic_title" in item:
+            return item["topic_title"]
+
+        # For other items, use title field
+        return item.get("title", "Untitled")
+
+    def _clean_html_content(self, content: str) -> str:
+        """Clean HTML content by stripping tags and converting to clean text."""
+        if not content:
+            return ""
+
+        # Remove HTML comments
+        content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
+
+        # Convert common HTML entities
+        html_entities = {
+            "&amp;": "&",
+            "&lt;": "<",
+            "&gt;": ">",
+            "&quot;": '"',
+            "&apos;": "'",
+            "&nbsp;": " ",
+            "&#39;": "'",
+        }
+        for entity, replacement in html_entities.items():
+            content = content.replace(entity, replacement)
+
+        # Remove HTML tags but preserve content
+        content = re.sub(
+            r"<script[^>]*>.*?</script>", "", content, flags=re.DOTALL | re.IGNORECASE
+        )
+        content = re.sub(
+            r"<style[^>]*>.*?</style>", "", content, flags=re.DOTALL | re.IGNORECASE
+        )
+        content = re.sub(r"<[^>]+>", "", content)
+
+        # Clean up whitespace
+        content = re.sub(r"\s+", " ", content)
+        content = content.strip()
+
+        return content
 
     def _chunk_content(
         self, content: str, base_metadata: MetadataBlock, section_type: str
