@@ -35,7 +35,9 @@ def run_command(command, description):
             print(f"✅ {description} completed successfully")
             return True, "success"
         elif result.returncode == 2 and (
-            "medium_ingest" in command or "telegram_ingest" in command
+            "medium_ingest" in command
+            or "telegram_ingest" in command
+            or "github_ingest" in command
         ):
             print(
                 f"ℹ️  {description} found no new content - "
