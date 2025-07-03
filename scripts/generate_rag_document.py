@@ -246,7 +246,7 @@ def generate_rag_document(
             return False, error.message
 
         # Check for required sections
-        required_sections = ["Kaspa Knowledge Digest", "metadata"]
+        required_sections = ["Kaspa Knowledge Digest", "CONTEXT:"]
         missing_sections = []
         for section in required_sections:
             if section not in document_content:

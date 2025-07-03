@@ -2,7 +2,8 @@
 Markdown Template Generator for RAG-Optimized Documents
 
 This module provides comprehensive Markdown template generation with semantic chunking,
-YAML metadata blocks, and structured output optimized for RAG systems.
+natural language context blocks, and structured output optimized for RAG systems.
+Specifically optimized for plugin-knowledge and similar RAG processing systems.
 """
 
 import logging
@@ -19,7 +20,10 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class MetadataBlock:
-    """Represents a YAML metadata block for semantic chunks."""
+    """
+    Represents contextual metadata for semantic chunks, formatted as
+    natural language for optimal RAG processing.
+    """
 
     source: str
     date: str
@@ -38,8 +42,98 @@ class MetadataBlock:
     total_facts: Optional[int] = None
     fact_categories: Optional[List[str]] = None
 
+    def to_context_block(self) -> str:
+        """
+        Convert metadata to natural language context block format
+        for optimal RAG processing.
+        """
+        # Build context information as natural language
+        context_parts = []
+
+        # Main context description based on section type
+        section_descriptions = {
+            "document_header": (
+                "This is the document header providing overview information"
+            ),
+            "briefing_narrative": (
+                "This section contains executive briefing and analysis"
+            ),
+            "extracted_facts": (
+                "This section contains key facts and technical information"
+            ),
+            "high_signal_insights": (
+                "This section contains high-priority insights and developments"
+            ),
+            "general_activity": (
+                "This section contains general community and development activity"
+            ),
+            "github_summary": (
+                "This section contains GitHub repository activity and code changes"
+            ),
+            "forum_discussion": (
+                "This section contains forum discussions and community topics"
+            ),
+            "telegram_activity": (
+                "This section contains Telegram community discussions"
+            ),
+            "medium_articles": (
+                "This section contains Medium articles and publications"
+            ),
+        }
+
+        base_description = section_descriptions.get(
+            self.section_type,
+            f"This section contains {self.section_type.replace('_', ' ')}",
+        )
+        context_parts.append(f"**CONTEXT:** {base_description}")
+
+        # Add category if present
+        if self.category:
+            category_display = self.category.replace("_", " ").title()
+            context_parts.append(f"**Topic:** {category_display}")
+
+        # Add impact level if present
+        if self.impact:
+            context_parts.append(f"**Impact Level:** {self.impact.title()}")
+
+        # Add signal strength for high-signal content
+        if self.signal_strength:
+            context_parts.append(f"**Signal Strength:** {self.signal_strength.title()}")
+
+        # Add author/contributor info if present
+        if self.author:
+            if self.contributor_role:
+                context_parts.append(
+                    f"**Contributor:** {self.author} ({self.contributor_role})"
+                )
+            else:
+                context_parts.append(f"**Author:** {self.author}")
+
+        # Add repository info for GitHub content
+        if self.repository:
+            context_parts.append(f"**Repository:** `{self.repository}`")
+
+        # Add sources covered for multi-source briefings
+        if self.sources_covered and len(self.sources_covered) > 1:
+            sources_display = ", ".join(self.sources_covered)
+            context_parts.append(f"**Sources:** {sources_display}")
+
+        # Add fact statistics if present
+        if self.total_facts:
+            context_parts.append(f"**Facts Count:** {self.total_facts}")
+
+        # Add source file reference (more subtle, at the end)
+        context_parts.append(f"**Source:** `{self.source}`")
+
+        # Format as blockquote with line breaks
+        context_text = "  \n> ".join(context_parts)
+        return f"> {context_text}"
+
     def to_yaml_block(self) -> str:
-        """Convert metadata to YAML block format."""
+        """
+        Legacy method - kept for backward compatibility but not used
+        in RAG-optimized output.
+        """
         data = {
             "source": self.source,
             "date": self.date,
@@ -80,8 +174,8 @@ class SemanticChunk:
     token_count: Optional[int] = None
 
     def to_markdown(self) -> str:
-        """Convert chunk to Markdown format with metadata block."""
-        return f"{self.metadata.to_yaml_block()}\n\n{self.content}"
+        """Convert chunk to Markdown format with natural language context block."""
+        return f"{self.metadata.to_context_block()}\n\n{self.content}"
 
 
 @dataclass
@@ -104,7 +198,14 @@ class DocumentSection:
 
 
 class MarkdownTemplateGenerator:
-    """Generates RAG-optimized Markdown documents from structured data."""
+    """
+    Generates RAG-optimized Markdown documents from structured data.
+
+    CRITICAL OPTIMIZATION: Uses natural language context blocks instead of YAML metadata
+    to ensure semantic meaning is preserved during RAG chunking. This prevents metadata
+    pollution in vector embeddings and improves search accuracy for plugin-knowledge
+    and similar RAG processing systems.
+    """
 
     def __init__(self, target_chunk_size: int = 400, max_chunk_size: int = 500):
         """
