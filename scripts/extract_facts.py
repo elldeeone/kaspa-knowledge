@@ -42,7 +42,7 @@ class FactsExtractor:
             return json.load(f)
 
     def load_processed_source_urls(self, days_back: int = 7) -> Set[str]:
-        """Load URLs that have been processed in the last N days to avoid duplication."""
+        """Load URLs processed in the last N days to avoid duplication."""
         processed_urls = set()
 
         # Get the current date
@@ -70,7 +70,8 @@ class FactsExtractor:
 
         if processed_urls:
             print(
-                f"🔍 Loaded {len(processed_urls)} previously processed source URLs from last {days_back} days"
+                f"🔍 Loaded {len(processed_urls)} previously processed source URLs "
+                f"from last {days_back} days"
             )
 
         return processed_urls
@@ -139,7 +140,7 @@ class FactsExtractor:
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print(f"    ⏭️  Skipping - already processed this URL")
+                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
@@ -189,7 +190,7 @@ class FactsExtractor:
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print(f"    ⏭️  Skipping - already processed this URL")
+                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
@@ -234,7 +235,7 @@ class FactsExtractor:
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print(f"    ⏭️  Skipping - already processed this URL")
+                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
@@ -279,7 +280,7 @@ class FactsExtractor:
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print(f"    ⏭️  Skipping - already processed this URL")
+                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
@@ -335,7 +336,7 @@ class FactsExtractor:
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print(f"    ⏭️  Skipping - already processed this URL")
+                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
@@ -380,7 +381,7 @@ class FactsExtractor:
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print(f"    ⏭️  Skipping - already processed this URL")
+                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
@@ -422,7 +423,7 @@ class FactsExtractor:
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print(f"    ⏭️  Skipping - already processed this URL")
+                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
