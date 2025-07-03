@@ -184,7 +184,7 @@ def fetch_new_posts_for_topic(
                 "updated_at": post.get("updated_at"),
                 "reply_count": post.get("reply_count", 0),
                 "url": f"{base_url}/t/{topic_slug}/{topic_id}/{post_number}",
-                "category_id": topic_info.get("category_id") if topic_info else None,
+                "category_id": (topic_info.get("category_id") if topic_info else None),
             }
             new_posts.append(post_info)
             highest_post_number = max(highest_post_number, post_number)

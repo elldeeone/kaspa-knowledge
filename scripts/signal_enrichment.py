@@ -211,9 +211,7 @@ class SignalEnrichmentService:
                 or source_stats["lead_developer"] > 0
                 or source_stats["founder"] > 0
             ):
-                signal_stats["sources_with_signals"][
-                    source_name
-                ] = source_stats
+                signal_stats["sources_with_signals"][source_name] = source_stats
 
         return signal_stats
 

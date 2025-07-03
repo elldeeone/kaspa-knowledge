@@ -77,7 +77,8 @@ class GitHubDataValidator:
             return True
         except ValueError:
             self.log_error(
-                f"Invalid timestamp format in {field_name}: {timestamp}", context
+                f"Invalid timestamp format in {field_name}: {timestamp}",
+                context,
             )
             return False
 
@@ -100,7 +101,9 @@ class GitHubDataValidator:
                     valid = False
                 else:
                     nested_valid = self.validate_required_fields(
-                        data[field_name], expected_type, f"{context}.{field_name}"
+                        data[field_name],
+                        expected_type,
+                        f"{context}.{field_name}",
                     )
                     valid = valid and nested_valid
             else:
@@ -168,7 +171,8 @@ class GitHubDataValidator:
 
         if not isinstance(data, dict):
             self.log_error(
-                f"Root data should be an object, got {type(data)}", str(file_path)
+                f"Root data should be an object, got {type(data)}",
+                str(file_path),
             )
             return False
 
@@ -248,7 +252,9 @@ def main():
         help="Directory containing GitHub JSON files (default: sources/github)",
     )
     parser.add_argument(
-        "--file", type=str, help="Validate a specific file instead of entire directory"
+        "--file",
+        type=str,
+        help="Validate a specific file instead of entire directory",
     )
 
     args = parser.parse_args()

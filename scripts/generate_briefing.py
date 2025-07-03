@@ -330,7 +330,10 @@ class BriefingGenerator:
             "key_discussions": key_discussions,
             "key_topics": key_topics,
             "most_active_topics": [
-                {"title": topic_data["title"], "posts": len(topic_data["posts"])}
+                {
+                    "title": topic_data["title"],
+                    "posts": len(topic_data["posts"]),
+                }
                 for _, topic_data in most_active_topics
             ],
         }

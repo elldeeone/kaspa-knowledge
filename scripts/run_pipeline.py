@@ -156,7 +156,8 @@ def run_full_pipeline(force=False):
     total_steps += 1
     force_flag = " --force" if force else ""
     success, status = run_command(
-        f"python -m scripts.aggregate_sources{force_flag}", "Raw Sources Aggregation"
+        f"python -m scripts.aggregate_sources{force_flag}",
+        "Raw Sources Aggregation",
     )
     if success:
         success_count += 1
@@ -242,7 +243,8 @@ def run_aggregation_only(force=False):
     print("\n🔄 Running aggregation-only pipeline")
     force_flag = " --force" if force else ""
     success, status = run_command(
-        f"python -m scripts.aggregate_sources{force_flag}", "Raw Sources Aggregation"
+        f"python -m scripts.aggregate_sources{force_flag}",
+        "Raw Sources Aggregation",
     )
     return success
 
@@ -257,7 +259,10 @@ def run_ai_processing_only(force=False):
             f"python -m scripts.generate_briefing{force_flag}",
             "Daily Briefing Generation",
         ),
-        (f"python -m scripts.extract_facts{force_flag}", "Daily Facts Extraction"),
+        (
+            f"python -m scripts.extract_facts{force_flag}",
+            "Daily Facts Extraction",
+        ),
     ]
 
     success_count = 0

@@ -371,7 +371,9 @@ def main():
         help="Directory to save summary files (default: sources/github_summaries)",
     )
     parser.add_argument(
-        "--date", type=str, help="Process specific date only (YYYY-MM-DD format)"
+        "--date",
+        type=str,
+        help="Process specific date only (YYYY-MM-DD format)",
     )
 
     args = parser.parse_args()

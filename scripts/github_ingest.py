@@ -104,7 +104,7 @@ def fetch_recent_commits(repo, days_back=7):
                     "deletions": commit.stats.deletions if commit.stats else 0,
                     "total": commit.stats.total if commit.stats else 0,
                 },
-                "files_changed": commit.files.totalCount if commit.files else 0,
+                "files_changed": (commit.files.totalCount if commit.files else 0),
             }
             commit_data.append(commit_info)
             commit_count += 1
@@ -165,7 +165,7 @@ def fetch_recent_pull_requests(repo, days_back=30):
                 "author": pr.user.login if pr.user else "Unknown",
                 "created_at": pr.created_at.isoformat(),
                 "updated_at": pr.updated_at.isoformat(),
-                "merged_at": pr.merged_at.isoformat() if pr.merged_at else None,
+                "merged_at": (pr.merged_at.isoformat() if pr.merged_at else None),
                 "url": pr.html_url,
                 "draft": pr.draft,
                 "mergeable": pr.mergeable,
@@ -173,7 +173,7 @@ def fetch_recent_pull_requests(repo, days_back=30):
                 "deletions": pr.deletions,
                 "changed_files": pr.changed_files,
                 "commits": pr.commits,
-                "labels": [label.name for label in pr.labels] if pr.labels else [],
+                "labels": ([label.name for label in pr.labels] if pr.labels else []),
             }
             pr_data.append(pr_info)
             pr_count += 1
@@ -228,7 +228,7 @@ def fetch_recent_issues(repo, days_back=30):
                 "author": issue.user.login if issue.user else "Unknown",
                 "created_at": issue.created_at.isoformat(),
                 "updated_at": issue.updated_at.isoformat(),
-                "closed_at": issue.closed_at.isoformat() if issue.closed_at else None,
+                "closed_at": (issue.closed_at.isoformat() if issue.closed_at else None),
                 "url": issue.html_url,
                 "labels": (
                     [label.name for label in issue.labels] if issue.labels else []

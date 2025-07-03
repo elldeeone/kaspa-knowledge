@@ -48,10 +48,7 @@ class SourcesAggregator:
                 data = json.load(f)
 
             # Handle new "empty file with metadata" structure
-            if (
-                isinstance(data, dict)
-                and data.get("status") == "no_new_content"
-            ):
+            if isinstance(data, dict) and data.get("status") == "no_new_content":
                 print(
                     f"📁 No new content found for {source_name} on {date} "
                     "(empty file with metadata)"
@@ -100,10 +97,7 @@ class SourcesAggregator:
                 with open(main_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
 
-                if (
-                    isinstance(data, dict)
-                    and data.get("status") == "no_new_content"
-                ):
+                if isinstance(data, dict) and data.get("status") == "no_new_content":
                     print(
                         f"📁 No Telegram data found for {date} "
                         "(empty file with metadata)"
@@ -345,9 +339,7 @@ class SourcesAggregator:
                         }
                     )
 
-            print(
-                f"📁 Loaded {len(activities)} GitHub activities with metadata"
-            )
+            print(f"📁 Loaded {len(activities)} GitHub activities with metadata")
             return activities
 
         except Exception as e:
@@ -367,16 +359,12 @@ class SourcesAggregator:
             existing_aggregated_path = self.get_daily_file_path(date)
             if existing_aggregated_path.exists():
                 try:
-                    with open(
-                        existing_aggregated_path, "r", encoding="utf-8"
-                    ) as f:
+                    with open(existing_aggregated_path, "r", encoding="utf-8") as f:
                         existing_data = json.load(f)
 
                     # Check if existing aggregated file has substantial content
                     if existing_data and existing_data.get("sources"):
-                        print(
-                            "📋 Aggregated data already exists for this date"
-                        )
+                        print("📋 Aggregated data already exists for this date")
                         print("⚡ Skipping aggregation to avoid duplicates")
                         print("ℹ️  Use --force flag to override this behavior")
 
@@ -391,8 +379,7 @@ class SourcesAggregator:
 
                 except (json.JSONDecodeError, IOError) as e:
                     print(
-                        f"⚠️  Warning: Could not read existing aggregated "
-                        f"file: {e}"
+                        f"⚠️  Warning: Could not read existing aggregated " f"file: {e}"
                     )
                     print("🔄 Proceeding with fresh aggregation...")
         else:
@@ -420,9 +407,7 @@ class SourcesAggregator:
                 # Enrich items with signal metadata
                 enriched_data = self.signal_service.enrich_items(source_data)
                 # Sort by signal priority (lead developers first)
-                sorted_data = self.signal_service.sort_by_signal_priority(
-                    enriched_data
-                )
+                sorted_data = self.signal_service.sort_by_signal_priority(enriched_data)
                 aggregated_data["sources"][aggregated_key] = sorted_data
             else:
                 aggregated_data["sources"][aggregated_key] = source_data
@@ -442,18 +427,12 @@ class SourcesAggregator:
                 github_activities
             )
             # Sort GitHub activities by signal priority (lead developers first)
-            sorted_github_activities = (
-                self.signal_service.sort_by_signal_priority(
-                    enriched_github_activities
-                )
+            sorted_github_activities = self.signal_service.sort_by_signal_priority(
+                enriched_github_activities
             )
-            aggregated_data["sources"][
-                "github_activities"
-            ] = sorted_github_activities
+            aggregated_data["sources"]["github_activities"] = sorted_github_activities
 
-            aggregated_data["metadata"]["total_items"] += len(
-                github_activities
-            )
+            aggregated_data["metadata"]["total_items"] += len(github_activities)
             aggregated_data["metadata"]["sources_processed"].append(
                 f"github_activities: {len(github_activities)} items"
             )
@@ -494,9 +473,7 @@ class SourcesAggregator:
 
         return aggregated_data
 
-    def save_aggregated_data(
-        self, data: Dict[str, Any], date: str = None
-    ) -> Path:
+    def save_aggregated_data(self, data: Dict[str, Any], date: str = None) -> Path:
         """Save the aggregated data to file."""
         if date is None:
             date = data.get("date", datetime.now().strftime("%Y-%m-%d"))
@@ -518,9 +495,7 @@ class SourcesAggregator:
         aggregated_data = self.aggregate_daily_sources(date)
 
         # Check if data was loaded from existing file (deduplication)
-        loaded_from_existing = aggregated_data.pop(
-            "_loaded_from_existing", False
-        )
+        loaded_from_existing = aggregated_data.pop("_loaded_from_existing", False)
 
         # Save to file (only if new aggregation)
         if not loaded_from_existing:
@@ -537,24 +512,19 @@ class SourcesAggregator:
                 "skipping downstream processing"
             )
             success_msg = (
-                "Raw sources aggregation skipped - using existing "
-                "aggregated data"
+                "Raw sources aggregation skipped - using existing " "aggregated data"
             )
         else:
             # Print detailed summary for new aggregations
             print("\n✅ Raw aggregation complete!")
             print(f"📁 Output: {output_path}")
-            print(
-                f"📊 Total items: {aggregated_data['metadata']['total_items']}"
-            )
+            print(f"📊 Total items: {aggregated_data['metadata']['total_items']}")
             print("📋 Sources processed:")
             for source in aggregated_data["metadata"]["sources_processed"]:
                 print(f"   - {source}")
 
             # Display signal analysis summary if available
-            signal_analysis = aggregated_data.get("metadata", {}).get(
-                "signal_analysis"
-            )
+            signal_analysis = aggregated_data.get("metadata", {}).get("signal_analysis")
             if signal_analysis:
                 print("\n🎯 Signal Analysis Summary:")
                 high_signal = signal_analysis["high_signal_items"]
@@ -567,9 +537,7 @@ class SourcesAggregator:
                     print(f"   🏛️  Founder items: {founder_items}")
                 if signal_analysis["contributor_roles"]:
                     roles = signal_analysis["contributor_roles"]
-                    role_items = [
-                        f"{role}({count})" for role, count in roles.items()
-                    ]
+                    role_items = [f"{role}({count})" for role, count in roles.items()]
                     role_summary = ", ".join(role_items)
                     print(f"   👥 Contributor roles: {role_summary}")
                 if signal_analysis["sources_with_signals"]:

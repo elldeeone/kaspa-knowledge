@@ -515,7 +515,7 @@ regular operations, full-history for comprehensive backfill operations.
 
     # Sort articles by publication date (newest first)
     final_articles.sort(
-        key=lambda x: x["published"] if x["published"] != "Unknown" else "1900-01-01",
+        key=lambda x: (x["published"] if x["published"] != "Unknown" else "1900-01-01"),
         reverse=True,
     )
 
