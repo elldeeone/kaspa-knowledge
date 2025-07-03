@@ -1,7 +1,12 @@
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
+
+# Add the scripts directory to Python path for imports
+scripts_dir = Path(__file__).parent
+sys.path.insert(0, str(scripts_dir))
 
 from signal_enrichment import SignalEnrichmentService
 
