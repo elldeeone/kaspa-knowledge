@@ -189,6 +189,30 @@ def run_full_pipeline(force=False):
             print(f"\n❌ Required AI step failed: {step['description']}")
             return False
 
+    # Step 4: RAG Document Generation
+    print("\n📋 STAGE 4: RAG DOCUMENT GENERATION")
+    print("=" * 60)
+
+    rag_steps = [
+        {
+            "command": (
+                f"python -m scripts.generate_rag_document "
+                f"--date {pipeline_date} --organization prioritized{force_flag}"
+            ),
+            "description": "Prioritized RAG Document Generation",
+            "required": False,
+        },
+    ]
+
+    for step in rag_steps:
+        total_steps += 1
+        success, status = run_command(step["command"], step["description"])
+        if success:
+            success_count += 1
+        elif step["required"]:
+            print(f"\n❌ Required RAG step failed: {step['description']}")
+            return False
+
     # Pipeline summary
     print("\n🎉 PIPELINE COMPLETED")
     print("=" * 60)
@@ -212,6 +236,11 @@ def run_full_pipeline(force=False):
     print("data/aggregated/        - Raw daily aggregated data")
     print("data/briefings/         - AI-generated daily briefings")
     print("data/facts/             - AI-extracted daily facts")
+    print("knowledge_base/         - RAG-optimized documents")
+    print(
+        "  └─ YYYY-MM-DD.md      - Prioritized RAG documents "
+        "(high-signal first, comprehensive)"
+    )
 
     return success_count >= (total_steps - 1)  # Allow 1 failure
 
@@ -271,6 +300,31 @@ def run_ai_processing_only(force=False):
     return success_count > 0
 
 
+def run_rag_generation_only(force=False, date=None):
+    """Run only the RAG document generation steps."""
+    print("\n🔄 Running RAG document generation pipeline")
+
+    if not date:
+        date = datetime.now().strftime("%Y-%m-%d")
+
+    force_flag = " --force" if force else ""
+    steps = [
+        (
+            f"python -m scripts.generate_rag_document --date {date} "
+            f"--organization prioritized{force_flag}",
+            "Prioritized RAG Document Generation",
+        ),
+    ]
+
+    success_count = 0
+    for command, description in steps:
+        success, status = run_command(command, description)
+        if success:
+            success_count += 1
+
+    return success_count > 0
+
+
 def main():
     """Main entry point with command line argument support."""
     import argparse
@@ -281,7 +335,7 @@ def main():
     parser.add_argument(
         "mode",
         nargs="?",
-        choices=["ingest", "aggregate", "ai", "full"],
+        choices=["ingest", "aggregate", "ai", "rag", "full"],
         default="full",
         help="Pipeline mode to run (default: full)",
     )
@@ -289,6 +343,11 @@ def main():
         "--force",
         action="store_true",
         help="Force re-processing even if data already exists",
+    )
+    parser.add_argument(
+        "--date",
+        type=str,
+        help="Date for RAG generation (YYYY-MM-DD format, default: today)",
     )
 
     args = parser.parse_args()
@@ -299,6 +358,8 @@ def main():
         success = run_aggregation_only(force=args.force)
     elif args.mode == "ai":
         success = run_ai_processing_only(force=args.force)
+    elif args.mode == "rag":
+        success = run_rag_generation_only(force=args.force, date=args.date)
     elif args.mode == "full":
         success = run_full_pipeline(force=args.force)
 
