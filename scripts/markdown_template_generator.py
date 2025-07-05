@@ -7,7 +7,7 @@ Specifically optimized for plugin-knowledge and similar RAG processing systems.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass, field
 from pathlib import Path
 import yaml
@@ -219,16 +219,20 @@ class MarkdownTemplateGenerator:
         self.max_chunk_size = max_chunk_size
         self.chunk_counter = 0
 
-    def generate_document(self, loaded_data: Any, date: str) -> str:
+    def generate_document(
+        self, loaded_data: Any, date: str, split_output: bool = False
+    ) -> Union[str, Dict[str, str]]:
         """
         Generate a complete RAG-optimized Markdown document.
 
         Args:
             loaded_data: LoadedData object from data_loader
             date: Date string in YYYY-MM-DD format
+            split_output: Whether to split output into multiple files by section
 
         Returns:
-            Complete Markdown document as string
+            If split_output=False: Complete Markdown document as string
+            If split_output=True: Dict mapping section names to Markdown content
         """
         logger.info(f"Generating RAG document for date: {date}")
 
@@ -268,15 +272,70 @@ class MarkdownTemplateGenerator:
             )
             sections.append(general_section)
 
-        # Combine all sections
-        document_parts = [section.to_markdown() for section in sections]
-        full_document = "\n\n---\n\n".join(document_parts)
+        # Handle different output modes
+        if split_output:
+            # Split output: Return dictionary mapping section names to content
+            output_files = {}
 
-        logger.info(
-            f"Generated document with {len(sections)} sections "
-            f"and {self.chunk_counter} chunks"
-        )
-        return full_document
+            # Find header section for context inclusion
+            header_content = ""
+            for section in sections:
+                if section.title.startswith("Kaspa Knowledge Digest"):
+                    header_content = section.to_markdown()
+                    break
+
+            # Create separate files for each non-header section with granular splitting
+            for section in sections:
+                if section.title.startswith("Kaspa Knowledge Digest"):
+                    continue  # Skip header section in split files
+
+                # Generate section filename with numeric prefix for ordering
+                section_name = section.title.lower().replace(" ", "_").replace("-", "_")
+                section_content = section.to_markdown()
+
+                if "briefing" in section_name:
+                    base_filename = "01_briefing"
+                elif "facts" in section_name:
+                    base_filename = "02_facts"
+                elif "high_signal" in section_name:
+                    base_filename = "03_high_signal"
+                elif "general" in section_name:
+                    base_filename = "04_general_activity"
+                else:
+                    base_filename = f"05_{section_name}"
+
+                # Check if section needs granular splitting (Facts and High Signal sections)
+                if base_filename in ["02_facts", "03_high_signal"]:
+                    split_files = self._split_large_section(
+                        section_content, base_filename, header_content, date
+                    )
+                    output_files.update(split_files)
+                else:
+                    # Include header for context + section content for smaller sections
+                    if header_content:
+                        output_files[base_filename] = (
+                            f"{header_content}\n\n---\n\n{section_content}"
+                        )
+                    else:
+                        output_files[base_filename] = section_content
+
+            total_files = len(output_files)
+            logger.info(
+                f"Generated {total_files} split documents with "
+                f"{len(sections)} sections and {self.chunk_counter} chunks "
+                f"(includes granular splitting for large sections)"
+            )
+            return output_files
+        else:
+            # Single output: Return combined document (current behavior)
+            document_parts = [section.to_markdown() for section in sections]
+            full_document = "\n\n---\n\n".join(document_parts)
+
+            logger.info(
+                f"Generated document with {len(sections)} sections "
+                f"and {self.chunk_counter} chunks"
+            )
+            return full_document
 
     def _create_header_section(self, date: str) -> DocumentSection:
         """Create the document header section."""
@@ -754,6 +813,149 @@ class MarkdownTemplateGenerator:
         """Get next sequential chunk ID."""
         self.chunk_counter += 1
         return f"{self.chunk_counter:03d}"
+
+    def _split_large_section(
+        self, section_content: str, base_filename: str, header_content: str, date: str
+    ) -> Dict[str, str]:
+        """
+        Split large sections (Facts and High Signal) into multiple files for better organization.
+
+        Args:
+            section_content: The full content of the section to split
+            base_filename: Base filename (e.g., "02_facts", "03_high_signal")
+            header_content: Document header to include in each split file
+            date: Date string for logging
+
+        Returns:
+            Dictionary mapping split filenames to their content
+        """
+        # Define size thresholds for splitting (based on lines count for predictability)
+        MAX_LINES_PER_FILE = 2500  # ~100KB typical size (doubled splitting)
+        MIN_LINES_TO_SPLIT = 6000  # Don't split unless it's significantly large
+
+        # Split content into lines for analysis
+        content_lines = section_content.split("\n")
+        total_lines = len(content_lines)
+
+        logger.info(f"Analyzing {base_filename}: {total_lines:,} lines")
+
+        # Check if splitting is needed
+        if total_lines < MIN_LINES_TO_SPLIT:
+            logger.info(
+                f"Section {base_filename} ({total_lines:,} lines) below split threshold"
+            )
+            # Return as single file
+            if header_content:
+                full_content = f"{header_content}\n\n---\n\n{section_content}"
+            else:
+                full_content = section_content
+            return {base_filename: full_content}
+
+        # Calculate number of split files needed (increased for more granular splitting)
+        num_files = min(8, max(3, (total_lines // MAX_LINES_PER_FILE) + 1))
+        lines_per_file = total_lines // num_files
+
+        logger.info(
+            f"Splitting {base_filename} into {num_files} files (~{lines_per_file:,} lines each)"
+        )
+
+        # Split content intelligently by sections/headings when possible
+        split_files = {}
+        current_file_lines = []
+        current_file_num = 1
+
+        i = 0
+        while i < total_lines and current_file_num <= num_files:
+            line = content_lines[i]
+            current_file_lines.append(line)
+
+            # Check if we should create a new file
+            should_split = False
+
+            if len(current_file_lines) >= lines_per_file:
+                # Look ahead for a good split point (section break or heading)
+                lookahead_range = min(
+                    200, total_lines - i - 1
+                )  # Look ahead up to 200 lines
+
+                for j in range(1, lookahead_range + 1):
+                    if i + j >= total_lines:
+                        break
+
+                    next_line = content_lines[i + j]
+
+                    # Good split points: markdown headings, YAML blocks, or context blocks
+                    if (
+                        next_line.startswith("### ")
+                        or next_line.startswith("> **CONTEXT:**")
+                        or next_line.strip() == "---"
+                        or next_line.startswith("[CRITICAL]")
+                        or next_line.startswith("[HIGH]")
+                        or next_line.startswith("[ELEVATED]")
+                    ):
+
+                        # Include lines up to this split point in current file
+                        current_file_lines.extend(content_lines[i + 1 : i + j])
+                        i += j - 1  # Adjust index for the added lines
+                        should_split = True
+                        break
+
+                # If no good split point found and we're getting too large, split anyway
+                if not should_split and len(current_file_lines) >= lines_per_file * 1.5:
+                    should_split = True
+
+            # Create file when we reach the end or when splitting
+            if (
+                should_split
+                or (current_file_num == num_files)
+                or (i == total_lines - 1)
+            ):
+                # Generate filename with proper numbering
+                if current_file_num < 10:
+                    file_suffix = f"0{current_file_num}"
+                else:
+                    file_suffix = str(current_file_num)
+
+                split_filename = f"{base_filename}_{file_suffix}"
+
+                # Prepare content for this split file
+                split_content = "\n".join(current_file_lines)
+
+                # Add header context to each split file
+                if header_content:
+                    full_split_content = f"{header_content}\n\n---\n\n{split_content}"
+                else:
+                    full_split_content = split_content
+
+                split_files[split_filename] = full_split_content
+
+                logger.info(
+                    f"Created {split_filename}: {len(current_file_lines):,} lines"
+                )
+
+                # Reset for next file
+                current_file_lines = []
+                current_file_num += 1
+
+            i += 1
+
+        # Handle any remaining content (edge case)
+        if current_file_lines and current_file_num <= num_files:
+            split_filename = f"{base_filename}_{current_file_num:02d}"
+            split_content = "\n".join(current_file_lines)
+
+            if header_content:
+                full_split_content = f"{header_content}\n\n---\n\n{split_content}"
+            else:
+                full_split_content = split_content
+
+            split_files[split_filename] = full_split_content
+            logger.info(
+                f"Created final {split_filename}: {len(current_file_lines):,} lines"
+            )
+
+        logger.info(f"Successfully split {base_filename} into {len(split_files)} files")
+        return split_files
 
 
 # Utility functions

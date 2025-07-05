@@ -11,7 +11,7 @@ import json
 import feedparser
 import argparse
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
@@ -306,13 +306,21 @@ def scrape_individual_article(article_url):
         return None
 
 
-def fetch_articles_from_feed(rss_url, full_history=False):
+def fetch_articles_from_feed(rss_url, full_history=False, days_back=None):
     """Fetch articles from a single Medium RSS feed."""
     print(f"📡 Fetching from: {rss_url}")
 
     try:
         feed = feedparser.parse(rss_url)
         articles = []
+
+        # Calculate cutoff date if days_back is specified
+        cutoff_date = None
+        if days_back is not None:
+            cutoff_date = datetime.now() - timedelta(days=days_back)
+            print(
+                f"📅 Filtering articles newer than {cutoff_date.strftime('%Y-%m-%d')}"
+            )
 
         # Fetch all available entries from the RSS feed
         # RSS feeds are naturally limited, so we process all entries they provide
@@ -322,21 +330,31 @@ def fetch_articles_from_feed(rss_url, full_history=False):
             print(f"⚠️  No articles found in feed: {rss_url}")
             return []
 
+        filtered_count = 0
         for entry in entries_to_process:
             # Extract publication date with multiple format fallbacks
             pub_date = "Unknown"
+            pub_datetime = None
             if hasattr(entry, "published"):
                 try:
-                    pub_date = datetime.strptime(
+                    pub_datetime = datetime.strptime(
                         entry.published, "%a, %d %b %Y %H:%M:%S %Z"
-                    ).strftime("%Y-%m-%d")
+                    )
+                    pub_date = pub_datetime.strftime("%Y-%m-%d")
                 except ValueError:
                     try:
-                        pub_date = datetime.strptime(
+                        pub_datetime = datetime.strptime(
                             entry.published, "%a, %d %b %Y %H:%M:%S %z"
-                        ).strftime("%Y-%m-%d")
+                        )
+                        pub_date = pub_datetime.strftime("%Y-%m-%d")
                     except ValueError:
                         pub_date = "Unknown"
+
+            # Apply date filtering if specified
+            if cutoff_date is not None and pub_datetime is not None:
+                if pub_datetime < cutoff_date:
+                    filtered_count += 1
+                    continue
 
             # Extract author
             author = getattr(entry, "author", "Unknown")
@@ -359,6 +377,10 @@ def fetch_articles_from_feed(rss_url, full_history=False):
             articles.append(article)
 
         print(f"📄 Found {len(articles)} articles from this feed")
+        if filtered_count > 0:
+            print(
+                f"📅 Filtered out {filtered_count} articles older than {days_back} days"
+            )
         return articles
 
     except Exception as e:
@@ -395,14 +417,16 @@ def main():
 Examples:
   python -m scripts.medium_ingest                    # Daily sync (dated file)
   python -m scripts.medium_ingest --full-history     # Backfill (full_history.json)
+  python -m scripts.medium_ingest --days-back 365    # Only articles from last year
+  python -m scripts.medium_ingest --full-history --days-back 365  # 1-year backfill
 
   # Manual URL scraping (bypasses RSS limitation)
   python -m scripts.medium_ingest --manual-urls \\
     https://hashdag.medium.com/article1 \\
     https://hashdag.medium.com/article2
 
-  # Combined: RSS feeds + manual URLs
-  python -m scripts.medium_ingest --full-history \\
+  # Combined: RSS feeds + manual URLs with date filtering
+  python -m scripts.medium_ingest --full-history --days-back 365 \\
     --manual-urls https://hashdag.medium.com/old-article
 
 IMPORTANT LIMITATION: Medium RSS feeds are limited to the 10 most recent articles per
@@ -417,6 +441,11 @@ regular operations, full-history for comprehensive backfill operations.
         "--full-history",
         action="store_true",
         help="Backfill mode - saves to 'full_history.json' (10 articles/author).",
+    )
+    parser.add_argument(
+        "--days-back",
+        type=int,
+        help="Number of days back to fetch articles (filters by publication date).",
     )
     parser.add_argument(
         "--manual-urls",
@@ -438,6 +467,9 @@ regular operations, full-history for comprehensive backfill operations.
     else:
         print("📰 Daily sync mode: Standard RSS feed processing")
 
+    if args.days_back:
+        print(f"📅 Date filtering: Only articles from the last {args.days_back} days")
+
     print("⚠️  Note: Medium RSS feeds limited to 10 most recent articles per author")
 
     print(f"🔗 Configured RSS feeds: {len(RSS_URLS)}")
@@ -455,7 +487,9 @@ regular operations, full-history for comprehensive backfill operations.
 
     # Process RSS feeds
     for url in RSS_URLS:
-        articles = fetch_articles_from_feed(url, full_history=args.full_history)
+        articles = fetch_articles_from_feed(
+            url, full_history=args.full_history, days_back=args.days_back
+        )
         if articles:
             all_articles.extend(articles)
             successful_feeds += 1
@@ -466,12 +500,34 @@ regular operations, full-history for comprehensive backfill operations.
         for i, url in enumerate(args.manual_urls, 1):
             print(f"  {i}. {url}")
 
+        # Calculate cutoff date if days_back is specified
+        cutoff_date = None
+        if args.days_back is not None:
+            cutoff_date = datetime.now() - timedelta(days=args.days_back)
+            print(
+                f"📅 Filtering manual articles newer than "
+                f"{cutoff_date.strftime('%Y-%m-%d')}"
+            )
+
         manual_articles = []
         successful_manual = 0
+        filtered_manual = 0
 
         for url in args.manual_urls:
             article = scrape_individual_article(url)
             if article:
+                # Apply date filtering if specified
+                if cutoff_date is not None and article["published"] != "Unknown":
+                    try:
+                        article_date = datetime.strptime(
+                            article["published"], "%Y-%m-%d"
+                        )
+                        if article_date < cutoff_date:
+                            filtered_manual += 1
+                            continue
+                    except ValueError:
+                        pass  # If date parsing fails, include the article
+
                 manual_articles.append(article)
                 successful_manual += 1
 
@@ -481,6 +537,11 @@ regular operations, full-history for comprehensive backfill operations.
                 f"✅ Successfully scraped {successful_manual}/"
                 f"{len(args.manual_urls)} manual articles"
             )
+            if filtered_manual > 0:
+                print(
+                    f"📅 Filtered out {filtered_manual} manual articles "
+                    f"older than {args.days_back} days"
+                )
 
     if not all_articles:
         if args.manual_urls:

@@ -30,6 +30,8 @@ Examples:
 
 import argparse
 import sys
+import tempfile
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
@@ -72,6 +74,7 @@ def generate_rag_document(
     organization_style: str = "prioritized",
     data_dir: Path = Path("data"),
     output_dir: Path = Path("knowledge_base"),
+    split_output: bool = False,
 ) -> Tuple[bool, Optional[str]]:
     """
     Generate a single, well-organized RAG document from daily JSON data.
@@ -83,6 +86,7 @@ def generate_rag_document(
             ("comprehensive", "prioritized", "minimal")
         data_dir: Directory containing source data
         output_dir: Directory for output files
+        split_output: Whether to split output into multiple files by section
 
     Returns:
         Tuple of (success: bool, error_message: Optional[str])
@@ -226,6 +230,7 @@ def generate_rag_document(
             error_handler,
             loaded_data=organized_data,
             date=date,
+            split_output=split_output,
         )
 
         if template_error or not document_content:
@@ -239,51 +244,476 @@ def generate_rag_document(
         # Step 5: Validate generated document
         logger.logger.info("Validating generated document...")
 
-        # Basic content validation
-        if not document_content or len(document_content) < 100:
-            error = error_handler.create_error(
-                "Generated document is empty or too short",
-                ErrorSeverity.HIGH,
-                ErrorCategory.DATA_VALIDATION,
-                component="document_validator",
+        if split_output:
+            # Handle multiple files validation with comprehensive edge case handling
+            if not isinstance(document_content, dict):
+                error = error_handler.create_error(
+                    f"Split output mode expected dictionary, got {type(document_content).__name__}",
+                    ErrorSeverity.HIGH,
+                    ErrorCategory.DATA_VALIDATION,
+                    component="document_validator",
+                )
+                return False, error.message
+
+            if not document_content:
+                logger.logger.warning(
+                    "No sections generated for split output - creating minimal document"
+                )
+                # Fallback: Create a minimal document with just header
+                document_content = {
+                    "01_minimal": f"# Kaspa Knowledge Digest: {date}\n\n**CONTEXT:** No content sections were generated for this date.\n\nThis may indicate:\n- No data available for the specified date\n- Data processing issues\n- Empty source files\n\nPlease check the source data and logs for more information."
+                }
+
+            # Validate and sanitize each split document
+            valid_sections = {}
+            empty_sections = []
+            problematic_sections = []
+
+            for filename, content in document_content.items():
+                # Sanitize filename for safety
+                safe_filename = (
+                    filename.replace("/", "_").replace("\\", "_").replace("..", "_")
+                )
+                if safe_filename != filename:
+                    logger.logger.warning(
+                        f"Sanitized filename: {filename} -> {safe_filename}"
+                    )
+                    filename = safe_filename
+
+                # Handle various content issues
+                if not content:
+                    empty_sections.append(filename)
+                    logger.logger.warning(f"Empty section detected: {filename}")
+                    continue
+
+                # Convert content to string if needed
+                if not isinstance(content, str):
+                    try:
+                        content = str(content)
+                        logger.logger.warning(
+                            f"Converted non-string content for section: {filename}"
+                        )
+                    except Exception as e:
+                        problematic_sections.append(
+                            (filename, f"Cannot convert to string: {e}")
+                        )
+                        continue
+
+                # Check minimum content length with more flexible threshold
+                if len(content.strip()) < 50:
+                    logger.logger.warning(
+                        f"Very short section content for: {filename} ({len(content)} chars)"
+                    )
+                    # Still include short sections, but log the warning
+
+                # Check for encoding issues
+                try:
+                    # Test encoding by attempting to encode/decode
+                    content.encode("utf-8").decode("utf-8")
+                except UnicodeError as e:
+                    problematic_sections.append((filename, f"Encoding issue: {e}"))
+                    logger.logger.error(
+                        f"Unicode encoding issue in section {filename}: {e}"
+                    )
+                    continue
+
+                # Check for extremely large content (>10MB)
+                if len(content) > 10 * 1024 * 1024:
+                    logger.logger.warning(
+                        f"Very large section detected: {filename} ({len(content):,} chars)"
+                    )
+                    # Optionally truncate or continue with warning
+
+                valid_sections[filename] = content
+
+            # Handle edge cases in section validation results
+            if not valid_sections:
+                if empty_sections or problematic_sections:
+                    error_details = []
+                    if empty_sections:
+                        error_details.append(
+                            f"Empty sections: {', '.join(empty_sections)}"
+                        )
+                    if problematic_sections:
+                        error_details.append(
+                            f"Problematic sections: {', '.join([f'{name} ({issue})' for name, issue in problematic_sections])}"
+                        )
+
+                    error = error_handler.create_error(
+                        f"No valid sections for split output. {'; '.join(error_details)}",
+                        ErrorSeverity.HIGH,
+                        ErrorCategory.DATA_VALIDATION,
+                        component="document_validator",
+                    )
+                    return False, error.message
+                else:
+                    # Fallback to minimal content
+                    logger.logger.warning(
+                        "No valid sections found - creating fallback content"
+                    )
+                    valid_sections = {
+                        "01_fallback": f"# Kaspa Knowledge Digest: {date}\n\n**CONTEXT:** Document generation completed but no valid content sections were produced.\n\nThis may indicate data processing issues or empty source files."
+                    }
+
+            # Log section summary
+            if empty_sections:
+                logger.logger.info(
+                    f"Skipped empty sections: {', '.join(empty_sections)}"
+                )
+            if problematic_sections:
+                logger.logger.warning(
+                    f"Skipped problematic sections: {', '.join([name for name, _ in problematic_sections])}"
+                )
+
+            logger.logger.info(
+                f"Proceeding with {len(valid_sections)} valid sections out of {len(document_content)} total"
             )
-            return False, error.message
 
-        # Check for required sections
-        required_sections = ["Kaspa Knowledge Digest", "CONTEXT:"]
-        missing_sections = []
-        for section in required_sections:
-            if section not in document_content:
-                missing_sections.append(section)
+            # Update document_content to only include valid sections
+            document_content = valid_sections
 
-        if missing_sections:
-            error = error_handler.create_error(
-                f"Generated document missing required sections: "
-                f"{', '.join(missing_sections)}",
-                ErrorSeverity.MEDIUM,
-                ErrorCategory.DATA_VALIDATION,
-                component="document_validator",
+            # Step 6: Write multiple output files atomically
+            logger.logger.info(
+                f"Writing {len(document_content)} split documents to: {output_dir}"
             )
-            logger.logger.warning(error.message)  # Log as warning but continue
+            temp_files = []
+            written_files = []
+            total_size = 0
 
-        # Step 6: Write output file
-        logger.logger.info(f"Writing document to: {output_file}")
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(document_content)
+            try:
+                # Phase 1: Pre-flight checks and preparation
+                final_files = []
+                total_content_size = 0
 
-        # Final validation that file was written correctly
-        if not output_file.exists():
-            error = error_handler.create_error(
-                f"Output file was not created: {output_file}",
-                ErrorSeverity.CRITICAL,
-                ErrorCategory.FILE_OPERATIONS,
-                component="file_writer",
-            )
-            return False, error.message
+                # Check output directory permissions
+                if not os.access(output_dir, os.W_OK):
+                    error = error_handler.create_error(
+                        f"No write permission to output directory: {output_dir}",
+                        ErrorSeverity.CRITICAL,
+                        ErrorCategory.FILE_OPERATIONS,
+                        component="permission_checker",
+                    )
+                    return False, error.message
 
-        file_size = output_file.stat().st_size
-        logger.logger.info(f"Successfully generated RAG document: {output_file}")
-        logger.logger.info(f"Document size: {file_size:,} bytes")
+                # Prepare file operations and calculate total size
+                for filename, content in document_content.items():
+                    # Sanitize filename again for final output
+                    safe_filename = "".join(
+                        c for c in filename if c.isalnum() or c in "._-"
+                    )
+                    if not safe_filename:
+                        safe_filename = f"section_{len(final_files)}"
+
+                    split_output_file = output_dir / f"{date}_{safe_filename}.md"
+
+                    # Check for filename conflicts within this batch
+                    existing_paths = [path for _, _, path in final_files]
+                    if split_output_file in existing_paths:
+                        # Add counter to avoid conflicts
+                        counter = 1
+                        while True:
+                            conflicted_file = (
+                                output_dir / f"{date}_{safe_filename}_{counter}.md"
+                            )
+                            if conflicted_file not in existing_paths:
+                                split_output_file = conflicted_file
+                                logger.logger.warning(
+                                    f"Resolved filename conflict: {safe_filename} -> {safe_filename}_{counter}"
+                                )
+                                break
+                            counter += 1
+
+                    final_files.append((filename, content, split_output_file))
+                    total_content_size += len(content.encode("utf-8"))
+
+                    # Check if file exists and handle force flag
+                    if split_output_file.exists() and not force:
+                        error = error_handler.create_error(
+                            f"Output file already exists: {split_output_file}. Use --force to overwrite.",
+                            ErrorSeverity.MEDIUM,
+                            ErrorCategory.FILE_OPERATIONS,
+                            component="file_checker",
+                        )
+                        return False, error.message
+
+                # Check available disk space (if possible)
+                try:
+                    if hasattr(os, "statvfs"):  # Unix-like systems
+                        stat = os.statvfs(output_dir)
+                        free_space = stat.f_bavail * stat.f_frsize
+                        # Add 50% buffer for temp files and overhead
+                        required_space = int(total_content_size * 2.5)
+
+                        if free_space < required_space:
+                            error = error_handler.create_error(
+                                f"Insufficient disk space. Required: {required_space:,} bytes, Available: {free_space:,} bytes",
+                                ErrorSeverity.CRITICAL,
+                                ErrorCategory.FILE_OPERATIONS,
+                                component="disk_space_checker",
+                            )
+                            return False, error.message
+
+                        logger.logger.debug(
+                            f"Disk space check passed: {free_space:,} bytes available, {required_space:,} bytes required"
+                        )
+                except (OSError, AttributeError) as e:
+                    # Disk space check failed, but continue with warning
+                    logger.logger.warning(f"Could not check disk space: {e}")
+
+                logger.logger.info(
+                    f"Pre-flight checks passed for {len(final_files)} files ({total_content_size:,} bytes total)"
+                )
+
+                # Phase 2: Write all content to temporary files with enhanced error handling
+                logger.logger.info("Writing content to temporary files...")
+                for filename, content, final_path in final_files:
+                    temp_fd = None
+                    temp_path = None
+
+                    try:
+                        # Create temporary file in the same directory as the final file
+                        temp_fd, temp_path = tempfile.mkstemp(
+                            suffix=".tmp",
+                            prefix=f"{date}_{filename}_"[:50],  # Limit prefix length
+                            dir=output_dir,
+                            text=True,
+                        )
+
+                        # Write content to temporary file with progress tracking
+                        bytes_written = 0
+                        chunk_size = 8192  # Write in 8KB chunks for large files
+
+                        with os.fdopen(temp_fd, "w", encoding="utf-8") as temp_file:
+                            temp_fd = (
+                                None  # File descriptor is now managed by temp_file
+                            )
+
+                            # For large content, write in chunks to handle memory efficiently
+                            if len(content) > chunk_size:
+                                for i in range(0, len(content), chunk_size):
+                                    chunk = content[i : i + chunk_size]
+                                    temp_file.write(chunk)
+                                    bytes_written += len(chunk.encode("utf-8"))
+
+                                    # Flush periodically to ensure data is written
+                                    if bytes_written % (chunk_size * 10) == 0:
+                                        temp_file.flush()
+                                        os.fsync(temp_file.fileno())
+                            else:
+                                temp_file.write(content)
+                                bytes_written = len(content.encode("utf-8"))
+
+                            # Final flush and sync
+                            temp_file.flush()
+                            os.fsync(temp_file.fileno())
+
+                        # Validate temporary file was written correctly
+                        temp_file_path = Path(temp_path)
+                        if not temp_file_path.exists():
+                            raise IOError(f"Temporary file not created: {temp_path}")
+
+                        actual_size = temp_file_path.stat().st_size
+                        if actual_size == 0:
+                            raise IOError(f"Temporary file is empty: {temp_path}")
+
+                        # Verify content integrity by reading back key portions
+                        try:
+                            with open(
+                                temp_file_path, "r", encoding="utf-8"
+                            ) as verify_file:
+                                # For small files, read entire content and compare
+                                if actual_size < 1000:
+                                    read_content = verify_file.read()
+                                    if read_content != content:
+                                        raise IOError(
+                                            f"Content verification failed for: {temp_path}"
+                                        )
+                                else:
+                                    # For larger files, verify start and end more reliably
+                                    read_start = verify_file.read(100)
+                                    if not content.startswith(read_start):
+                                        raise IOError(
+                                            f"Content verification failed (start) for: {temp_path}"
+                                        )
+
+                                    # For end verification, use a more reliable approach
+                                    # Read the last portion by seeking from the end with bytes
+                                    verify_file.seek(0, 2)  # Seek to end
+                                    file_size_bytes = verify_file.tell()
+
+                                    if file_size_bytes > 200:
+                                        # Read last 100 bytes worth of characters
+                                        verify_file.seek(max(0, file_size_bytes - 200))
+                                        verify_file.read(
+                                            100
+                                        )  # Skip initial partial characters
+                                        read_end = verify_file.read()
+
+                                        # Get expected end (last 100 chars)
+                                        expected_end = (
+                                            content[-100:]
+                                            if len(content) > 100
+                                            else content
+                                        )
+
+                                        if not read_end or not expected_end.endswith(
+                                            read_end[-50:]
+                                        ):
+                                            # Use a less strict verification for very large files
+                                            if (
+                                                len(content) < 50000
+                                            ):  # Only strict check for medium files
+                                                raise IOError(
+                                                    f"Content verification failed (end) for: {temp_path}"
+                                                )
+                        except (OSError, UnicodeDecodeError) as verify_error:
+                            raise IOError(
+                                f"Content verification error for {temp_path}: {verify_error}"
+                            )
+
+                        # Track temporary file for atomic operation
+                        temp_files.append((temp_file_path, final_path))
+                        logger.logger.debug(
+                            f"Successfully wrote temp file: {temp_path} ({actual_size:,} bytes)"
+                        )
+
+                    except Exception as e:
+                        # Enhanced cleanup for failed temporary file creation
+                        cleanup_success = True
+
+                        # Close file descriptor if still open
+                        if temp_fd is not None:
+                            try:
+                                os.close(temp_fd)
+                            except Exception as fd_error:
+                                logger.logger.debug(
+                                    f"Error closing file descriptor: {fd_error}"
+                                )
+                                cleanup_success = False
+
+                        # Remove temp file if it exists
+                        if temp_path and os.path.exists(temp_path):
+                            try:
+                                os.unlink(temp_path)
+                                logger.logger.debug(
+                                    f"Cleaned up failed temp file: {temp_path}"
+                                )
+                            except Exception as cleanup_error:
+                                logger.logger.warning(
+                                    f"Failed to cleanup temp file {temp_path}: {cleanup_error}"
+                                )
+                                cleanup_success = False
+
+                        # Re-raise with context about cleanup
+                        cleanup_msg = (
+                            " (cleanup successful)"
+                            if cleanup_success
+                            else " (cleanup failed)"
+                        )
+                        raise IOError(
+                            f"Failed to write section '{filename}' to temporary file: {e}{cleanup_msg}"
+                        ) from e
+
+                # Phase 3: Atomically move all temp files to final locations
+                logger.logger.info("Committing files atomically...")
+                for temp_path, final_path in temp_files:
+                    # Atomic rename operation
+                    temp_path.rename(final_path)
+
+                    # Validate final file
+                    if not final_path.exists():
+                        raise IOError(f"Atomic rename failed: {final_path}")
+
+                    file_size = final_path.stat().st_size
+                    written_files.append(final_path.name)
+                    total_size += file_size
+                    logger.logger.debug(f"Successfully committed: {final_path}")
+
+                # Clear temp_files list since all were successfully renamed
+                temp_files.clear()
+
+                logger.logger.info(
+                    f"Successfully generated {len(written_files)} split documents atomically"
+                )
+                logger.logger.info(f"Files: {', '.join(written_files)}")
+                logger.logger.info(f"Total size: {total_size:,} bytes")
+
+            except Exception as e:
+                # Phase 4: Cleanup temporary files on any failure
+                logger.logger.error(f"Error during atomic file writing: {e}")
+                cleanup_errors = []
+
+                for temp_path, final_path in temp_files:
+                    try:
+                        if temp_path.exists():
+                            temp_path.unlink()
+                            logger.logger.debug(f"Cleaned up temp file: {temp_path}")
+                    except Exception as cleanup_error:
+                        cleanup_errors.append(
+                            f"Failed to cleanup {temp_path}: {cleanup_error}"
+                        )
+
+                # Log cleanup errors but don't mask original error
+                if cleanup_errors:
+                    logger.logger.warning(
+                        f"Cleanup errors: {'; '.join(cleanup_errors)}"
+                    )
+
+                # Create comprehensive error message
+                error = error_handler.create_error(
+                    f"Atomic file writing failed: {e}. All temporary files cleaned up.",
+                    ErrorSeverity.CRITICAL,
+                    ErrorCategory.FILE_OPERATIONS,
+                    component="atomic_file_writer",
+                )
+                return False, error.message
+
+        else:
+            # Handle single file validation (original behavior)
+            if not document_content or len(document_content) < 100:
+                error = error_handler.create_error(
+                    "Generated document is empty or too short",
+                    ErrorSeverity.HIGH,
+                    ErrorCategory.DATA_VALIDATION,
+                    component="document_validator",
+                )
+                return False, error.message
+
+            # Check for required sections
+            required_sections = ["Kaspa Knowledge Digest", "CONTEXT:"]
+            missing_sections = []
+            for section in required_sections:
+                if section not in document_content:
+                    missing_sections.append(section)
+
+            if missing_sections:
+                error = error_handler.create_error(
+                    f"Generated document missing required sections: "
+                    f"{', '.join(missing_sections)}",
+                    ErrorSeverity.MEDIUM,
+                    ErrorCategory.DATA_VALIDATION,
+                    component="document_validator",
+                )
+                logger.logger.warning(error.message)  # Log as warning but continue
+
+            # Step 6: Write single output file
+            logger.logger.info(f"Writing document to: {output_file}")
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(document_content)
+
+            # Final validation that file was written correctly
+            if not output_file.exists():
+                error = error_handler.create_error(
+                    f"Output file was not created: {output_file}",
+                    ErrorSeverity.CRITICAL,
+                    ErrorCategory.FILE_OPERATIONS,
+                    component="file_writer",
+                )
+                return False, error.message
+
+            file_size = output_file.stat().st_size
+            logger.logger.info(f"Successfully generated RAG document: {output_file}")
+            logger.logger.info(f"Document size: {file_size:,} bytes")
 
         # Log health report
         health_report = error_handler.get_health_report()
@@ -354,6 +784,12 @@ Examples:
         help="Directory for output files (default: knowledge_base)",
     )
 
+    parser.add_argument(
+        "--split-output",
+        action="store_true",
+        help="Split output into multiple files by section (recommended for full history)",
+    )
+
     args = parser.parse_args()
 
     # Validate arguments
@@ -368,6 +804,8 @@ Examples:
     # Run the generation
     print(f"🚀 Starting RAG document generation for {args.date}")
     print(f"📋 Organization style: {args.organization}")
+    if args.split_output:
+        print(f"📂 Split output mode: Multiple files will be created")
 
     success, error_message = generate_rag_document(
         date=args.date,
@@ -375,11 +813,17 @@ Examples:
         organization_style=args.organization,
         data_dir=args.data_dir,
         output_dir=args.output_dir,
+        split_output=args.split_output,
     )
 
     if success:
-        print(f"✅ Successfully generated RAG document for {args.date}")
-        print(f"📄 Output: {args.output_dir}/{args.date}.md")
+        if args.split_output:
+            print(f"✅ Successfully generated split RAG documents for {args.date}")
+            print(f"📂 Output directory: {args.output_dir}")
+            print(f"📄 Files: {args.date}_*.md")
+        else:
+            print(f"✅ Successfully generated RAG document for {args.date}")
+            print(f"📄 Output: {args.output_dir}/{args.date}.md")
         sys.exit(0)
     else:
         print(f"❌ Failed to generate RAG document: {error_message}")

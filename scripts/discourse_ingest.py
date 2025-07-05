@@ -73,7 +73,7 @@ import time
 import xml.etree.ElementTree as ET
 import feedparser
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import urljoin
@@ -1010,7 +1010,7 @@ def fetch_comprehensive_topics(forum_config, state, full_history=False):
 
 
 def fetch_new_posts_for_topic(
-    forum_config, topic_id, last_post_number=0, topic_info=None
+    forum_config, topic_id, last_post_number=0, topic_info=None, days_back=None
 ):
     """Fetch new posts for a specific topic since last_post_number"""
     base_url = forum_config["base_url"]
@@ -1023,6 +1023,11 @@ def fetch_new_posts_for_topic(
         return [], 0
 
     print(f"   📝 Fetching posts for topic {topic_id} (after post #{last_post_number})")
+
+    # Calculate cutoff date if days_back is specified
+    cutoff_date = None
+    if days_back is not None:
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_back)
 
     data = make_api_request(topic_url, headers, forum_config.get("request_timeout", 30))
     if not data:
@@ -1041,12 +1046,30 @@ def fetch_new_posts_for_topic(
 
     new_posts = []
     highest_post_number = last_post_number
+    filtered_count = 0
 
     for post in posts:
         post_number = post.get("post_number", 0)
 
         # Only process posts after our last tracked post number
         if post_number > last_post_number:
+            # Apply date filtering if specified
+            if cutoff_date is not None:
+                post_created_at = post.get("created_at")
+                if post_created_at:
+                    try:
+                        # Parse the ISO timestamp
+                        post_date = datetime.fromisoformat(
+                            post_created_at.replace("Z", "+00:00")
+                        )
+                        if post_date < cutoff_date:
+                            filtered_count += 1
+                            highest_post_number = max(highest_post_number, post_number)
+                            continue
+                    except (ValueError, TypeError):
+                        # If date parsing fails, include the post
+                        pass
+
             # Clean HTML content from the "cooked" field
             raw_html_content = post.get("cooked", "")
             clean_content = clean_html_content(raw_html_content)
@@ -1070,10 +1093,12 @@ def fetch_new_posts_for_topic(
             highest_post_number = max(highest_post_number, post_number)
 
     print(f"   📝 Found {len(new_posts)} new posts for topic {topic_id}")
+    if filtered_count > 0:
+        print(f"   📅 Filtered out {filtered_count} posts older than {days_back} days")
     return new_posts, highest_post_number
 
 
-def process_forum(forum_config, state, full_history=False):
+def process_forum(forum_config, state, full_history=False, days_back=None):
     """Process a single Discourse forum"""
     forum_name = forum_config.get("name", "unknown")
     base_url = forum_config["base_url"]
@@ -1101,7 +1126,11 @@ def process_forum(forum_config, state, full_history=False):
 
         # Fetch new posts for this topic, passing topic info for title/slug
         new_posts, new_last_post_number = fetch_new_posts_for_topic(
-            forum_config, topic_id, last_post_number, topic_info=topic
+            forum_config,
+            topic_id,
+            last_post_number,
+            topic_info=topic,
+            days_back=days_back,
         )
 
         if new_posts:
@@ -1188,6 +1217,11 @@ def main():
         help="Ignore state and fetch all available posts (use with caution)",
     )
     parser.add_argument(
+        "--days-back",
+        type=int,
+        help="Number of days back to fetch posts (filters by creation date)",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Force processing even if no new posts found (bypass deduplication)",
@@ -1197,6 +1231,9 @@ def main():
 
     print("🏛️ Starting Discourse Forum Ingestion")
     print("=" * 50)
+
+    if args.days_back:
+        print(f"📅 Date filtering: Only posts from the last {args.days_back} days")
 
     # Check API credentials
     if not DISCOURSE_API_USERNAME or not DISCOURSE_API_KEY:
@@ -1243,7 +1280,9 @@ def main():
 
     try:
         for forum_config in forum_configs:
-            forum_posts = process_forum(forum_config, state, args.full_history)
+            forum_posts = process_forum(
+                forum_config, state, args.full_history, args.days_back
+            )
             all_posts.extend(forum_posts)
 
         # Filter out existing posts (unless force flag is used)

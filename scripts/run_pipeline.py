@@ -216,7 +216,7 @@ def run_command(
         return False, "error"
 
 
-def run_full_pipeline(force=False, backfill=False):
+def run_full_pipeline(force=False, backfill=False, days_back=None):
     """Run the complete data pipeline with comprehensive monitoring."""
     # Initialize monitoring system
     if not LOGGER or not ERROR_HANDLER:
@@ -252,10 +252,17 @@ def run_full_pipeline(force=False, backfill=False):
     # Step 1: Ingest raw data from sources
     backfill_flag = " --full-history" if backfill else ""
     force_flag = " --force" if force else ""
+    days_back_flag = f" --days-back {days_back}" if days_back is not None else ""
+
+    if days_back is not None:
+        print(f"📅 Using date filtering: {days_back} days back")
 
     ingestion_steps = [
         {
-            "command": f"python -m scripts.medium_ingest{backfill_flag}{force_flag}",
+            "command": (
+                f"python -m scripts.medium_ingest{backfill_flag}"
+                f"{force_flag}{days_back_flag}"
+            ),
             "description": "Medium Articles Ingestion",
             "component": "medium_ingest",
             "required": True,
@@ -271,7 +278,7 @@ def run_full_pipeline(force=False, backfill=False):
         {
             "command": (
                 f"python -m scripts.github_ingest --date {pipeline_date}"
-                f"{backfill_flag}{force_flag}"
+                f"{backfill_flag}{force_flag}{days_back_flag}"
             ),
             "description": "GitHub Repository Ingestion",
             "component": "github_ingest",
@@ -279,7 +286,10 @@ def run_full_pipeline(force=False, backfill=False):
             "timeout": 900,  # 15 minutes
         },
         {
-            "command": f"python -m scripts.discourse_ingest{backfill_flag}{force_flag}",
+            "command": (
+                f"python -m scripts.discourse_ingest{backfill_flag}"
+                f"{force_flag}{days_back_flag}"
+            ),
             "description": "Discourse Forum Ingestion",
             "component": "discourse_ingest",
             "required": False,
@@ -475,13 +485,17 @@ def run_full_pipeline(force=False, backfill=False):
     print("\n📋 STAGE 4: RAG DOCUMENT GENERATION")
     print("=" * 60)
 
+    # Add split-output flag for backfill mode
+    split_flag = " --split-output" if backfill else ""
+
     rag_steps = [
         {
             "command": (
-                f"python -m scripts.generate_rag_document "
-                f"--date {aggregation_date} --organization prioritized{force_flag}"
+                f"python -m scripts.generate_rag_document --date {aggregation_date} "
+                f"--organization prioritized{force_flag}{split_flag}"
             ),
-            "description": "Prioritized RAG Document Generation",
+            "description": "Prioritized RAG Document Generation"
+            + (" (Split Output)" if backfill else ""),
             "required": False,
         },
     ]
@@ -564,8 +578,11 @@ def run_full_pipeline(force=False, backfill=False):
         print("  └─ full_history.json  - Comprehensive historical briefing")
         print("data/facts/             - AI-extracted facts")
         print("  └─ full_history.json  - Comprehensive historical facts")
-        print("knowledge_base/         - RAG-optimized documents")
-        print("  └─ full_history.md    - Comprehensive historical knowledge document")
+        print("knowledge_base/         - RAG-optimized documents (SPLIT OUTPUT)")
+        print("  ├─ full_history_01_briefing.md     - Daily briefing section")
+        print("  ├─ full_history_02_facts.md        - Key facts section")
+        print("  ├─ full_history_03_high_signal.md  - High-signal content")
+        print("  └─ full_history_04_general_activity.md - General activity")
     else:
         print("data/aggregated/        - Raw daily aggregated data")
         print("data/briefings/         - AI-generated daily briefings")
@@ -630,7 +647,7 @@ def generate_pipeline_report(
         LOGGER.logger.error(f"Failed to save pipeline report: {e}")
 
 
-def run_ingestion_only(backfill=False, force=False):
+def run_ingestion_only(backfill=False, force=False, days_back=None):
     """Run only the data ingestion steps."""
     if backfill:
         print("\n🔄 Running ingestion-only pipeline - BACKFILL MODE")
@@ -641,9 +658,18 @@ def run_ingestion_only(backfill=False, force=False):
 
     force_flag = " --force" if force else ""
 
+    # Add days_back flag for Medium and GitHub if specified
+    days_back_flag = f" --days-back {days_back}" if days_back is not None else ""
+
+    if days_back is not None:
+        print(f"📅 Using date filtering: {days_back} days back")
+
     steps = [
         (
-            f"python -m scripts.medium_ingest{backfill_flag}{force_flag}",
+            (
+                f"python -m scripts.medium_ingest{backfill_flag}"
+                f"{force_flag}{days_back_flag}"
+            ),
             "Medium Articles Ingestion",
         ),
         (
@@ -651,11 +677,17 @@ def run_ingestion_only(backfill=False, force=False):
             "Telegram Group Ingestion",
         ),
         (
-            f"python -m scripts.github_ingest{backfill_flag}{force_flag}",
+            (
+                f"python -m scripts.github_ingest{backfill_flag}"
+                f"{force_flag}{days_back_flag}"
+            ),
             "GitHub Repository Ingestion",
         ),
         (
-            f"python -m scripts.discourse_ingest{backfill_flag}{force_flag}",
+            (
+                f"python -m scripts.discourse_ingest{backfill_flag}"
+                f"{force_flag}{days_back_flag}"
+            ),
             "Discourse Forum Ingestion",
         ),
     ]
@@ -726,11 +758,14 @@ def run_rag_generation_only(force=False, date=None, backfill=False):
         rag_date = date if date else datetime.now().strftime("%Y-%m-%d")
 
     force_flag = " --force" if force else ""
+    split_flag = " --split-output" if backfill or rag_date == "full_history" else ""
+
     steps = [
         (
             f"python -m scripts.generate_rag_document --date {rag_date} "
-            f"--organization prioritized{force_flag}",
-            "Prioritized RAG Document Generation",
+            f"--organization prioritized{force_flag}{split_flag}",
+            "Prioritized RAG Document Generation"
+            + (" (Split Output)" if split_flag else ""),
         ),
     ]
 
@@ -778,11 +813,23 @@ def main():
             "saves to full_history files)"
         ),
     )
+    parser.add_argument(
+        "--days-back",
+        type=int,
+        help=(
+            "Number of days back to fetch data for Medium, GitHub, and Discourse "
+            "ingestion (filters by publication/update/creation date)"
+        ),
+    )
 
     args = parser.parse_args()
 
     if args.mode == "ingest":
-        success = run_ingestion_only(backfill=args.backfill, force=args.force)
+        success = run_ingestion_only(
+            backfill=args.backfill,
+            force=args.force,
+            days_back=getattr(args, "days_back", None),
+        )
     elif args.mode == "aggregate":
         success = run_aggregation_only(force=args.force, backfill=args.backfill)
     elif args.mode == "ai":
@@ -792,7 +839,11 @@ def main():
             force=args.force, date=args.date, backfill=args.backfill
         )
     elif args.mode == "full":
-        success = run_full_pipeline(force=args.force, backfill=args.backfill)
+        success = run_full_pipeline(
+            force=args.force,
+            backfill=args.backfill,
+            days_back=getattr(args, "days_back", None),
+        )
 
     if success:
         print("\n🎯 Pipeline completed successfully!")
