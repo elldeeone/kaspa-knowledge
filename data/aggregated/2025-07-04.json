@@ -1,0 +1,141 @@
+{
+  "date": "2025-07-04",
+  "generated_at": "2025-07-04T03:49:14.786393",
+  "sources": {
+    "medium_articles": [],
+    "telegram_messages": [],
+    "github_activity": [],
+    "discord_messages": [],
+    "forum_posts": [],
+    "news_articles": [],
+    "github_activities": [
+      {
+        "type": "github_commit",
+        "repository": "kaspanet/rusty-kaspa",
+        "repository_url": "https://github.com/kaspanet/rusty-kaspa",
+        "title": "Remove temporary dust prevention mechanism (#698)",
+        "author": "Ori Newman",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+        "date": "2025-06-30T10:18:30+00:00",
+        "content": "Commit: Remove temporary dust prevention mechanism (#698)\n\n* Remove temporary dust prevention mechanism\n\n* Disable uninlined_format_args lint\n\n* Apply workspace lints to all crates\n\n* clippy\nFiles changed: 53\nAdditions: 155\nDeletions: 26",
+        "metadata": {
+          "sha": "fcd9c28f9b211b9872a0c90a8c94f79466ffb063",
+          "stats": {
+            "additions": 155,
+            "deletions": 26,
+            "total": 181
+          },
+          "files_changed": 53
+        },
+        "signal": {
+          "strength": "high",
+          "contributor_role": "core_developer",
+          "is_lead": false,
+          "is_founder": false
+        }
+      },
+      {
+        "type": "github_pull_request",
+        "repository": "kaspanet/rusty-kaspa",
+        "repository_url": "https://github.com/kaspanet/rusty-kaspa",
+        "title": "Remove temporary dust prevention mechanism",
+        "author": "someone235",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/698",
+        "date": "2025-06-26T07:38:52+00:00",
+        "content": "PR #698: Remove temporary dust prevention mechanism\nThe [dust-prevention mechanism](https://github.com/kaspanet/kaspad/pull/2223) that was introduced in September 2023 to deal with a dust attack is now considered too restrictive, and preventing legitimate players from using multi outputs transactions with ease. Now that [KIP 9](https://github.com/kaspanet/kips/blob/master/kip-0009.md) is active on mainnet, we don't need any other measurements against such attacks.\nState: closed\nFiles changed: 53\nAdditions: 155\nDeletions: 26",
+        "metadata": {
+          "number": 698,
+          "state": "closed",
+          "draft": false,
+          "merged_at": "2025-06-30T10:18:30+00:00",
+          "stats": {
+            "additions": 155,
+            "deletions": 26,
+            "changed_files": 53
+          }
+        },
+        "signal": {
+          "strength": "high",
+          "contributor_role": "core_developer",
+          "is_lead": false,
+          "is_founder": false
+        }
+      },
+      {
+        "type": "github_pull_request",
+        "repository": "kaspanet/rusty-kaspa",
+        "repository_url": "https://github.com/kaspanet/rusty-kaspa",
+        "title": "IBD Handle Syncer Pruning Movement",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/702",
+        "date": "2025-06-27T19:26:42+00:00",
+        "content": "PR #702: IBD Handle Syncer Pruning Movement\nAddresses https://github.com/kaspanet/rusty-kaspa/issues/679\r\n\r\n**IBD Type determination**\r\nA new IBD type is added, currently called pruning_catchup. This IBD type is triggered when all the following are fulfilled:\r\n1) the syncer's and node's pruning points do not match,\r\n2) the node does know the header of the syncer's pp and can tell it's in the  future of its own pp\r\n3)the node does not have the block body of the syncer's pp  - if it does have that block body, it means vanialla syncing can carry on as normal and the node will prune on its own in due time.\r\n\r\nConveniently, negotiate_missing_syncer_chain_segment allows for an easy way to derive the syncer's current pruning point hash.\r\n\r\n**Validation Before Movement**\r\nBefore any sensitive and irreversible part, the node first downloads and validates headers from the Syncer until its declared sink. \"Destructive\" changes would only occur when :\r\n\r\n 1)the  syncer pp is a valid pruning sample (it satisfies the blue_score requirements to be a pp)\r\n 2)there are sufficiently many headers built on top of it, specifically, the syncer's sink validated header blue_score is greater than P.b_score+pruning_depth.\r\n 3) the syncer pruning point is on the selected chain from the syncer's sink, and any pruning points declared\r\n on headers on its path must be consistent with those already known\r\n\r\n**Transitional States During Catchup**\r\nUpdating to a new pruning point, conceptually consists of three stages:\r\n1) Updating various stores ,  most prominently pruning_point store,  but also virtual store, past_pruning_points, pruning samples, selected chain store, and body_tips store. All those could be updated in a batch. (ignoring pruning samples for which it does not matter). I will refer to this stage as the \"pruning point movement\".\r\n2) Downloading the new pruning utxo set from a peer, and verifying it matches the header\r\n3) Downloading the block bodies of the new pruning point and its anticone - these blocks should only undergo trusted validation as their parents will forever miss block bodies. Hence they require special attention.\r\n\r\nDuring IBD_with_headers_proof (as it previously was), these three stages are performed atomically, using a \"discardable\" staging consensus, which either goes through all of them and only then is commited, or the current consensus remains active.\r\n\r\nUnlike an IBD with headers proof, pruning_catchup inherently consists of building on the information of the current consensus rather than starting from scratch.\r\n\r\nThe current implementation hence introduces transitional states, with corresponding \"flags\" for the intermediary cases where the pruning point movement occured but a new pruning utxo set is yet to be downloaded, and or the anticone's block bodies have not all went through verification. The required anticone in particular is maintained by computing and storing it already during the pp movement, with it being computed in relation to the syncer's sink (In theory this maintained set  could be shrunk on the fly as more bodies are synced, but at the moment this set is maintained in an all or nothing manner - since sending validated blocks to validation causes no harm and is fast enough).\r\n\r\nGiven the easy recognition, these intermediary states could just be handled in future syncs. These transitional states are unabusable given the standard security assumption of an honest majority at every pruning period: as we synced sufficiently many headers on top of the pruning point, we know the syncee's Dag on top of it represents the honest network, and hence its PP represents a valid pruning utxo set, and the blocks on the anticone must have had a block_body - or the honest network would have \"rejected\" this Dag (more precisely, the pp would not have been on the selected chain of it). It is remarked the same assumption was used previously when choosing to commit a staging consensus before all blocks synced underwent validation. \r\n\r\n* decoupling utxo download from pruning_movement also allows for sync_with_headers_proof to commit prior to downloading the utxo set, greatly improving the UI experience of many users who disconnect during the long UTXO download and have to start fresh syncing from anew. \r\n\r\n**Transitional States Security**\r\nPruning: generally pruning is not activated unless a virtual task is completed, and hence would not be called while in the limbo state of a missing utxo set. To be on the safe side it is confirmed we are not in a transitional state before attempting to naturally advance the pruning_utxo_set. Could perhaps be turned to an assert\r\nBlock Relay: a check is added if the consensus is in a transitional state to immediately send it to IBD if it is.\r\nHandleRelayBlockRequests: The node will ignore requests to send over its sink if it is in a transitional state, to avoid log cluttering and disconnecting due to  a potential missing block error\r\n\r\nFor simplicity both transitional states are checked in all the above, though at times a distinction could be made between them.\nState: open\nFiles changed: 22\nAdditions: 618\nDeletions: 145",
+        "metadata": {
+          "number": 702,
+          "state": "open",
+          "draft": true,
+          "merged_at": null,
+          "stats": {
+            "additions": 618,
+            "deletions": 145,
+            "changed_files": 22
+          }
+        }
+      },
+      {
+        "type": "github_issue",
+        "repository": "kaspanet/rusty-kaspa",
+        "repository_url": "https://github.com/kaspanet/rusty-kaspa",
+        "title": "Cannot start a node with --utxoindex",
+        "author": "9igeeky",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/696",
+        "date": "2025-06-25T14:33:52+00:00",
+        "content": "Issue #696: Cannot start a node with --utxoindex\n[ERROR] thread 'main' panicked at kaspad/src/daemon.rs:226:32: attempt to multiply with overflow\n\nthread 'main' panicked at kaspad/src/daemon.rs:226:32:\nattempt to multiply with overflow\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nExiting...\n\nkaspad/src/daemon.rs:\npub fn create_core_with_runtime(runtime: &Runtime, args: &Args, fd_total_budget: i32) -> (Arc<Core>, Arc<RpcCoreService>) {\n    let network = args.network();\n    let mut fd_remaining = fd_total_budget;\n    let utxo_files_limit = if args.utxoindex {\n        let utxo_files_limit = fd_remaining * 10 / 100;\n        fd_remaining -= utxo_files_limit;\n        utxo_files_limit\n    } else {\n        0\n    };\n\nLine 226: let utxo_files_limit = fd_remaining * 10 / 100;\n\n\nState: open\nComments: 7",
+        "metadata": {
+          "number": 696,
+          "state": "open",
+          "comments": 7,
+          "labels": [],
+          "assignees": [
+            "freshair18"
+          ]
+        }
+      }
+    ],
+    "onchain_data": {},
+    "documentation": []
+  },
+  "metadata": {
+    "total_items": 4,
+    "processing_time": "0.00s",
+    "pipeline_version": "2.0.0",
+    "sources_processed": [
+      "github_activities: 4 items",
+      "signal_analysis: 2 high-signal items (0 from lead developer)"
+    ],
+    "signal_analysis": {
+      "total_items": 4,
+      "high_signal_items": 2,
+      "lead_developer_items": 0,
+      "founder_items": 0,
+      "contributor_roles": {
+        "core_developer": 2
+      },
+      "signal_distribution": {
+        "high": 2,
+        "standard": 2
+      },
+      "sources_with_signals": {
+        "github_activities": {
+          "total": 4,
+          "high_signal": 2,
+          "lead_developer": 0,
+          "founder": 0,
+          "roles": {
+            "core_developer": 2
+          }
+        }
+      }
+    }
+  }
+}
