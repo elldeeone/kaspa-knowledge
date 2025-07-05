@@ -513,3 +513,44 @@ The project includes a sophisticated **High-Signal Contributor Weighting System*
 - Ensure flake8 validation passes
 - Include appropriate documentation
 - Add tests for new functionality
+
+## 🚀 Quick Start
+
+### Daily Pipeline Execution
+Run the full daily pipeline to process today's data:
+```bash
+python scripts/run_pipeline.py
+```
+
+### Backfill Mode (NEW!)
+Process comprehensive historical data from all sources:
+```bash
+python scripts/run_pipeline.py --backfill
+```
+
+### Pipeline Modes
+- `full` (default) - Complete pipeline: ingest → aggregate → AI processing → RAG generation
+- `ingest` - Data ingestion only
+- `aggregate` - Raw data aggregation only  
+- `ai` - AI processing only (briefings + facts)
+- `rag` - RAG document generation only
+
+### Advanced Options
+- `--force` - Force re-processing even if data exists
+- `--backfill` - Run in comprehensive historical mode (processes full_history.json files)
+- `--date YYYY-MM-DD` - Process specific date (for RAG generation)
+
+### Examples
+```bash
+# Daily processing with force regeneration
+python scripts/run_pipeline.py --force
+
+# Backfill mode for comprehensive historical data
+python scripts/run_pipeline.py --backfill --force
+
+# Only aggregate historical data 
+python scripts/run_pipeline.py aggregate --backfill
+
+# Generate RAG document for specific date
+python scripts/run_pipeline.py rag --date 2025-01-15
+```

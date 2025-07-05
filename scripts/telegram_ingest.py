@@ -36,6 +36,90 @@ def save_state(state):
         json.dump(state, f, indent=2)
 
 
+def get_existing_telegram_messages():
+    """
+    Cross-file deduplication: Load all existing telegram messages from all files.
+    Returns a set of unique message identifiers for O(1) lookup performance.
+    """
+    existing_messages = set()
+    sources_dir = Path("sources/telegram")
+
+    if not sources_dir.exists():
+        return existing_messages
+
+    # Get all JSON files in the telegram directory (including group subdirectories)
+    json_files = list(sources_dir.rglob("*.json"))
+
+    if not json_files:
+        return existing_messages
+
+    print(
+        f"🔍 Checking for existing telegram messages across {len(json_files)} files..."
+    )
+
+    total_existing = 0
+    for file_path in json_files:
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+                # Handle different data structures
+                messages = []
+                if isinstance(data, list):
+                    # Direct list of messages (older format)
+                    messages = data
+                elif isinstance(data, dict):
+                    # Check for messages in various keys
+                    if "messages" in data:
+                        messages = data.get("messages", [])
+                    elif isinstance(data, dict) and any(
+                        isinstance(v, list) for v in data.values()
+                    ):
+                        # Flatten all lists in the dict
+                        for value in data.values():
+                            if isinstance(value, list):
+                                messages.extend(value)
+
+                # Process messages to extract unique identifiers
+                for message in messages:
+                    if isinstance(message, dict) and "message_id" in message:
+                        group = message.get("group", "unknown")
+                        # Use group + message_id as unique identifier
+                        existing_messages.add(f"{group}#{message['message_id']}")
+                        total_existing += 1
+
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"⚠️  Warning: Could not read {file_path}: {e}")
+            continue
+
+    print(
+        f"📚 Found {total_existing} existing telegram messages for deduplication check"
+    )
+    return existing_messages
+
+
+def filter_new_telegram_messages(all_messages, existing_messages):
+    """
+    Filter out telegram messages that already exist in our database.
+    Returns only genuinely new messages.
+    """
+    if not existing_messages:
+        return all_messages
+
+    new_messages = []
+    for message in all_messages:
+        if isinstance(message, dict) and "message_id" in message:
+            group = message.get("group", "unknown")
+            message_key = f"{group}#{message['message_id']}"
+            if message_key not in existing_messages:
+                new_messages.append(message)
+        else:
+            # Include messages without message_id (though this shouldn't happen)
+            new_messages.append(message)
+
+    return new_messages
+
+
 # --- Core Fetching Logic ---
 async def fetch_messages(full_history=False):
     """Fetch messages from all configured Telegram groups."""
@@ -222,14 +306,18 @@ async def fetch_group_messages(client, group, last_id):
     return messages_data, new_last_id
 
 
-def save_raw_telegram_data(messages, force_save=False):
+def save_raw_telegram_data(messages, force_save=False, full_history=False):
     """Save raw Telegram messages to group-specific daily files.
 
     Args:
         messages: List of messages to save
         force_save: If True, save empty file with metadata even when no messages
+        full_history: If True, save to full_history.json instead of dated file
     """
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    if full_history:
+        date_str = "full_history"
+    else:
+        date_str = datetime.now().strftime("%Y-%m-%d")
 
     if not messages and not force_save:
         print("⚠️ No messages to save")
@@ -243,6 +331,9 @@ def save_raw_telegram_data(messages, force_save=False):
         sources_dir = Path("sources/telegram")
         sources_dir.mkdir(parents=True, exist_ok=True)
 
+        # Set processing mode based on full_history flag
+        processing_mode = "full_history" if full_history else "daily_sync"
+
         # Save empty file with metadata
         empty_data_with_metadata = {
             "date": date_str,
@@ -254,7 +345,7 @@ def save_raw_telegram_data(messages, force_save=False):
                 "groups_processed": 0,
                 "total_messages_fetched": 0,
                 "credential_status": "placeholder_values",
-                "processing_mode": "daily_sync",
+                "processing_mode": processing_mode,
             },
         }
 
@@ -279,7 +370,7 @@ def save_raw_telegram_data(messages, force_save=False):
         group_dir = Path("sources/telegram") / group_name
         group_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save daily file in group directory
+        # Save file in group directory
         output_path = group_dir / f"{date_str}.json"
 
         with open(output_path, "w", encoding="utf-8") as f:
@@ -304,6 +395,11 @@ async def main():
         action="store_true",
         help="Force a full history backfill for all enabled groups.",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force processing even if no new messages found " "(bypass deduplication)",
+    )
     args = parser.parse_args()
 
     print("🔄 Starting Telegram message ingestion...")
@@ -311,16 +407,52 @@ async def main():
 
     if messages is None:  # This means we skipped due to missing credentials/config
         # Still save empty file with metadata for consistency
-        save_raw_telegram_data([], force_save=True)
+        save_raw_telegram_data([], force_save=True, full_history=args.full_history)
         print("\n🎉 Telegram ingestion complete!")
         sys.exit(2)  # Exit code 2 indicates "no new content" like Medium
     elif messages:
-        save_raw_telegram_data(messages)
+        # Filter out existing messages (unless force flag is used)
+        if not args.force:
+            existing_messages = get_existing_telegram_messages()
+            filtered_messages = filter_new_telegram_messages(
+                messages, existing_messages
+            )
+
+            if len(filtered_messages) == 0 and len(messages) > 0:
+                print("\n🎯 Smart deduplication result:")
+                print(f"   - Total messages fetched: {len(messages)}")
+                print("   - New messages (not in database): 0")
+                print(
+                    "\n✨ No new telegram messages found - "
+                    "saving empty file with metadata!"
+                )
+                print("ℹ️  Use --force flag to bypass deduplication if needed.")
+
+                # Save empty file with metadata for consistency
+                save_raw_telegram_data(
+                    [], force_save=True, full_history=args.full_history
+                )
+                print("\n🎉 Telegram ingestion complete!")
+                sys.exit(2)  # Exit code 2 indicates "no new content"
+
+            final_messages = filtered_messages
+        else:
+            print("⚠️  Force flag used - bypassing deduplication checks")
+            final_messages = messages
+
+        save_raw_telegram_data(final_messages, full_history=args.full_history)
+
+        if not args.force and len(messages) > len(final_messages):
+            print(
+                f"📊 Duplicate messages filtered: {len(messages) - len(final_messages)}"
+            )
+        print(f"📊 New messages saved: {len(final_messages)}")
+
         print("\n🎉 Telegram ingestion complete!")
         sys.exit(0)  # Success with new content
     else:
         # No messages found, but save empty file with metadata
-        save_raw_telegram_data([], force_save=True)
+        save_raw_telegram_data([], force_save=True, full_history=args.full_history)
         print("\n🎉 Telegram ingestion complete!")
         sys.exit(2)  # No messages found, exit code 2 for "no new content"
 

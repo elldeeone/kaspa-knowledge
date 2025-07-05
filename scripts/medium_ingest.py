@@ -32,6 +32,44 @@ if not RSS_URLS_STR:
 RSS_URLS = [url.strip() for url in RSS_URLS_STR.split(",") if url.strip()]
 
 
+def clean_html_content(html_content):
+    """
+    Clean HTML content and convert it to readable text.
+    Removes HTML tags while preserving paragraph structure.
+    """
+    if not html_content:
+        return ""
+
+    try:
+        # Parse HTML content
+        soup = BeautifulSoup(html_content, "html.parser")
+
+        # Remove script and style elements
+        for script in soup(["script", "style"]):
+            script.decompose()
+
+        # Get text content
+        text = soup.get_text()
+
+        # Clean up whitespace
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = " ".join(chunk for chunk in chunks if chunk)
+
+        return text
+
+    except Exception as e:
+        print(f"⚠️  Warning: Could not clean HTML content: {e}")
+        # Fallback: try to remove basic HTML tags with regex
+        try:
+            import re
+
+            clean_text = re.sub(r"<[^>]+>", "", html_content)
+            return clean_text.strip()
+        except Exception:
+            return html_content  # Return original if all cleaning fails
+
+
 def get_existing_article_links():
     """
     Fast deduplication: Load all existing article links from all medium files.
@@ -243,10 +281,13 @@ def scrape_individual_article(article_url):
                     except (ValueError, TypeError):
                         pass
 
+        # Clean any remaining HTML in the content
+        clean_content = clean_html_content(content)
+
         article = {
             "title": title,
             "link": article_url,
-            "summary": content,  # Full article content
+            "summary": clean_content,  # Full article content (HTML cleaned)
             "author": author,
             "published": pub_date,
             "ingested_at": datetime.now().isoformat(),
@@ -300,10 +341,14 @@ def fetch_articles_from_feed(rss_url, full_history=False):
             # Extract author
             author = getattr(entry, "author", "Unknown")
 
+            # Clean HTML from RSS summary to get readable text
+            clean_summary = clean_html_content(entry.summary)
+
             article = {
                 "title": entry.title,
                 "link": entry.link,
-                "summary": entry.summary,  # Full article content from RSS
+                "summary": clean_summary,  # Full article content from RSS
+                # (HTML cleaned)
                 "author": author,
                 "published": pub_date,
                 "ingested_at": datetime.now().isoformat(),

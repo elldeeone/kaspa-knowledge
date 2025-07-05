@@ -24,6 +24,11 @@ GITHUB_TOKEN = os.getenv("GH_TOKEN")
 CONFIG_PATH = Path("config/sources.config.json")
 OUTPUT_DIR = Path("sources/github")
 
+# 🔧 FIX: Configurable API limits - these can be overridden in sources.config.json
+DEFAULT_MAX_COMMITS = 100
+DEFAULT_MAX_PULL_REQUESTS = 250  # Increased from 100
+DEFAULT_MAX_ISSUES = 150  # Increased from 60
+
 
 def load_github_config():
     """Load GitHub repositories configuration from sources.config.json"""
@@ -37,6 +42,12 @@ def load_github_config():
 
         github_repos = config.get("github_repositories", [])
         enabled_repos = [repo for repo in github_repos if repo.get("enabled", True)]
+
+        # 🔧 FIX: Add default limits to repos that don't specify them
+        for repo in enabled_repos:
+            repo.setdefault("max_commits", DEFAULT_MAX_COMMITS)
+            repo.setdefault("max_pull_requests", DEFAULT_MAX_PULL_REQUESTS)
+            repo.setdefault("max_issues", DEFAULT_MAX_ISSUES)
 
         print(f"📋 Loaded {len(enabled_repos)} enabled GitHub repositories from config")
         return enabled_repos
@@ -71,7 +82,7 @@ def authenticate_github():
         return None
 
 
-def fetch_recent_commits(repo, days_back=7):
+def fetch_recent_commits(repo, days_back=7, max_commits=DEFAULT_MAX_COMMITS):
     """Fetch recent commits from a repository"""
     try:
         since_date = datetime.now(timezone.utc) - timedelta(days=days_back)
@@ -81,7 +92,7 @@ def fetch_recent_commits(repo, days_back=7):
         commit_count = 0
 
         for commit in commits:
-            if commit_count >= 100:  # Limit to prevent excessive API calls
+            if commit_count >= max_commits:  # 🔧 FIX: Use configurable limit
                 break
 
             commit_info = {
@@ -117,7 +128,9 @@ def fetch_recent_commits(repo, days_back=7):
         return []
 
 
-def fetch_recent_pull_requests(repo, days_back=30):
+def fetch_recent_pull_requests(
+    repo, days_back=30, max_pull_requests=DEFAULT_MAX_PULL_REQUESTS
+):
     """Fetch recent pull requests from a repository with optimal filtering"""
     try:
         since_date = datetime.now(timezone.utc) - timedelta(days=days_back)
@@ -147,7 +160,7 @@ def fetch_recent_pull_requests(repo, days_back=30):
                 )
                 break
 
-            if pr_count >= 100:  # Safety limit
+            if pr_count >= max_pull_requests:  # 🔧 FIX: Use configurable limit
                 break
 
             # Progress indicator for very active repos
@@ -186,7 +199,7 @@ def fetch_recent_pull_requests(repo, days_back=30):
         return []
 
 
-def fetch_recent_issues(repo, days_back=30):
+def fetch_recent_issues(repo, days_back=30, max_issues=DEFAULT_MAX_ISSUES):
     """Fetch recent issues from a repository using API-side filtering"""
     try:
         since_date = datetime.now(timezone.utc) - timedelta(days=days_back)
@@ -209,7 +222,7 @@ def fetch_recent_issues(repo, days_back=30):
 
         print("   📋 Processing filtered issues...")
         for issue in all_recent_issues:
-            if issue_count >= 60:  # Total limit to prevent excessive data
+            if issue_count >= max_issues:  # 🔧 FIX: Use configurable limit
                 break
 
             # Skip pull requests (they show up in issues API)
@@ -269,10 +282,18 @@ def fetch_repository_data(github_client, repo_config, days_back=7):
         )
         print(f"   ⭐ Stars: {repo.stargazers_count}, Forks: {repo.forks_count}")
 
-        # Fetch different types of data
-        commits = fetch_recent_commits(repo, days_back)
-        pull_requests = fetch_recent_pull_requests(repo, days_back)
-        issues = fetch_recent_issues(repo, days_back)
+        # Fetch different types of data with configurable limits
+        commits = fetch_recent_commits(
+            repo, days_back, repo_config.get("max_commits", DEFAULT_MAX_COMMITS)
+        )
+        pull_requests = fetch_recent_pull_requests(
+            repo,
+            days_back,
+            repo_config.get("max_pull_requests", DEFAULT_MAX_PULL_REQUESTS),
+        )
+        issues = fetch_recent_issues(
+            repo, days_back, repo_config.get("max_issues", DEFAULT_MAX_ISSUES)
+        )
 
         # Aggregate repository data
         repo_data = {
@@ -305,6 +326,119 @@ def fetch_repository_data(github_client, repo_config, days_back=7):
         return None
 
 
+def get_existing_github_data():
+    """
+    Cross-file deduplication: Load all existing GitHub data from all files.
+    Returns a dictionary with unique identifiers for O(1) lookup performance.
+    """
+    existing_data = {"commits": set(), "pull_requests": set(), "issues": set()}
+
+    if not OUTPUT_DIR.exists():
+        return existing_data
+
+    # Get all JSON files in the github directory
+    json_files = list(OUTPUT_DIR.glob("*.json"))
+
+    if not json_files:
+        return existing_data
+
+    print(f"🔍 Checking for existing GitHub data across {len(json_files)} files...")
+
+    total_existing = 0
+    for file_path in json_files:
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+                # Handle both new format (dict with repo names) and old format (list)
+                if isinstance(data, dict):
+                    # New format: iterate through repositories
+                    for repo_name, repo_data in data.items():
+                        if isinstance(repo_data, dict):
+                            # Process commits
+                            for commit in repo_data.get("commits", []):
+                                if isinstance(commit, dict) and "sha" in commit:
+                                    existing_data["commits"].add(commit["sha"])
+                                    total_existing += 1
+
+                            # Process pull requests
+                            for pr in repo_data.get("pull_requests", []):
+                                if isinstance(pr, dict) and "number" in pr:
+                                    # Use repo_name + PR number as unique identifier
+                                    existing_data["pull_requests"].add(
+                                        f"{repo_name}#{pr['number']}"
+                                    )
+                                    total_existing += 1
+
+                            # Process issues
+                            for issue in repo_data.get("issues", []):
+                                if isinstance(issue, dict) and "number" in issue:
+                                    # Use repo_name + issue number as unique identifier
+                                    existing_data["issues"].add(
+                                        f"{repo_name}#{issue['number']}"
+                                    )
+                                    total_existing += 1
+
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"⚠️  Warning: Could not read {file_path}: {e}")
+            continue
+
+    print(f"📚 Found {total_existing} existing GitHub items for deduplication check")
+    return existing_data
+
+
+def filter_new_github_data(all_repo_data, existing_data):
+    """
+    Filter out GitHub data that already exists in our database.
+    Returns only genuinely new data.
+    """
+    if not existing_data or not any(existing_data.values()):
+        return all_repo_data
+
+    filtered_data = {}
+
+    for repo_name, repo_data in all_repo_data.items():
+        if not isinstance(repo_data, dict):
+            continue
+
+        filtered_repo_data = {}
+
+        # Filter commits
+        if "commits" in repo_data:
+            new_commits = []
+            for commit in repo_data["commits"]:
+                if isinstance(commit, dict) and "sha" in commit:
+                    if commit["sha"] not in existing_data["commits"]:
+                        new_commits.append(commit)
+            filtered_repo_data["commits"] = new_commits
+
+        # Filter pull requests
+        if "pull_requests" in repo_data:
+            new_prs = []
+            for pr in repo_data["pull_requests"]:
+                if isinstance(pr, dict) and "number" in pr:
+                    pr_key = f"{repo_name}#{pr['number']}"
+                    if pr_key not in existing_data["pull_requests"]:
+                        new_prs.append(pr)
+            filtered_repo_data["pull_requests"] = new_prs
+
+        # Filter issues
+        if "issues" in repo_data:
+            new_issues = []
+            for issue in repo_data["issues"]:
+                if isinstance(issue, dict) and "number" in issue:
+                    issue_key = f"{repo_name}#{issue['number']}"
+                    if issue_key not in existing_data["issues"]:
+                        new_issues.append(issue)
+            filtered_repo_data["issues"] = new_issues
+
+        # Only include repo if it has new data
+        if any(filtered_repo_data.values()):
+            filtered_data[repo_name] = filtered_repo_data
+
+    return filtered_data
+
+
 def check_existing_data(date=None):
     """Check if GitHub data already exists for the given date"""
     if date is None:
@@ -314,15 +448,19 @@ def check_existing_data(date=None):
     return output_file.exists()
 
 
-def save_github_data(all_repo_data, date=None):
+def save_github_data(all_repo_data, date=None, full_history=False):
     """Save raw GitHub data to JSON file"""
-    if date is None:
-        date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if full_history:
+        date_str = "full_history"
+    elif date is not None:
+        date_str = date
+    else:
+        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     # Ensure output directory exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    output_file = OUTPUT_DIR / f"{date}.json"
+    output_file = OUTPUT_DIR / f"{date_str}.json"
 
     # Create final data structure
     final_data = {}
@@ -356,12 +494,26 @@ def save_github_data(all_repo_data, date=None):
 
 def main():
     """Main ingestion function"""
-    parser = argparse.ArgumentParser(description="Ingest GitHub repository data")
+    parser = argparse.ArgumentParser(
+        description="Ingest GitHub repository data",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python -m scripts.github_ingest                    # Daily sync (dated file)
+  python -m scripts.github_ingest --full-history     # Backfill (full_history.json)
+  python -m scripts.github_ingest --days-back 30     # Fetch last 30 days of data
+  python -m scripts.github_ingest --force            # Force processing
+
+The difference between modes is in output filename and intended usage: daily sync for
+regular operations, full-history for comprehensive backfill operations.
+        """,
+    )
     parser.add_argument(
         "--days-back",
         type=int,
         default=7,
-        help="Number of days back to fetch data (default: 7)",
+        help="Number of days back to fetch data (default: 7, automatically "
+        "set to 730 in backfill mode)",
     )
     parser.add_argument(
         "--date",
@@ -369,9 +521,14 @@ def main():
         help="Specific date to use for output file (YYYY-MM-DD format)",
     )
     parser.add_argument(
+        "--full-history",
+        action="store_true",
+        help="Backfill mode - saves to 'full_history.json' for comprehensive data collection",  # noqa: E501
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
-        help="Force processing even if data already exists (bypass deduplication)",
+        help="Force processing even if data already exists (bypass deduplication)",  # noqa: E501
     )
     parser.add_argument(
         "--validate",
@@ -381,32 +538,29 @@ def main():
 
     args = parser.parse_args()
 
-    print("🚀 Starting GitHub repository ingestion...")
-    print(f"   📅 Fetching data from the last {args.days_back} days")
-
-    # Check for existing data (smart deduplication)
-    target_date = args.date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-    if check_existing_data(target_date) and not args.force:
-        print(f"📋 GitHub data already exists for {target_date}")
-        print("⚡ Skipping ingestion to avoid duplicates")
-        print("ℹ️  Use --force flag to override this behavior")
-
-        # Use existing data
-        output_file = OUTPUT_DIR / f"{target_date}.json"
-        print("\n💾 Using existing GitHub data")
-        print(f"   📁 {output_file}")
-
+    # 🔧 FIX: Auto-set days_back for backfill mode if not explicitly specified
+    if args.full_history and args.days_back == 7:  # Default value
+        args.days_back = 730  # 2 years for comprehensive backfill
         print(
-            "\nℹ️  GitHub Repository Ingestion found existing content - "
-            "skipping downstream processing"
+            f"🔧 Full history mode: Auto-increased days_back to "
+            f"{args.days_back} days (2 years)"
         )
-        print("\n🎯 GitHub ingestion skipped - using existing data")
-        print("\n✅ GitHub Repository Ingestion completed successfully")
 
-        import sys
+    print("🚀 Starting GitHub repository ingestion...")
 
-        sys.exit(2)  # Exit code 2 indicates "no new content"
+    if args.full_history:
+        print(
+            "📚 Full history mode: Comprehensive backfill from GitHub repositories"
+        )  # noqa: E501
+        print(f"   📅 Fetching data from the last {args.days_back} days")
+    else:
+        print("📰 Daily sync mode: Standard GitHub repository processing")
+        print(f"   📅 Fetching data from the last {args.days_back} days")
+
+    # Get existing data for cross-file deduplication (unless force flag is used)
+    existing_data = {}
+    if not args.force:
+        existing_data = get_existing_github_data()
 
     if args.force:
         print("⚠️  Force flag used - bypassing deduplication checks")
@@ -434,8 +588,51 @@ def main():
         # Small delay to be respectful to the API
         time.sleep(0.5)
 
+    # Filter out existing data (unless force flag is used)
+    if not args.force:
+        filtered_data = filter_new_github_data(all_repo_data, existing_data)
+
+        # Check if any new data was found
+        total_new_items = 0
+        for repo_data in filtered_data.values():
+            total_new_items += (
+                len(repo_data.get("commits", []))
+                + len(repo_data.get("pull_requests", []))
+                + len(repo_data.get("issues", []))
+            )
+
+        if total_new_items == 0:
+            print("\n🎯 Smart deduplication result:")
+            print(f"   - Repositories processed: {len(all_repo_data)}")
+
+            total_fetched = 0
+            for repo_data in all_repo_data.values():
+                if repo_data:
+                    total_fetched += (
+                        len(repo_data.get("commits", []))
+                        + len(repo_data.get("pull_requests", []))
+                        + len(repo_data.get("issues", []))
+                    )
+
+            print(f"   - Total items fetched: {total_fetched}")
+            print("   - New items (not in database): 0")
+            print("\n✨ No new GitHub data found - saving empty file with metadata!")
+            print("ℹ️  Use --force flag to bypass deduplication if needed.")
+
+            # Save empty file with metadata for consistency
+            save_github_data({}, args.date, args.full_history)
+
+            import sys
+
+            sys.exit(2)  # Exit code 2 indicates "no new content"
+
+        final_data = filtered_data
+    else:
+        print("⚠️  Force flag used - bypassing deduplication checks")
+        final_data = all_repo_data
+
     # Save all data
-    save_github_data(all_repo_data, args.date)
+    save_github_data(final_data, args.date, args.full_history)
 
     # Optional validation step
     if args.validate:
@@ -444,10 +641,11 @@ def main():
             from validate_github_data import GitHubDataValidator
 
             validator = GitHubDataValidator()
-            output_file = (
-                OUTPUT_DIR
-                / f"{args.date or datetime.now(timezone.utc).strftime('%Y-%m-%d')}.json"
-            )
+            if args.full_history:
+                output_file = OUTPUT_DIR / "full_history.json"
+            else:
+                date_str = args.date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                output_file = OUTPUT_DIR / f"{date_str}.json"
 
             if output_file.exists():
                 validation_success = validator.validate_file(output_file)

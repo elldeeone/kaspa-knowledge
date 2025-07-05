@@ -382,64 +382,146 @@ class MarkdownTemplateGenerator:
     def _create_high_signal_section(
         self, aggregated_data: Dict[str, Any], date: str
     ) -> DocumentSection:
-        """Create the high-signal insights section."""
+        """Create the high-signal insights section using the new scoring system."""
         high_signal_section = DocumentSection("High-Signal Contributor Insights", 2)
 
-        # Extract high-signal items from all sources
-        high_signal_items = []
+        # Extract and score items from all sources
+        scored_items = []
         for source_type, items in aggregated_data.get("sources", {}).items():
             if not isinstance(items, list):
                 continue
 
             for item in items:
                 signal_info = item.get("signal", {})
-                if (
+
+                # NEW: Use final_score when available
+                if "final_score" in signal_info:
+                    final_score = signal_info.get("final_score", 0.0)
+                    # Convert 0-1 range to 0-100 for comparison
+                    score_out_of_100 = final_score * 100
+
+                    # Use score-based thresholds for high-signal content
+                    if score_out_of_100 >= 50.0:  # Minimum threshold for high-signal
+                        scored_items.append(
+                            (source_type, item, final_score, score_out_of_100)
+                        )
+
+                # LEGACY: Fall back to existing logic for backward compatibility
+                elif (
                     signal_info.get("strength") == "high"
                     or signal_info.get("is_lead")
                     or signal_info.get("is_founder")
                 ):
-                    high_signal_items.append((source_type, item))
+                    # Estimate score for legacy items
+                    legacy_score = 0.7 if signal_info.get("is_founder") else 0.6
+                    scored_items.append(
+                        (source_type, item, legacy_score, legacy_score * 100)
+                    )
 
-        if not high_signal_items:
+        if not scored_items:
             return high_signal_section
 
-        # Group by contributor role
-        items_by_role = {}
-        for source_type, item in high_signal_items:
-            role = item.get("signal", {}).get("contributor_role", "contributor")
-            if role not in items_by_role:
-                items_by_role[role] = []
-            items_by_role[role].append((source_type, item))
+        # Sort by final_score (highest first)
+        scored_items.sort(key=lambda x: x[2], reverse=True)
 
-        # Process each role group
-        for role, role_items in items_by_role.items():
-            role_content = f"### {role.replace('_', ' ').title()}\n\n"
+        # Create score-based tiers
+        tiers = {
+            "Critical Insights": [],  # 90+
+            "High Priority": [],  # 70-89
+            "Elevated": [],  # 50-69
+        }
 
-            for source_type, item in role_items:
-                item_content = self._format_high_signal_item(item, source_type)
-                role_content += item_content + "\n\n"
+        for source_type, item, final_score, score_out_of_100 in scored_items:
+            if score_out_of_100 >= 90:
+                tiers["Critical Insights"].append((source_type, item, final_score))
+            elif score_out_of_100 >= 70:
+                tiers["High Priority"].append((source_type, item, final_score))
+            else:
+                tiers["Elevated"].append((source_type, item, final_score))
 
-            # Create metadata for this role chunk
+        # Process each tier
+        for tier_name, tier_items in tiers.items():
+            if not tier_items:
+                continue
+
+            tier_content = f"### {tier_name}\n\n"
+
+            for source_type, item, final_score in tier_items:
+                item_content = self._format_scored_item(item, source_type, final_score)
+                tier_content += item_content + "\n\n"
+
+            # Create metadata for this tier
+            tier_slug = tier_name.lower().replace(" ", "-")
+            chunk_id = f"high-signal-{date}-{tier_slug}-{self._get_next_chunk_id()}"
             metadata = MetadataBlock(
                 source=f"data/aggregated/{date}.json",
                 date=date,
-                chunk_id=f"high-signal-{date}-{role}-{self._get_next_chunk_id()}",
+                chunk_id=chunk_id,
                 section_type="high_signal_insights",
-                contributor_role=role,
-                signal_strength="high",
+                contributor_role=signal_info.get("contributor_role", "unknown"),
+                signal_strength=tier_name.lower(),
             )
 
             # Handle semantic chunking
-            chunks = self._chunk_content(role_content, metadata, "high_signal_insights")
+            chunks = self._chunk_content(tier_content, metadata, "high_signal_insights")
             for chunk in chunks:
                 high_signal_section.add_chunk(chunk)
 
         return high_signal_section
 
+    def _format_scored_item(
+        self, item: Dict[str, Any], source_type: str, final_score: float
+    ) -> str:
+        """Format an item with scoring information for display."""
+        title = self._get_item_title(item)
+        author = item.get("author", "Unknown")
+        content = self._clean_html_content(item.get("content", ""))
+        url = item.get("url", "")
+
+        signal_info = item.get("signal", {})
+        role = signal_info.get("contributor_role", "contributor")
+        author_weight = signal_info.get("author_weight", 0.0)
+        recency_weight = signal_info.get("recency_weight", 0.0)
+
+        # Create priority indicator based on score (text-based, no emojis)
+        if final_score >= 0.9:
+            priority_text = "[CRITICAL]"
+        elif final_score >= 0.7:
+            priority_text = "[HIGH]"
+        else:
+            priority_text = "[ELEVATED]"
+
+        formatted = f"{priority_text} **{title}** by {author}"
+
+        # Add role and scoring information
+        if role != "contributor":
+            formatted += f" ({role.replace('_', ' ').title()})"
+
+        formatted += f" | Score: {final_score:.2f}"
+
+        # Add scoring breakdown if available
+        if author_weight > 0 or recency_weight > 0:
+            formatted += (
+                f" (Authority: {author_weight:.2f}, " f"Recency: {recency_weight:.2f})"
+            )
+
+        formatted += "\n\n"
+
+        if content:
+            # Truncate content if too long
+            if len(content) > 300:
+                content = content[:297] + "..."
+            formatted += f"{content}\n\n"
+
+        if url:
+            formatted += f"[View source]({url})"
+
+        return formatted
+
     def _create_general_activity_section(
         self, aggregated_data: Dict[str, Any], date: str
     ) -> DocumentSection:
-        """Create the general activity section."""
+        """Create the general activity section, excluding high-signal items."""
         general_section = DocumentSection("General Activity", 2)
 
         # Process each source type
@@ -451,10 +533,21 @@ class MarkdownTemplateGenerator:
             regular_items = []
             for item in items:
                 signal_info = item.get("signal", {})
-                if (
-                    signal_info.get("strength") != "high"
-                    and not signal_info.get("is_lead")
-                    and not signal_info.get("is_founder")
+
+                # NEW: Use final_score when available
+                if "final_score" in signal_info:
+                    final_score = signal_info.get("final_score", 0.0)
+                    score_out_of_100 = final_score * 100
+
+                    # Only include items below high-signal threshold
+                    if score_out_of_100 < 50.0:
+                        regular_items.append(item)
+
+                # LEGACY: Use existing logic for items without final_score
+                elif not (
+                    signal_info.get("strength") == "high"
+                    or signal_info.get("is_lead")
+                    or signal_info.get("is_founder")
                 ):
                     regular_items.append(item)
 
@@ -511,29 +604,6 @@ class MarkdownTemplateGenerator:
             content += f" ([link]({source_url}))"
 
         return content
-
-    def _format_high_signal_item(self, item: Dict[str, Any], source_type: str) -> str:
-        """Format a high-signal item for display."""
-        title = self._get_item_title(item)
-        author = item.get("author", "Unknown")
-        content = self._clean_html_content(item.get("content", ""))
-        url = item.get("url", "")
-
-        signal_info = item.get("signal", {})
-        role = signal_info.get("contributor_role", "contributor")
-
-        formatted = f"**{title}** by {author} ({role})\n\n"
-
-        if content:
-            # Truncate content if too long
-            if len(content) > 300:
-                content = content[:297] + "..."
-            formatted += f"{content}\n\n"
-
-        if url:
-            formatted += f"[View source]({url})"
-
-        return formatted
 
     def _format_general_item(self, item: Dict[str, Any], source_type: str) -> str:
         """Format a general activity item for display."""

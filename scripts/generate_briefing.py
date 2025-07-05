@@ -31,7 +31,11 @@ class BriefingGenerator:
 
     def load_daily_data(self, date: str) -> Dict[str, Any]:
         """Load the raw aggregated data for a given date."""
-        input_path = self.input_dir / f"{date}.json"
+        # Handle both regular dates and backfill mode
+        if date == "full_history":
+            input_path = self.input_dir / f"{date}_aggregated.json"
+        else:
+            input_path = self.input_dir / f"{date}.json"
 
         if not input_path.exists():
             raise FileNotFoundError(

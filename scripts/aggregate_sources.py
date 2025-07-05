@@ -37,53 +37,118 @@ class SourcesAggregator:
         self.signal_service = SignalEnrichmentService()
 
     def get_daily_file_path(self, date: str) -> Path:
-        """Get the path for the daily aggregated file."""
-        return self.output_dir / f"{date}.json"
+        """Get the file path for aggregated data for a given date."""
+        if date == "full_history":
+            return self.output_dir / "full_history_aggregated.json"
+        else:
+            return self.output_dir / f"{date}.json"
 
     def load_source_data(self, source_name: str, date: str) -> List[Dict]:
-        """Load data from a specific source directory for a given date."""
-        source_path = self.sources_dir / source_name / f"{date}.json"
+        """Load data from a specific source folder for a given date."""
+        source_folder = Path(self.sources_dir) / source_name
 
-        if not source_path.exists():
-            print(f"📁 No data found for {source_name} on {date}")
+        # For backfill mode, look for full_history.json files
+        if date == "full_history":
+            history_file = source_folder / "full_history.json"
+            if history_file.exists():
+                try:
+                    with open(history_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+
+                    # Handle different data structures
+                    if isinstance(data, dict):
+                        if "data" in data:
+                            return data["data"]
+                        elif source_name in data:
+                            return data[source_name]
+                        elif "articles" in data and source_name == "medium":
+                            return data["articles"]
+                        elif "messages" in data and source_name == "telegram":
+                            return data["messages"]
+                        elif "posts" in data and source_name == "forum":
+                            return data["posts"]
+                        elif "forum_posts" in data and source_name == "forum":
+                            # 🔧 FIX: Handle forum_posts key in backfill mode
+                            return data["forum_posts"]
+                        else:
+                            # If it's a dict but no expected keys, return empty
+                            return []
+                    elif isinstance(data, list):
+                        return data
+                    else:
+                        return []
+                except Exception as e:
+                    print(f"⚠️  Warning: Could not read {history_file}: {e}")
+                    return []
+            else:
+                # No full_history.json file exists for this source
+                return []
+
+        # Regular dated file processing (existing logic)
+        date_file = source_folder / f"{date}.json"
+        if not date_file.exists():
             return []
 
         try:
-            with open(source_path, "r", encoding="utf-8") as f:
+            with open(date_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            # Handle new "empty file with metadata" structure
-            if isinstance(data, dict) and data.get("status") == "no_new_content":
-                print(
-                    f"📁 No new content found for {source_name} on {date} "
-                    "(empty file with metadata)"
-                )
-                return []  # Return empty list but we know the source ran
-            elif isinstance(data, dict) and "articles" in data:
-                # Handle Medium's new structure with metadata
-                items = data.get("articles", [])
-                print(f"📁 Loaded {len(items)} items from {source_name}")
-                return items
-            elif isinstance(data, dict) and "messages" in data:
-                # Handle Telegram's new structure with metadata
-                items = data.get("messages", [])
-                print(f"📁 Loaded {len(items)} items from {source_name}")
-                return items
-            elif isinstance(data, dict) and "forum_posts" in data:
-                # Handle Discourse forum's new structure with metadata
-                items = data.get("forum_posts", [])
-                print(f"📁 Loaded {len(items)} items from {source_name}")
-                return items
+            # Handle different data structures that various sources might have
+            if isinstance(data, dict):
+                # Check for common data container keys
+                if "data" in data:
+                    return data["data"]
+                elif source_name in data:
+                    return data[source_name]
+                elif "articles" in data and source_name == "medium":
+                    return data["articles"]
+                elif "messages" in data and source_name == "telegram":
+                    return data["messages"]
+                elif "posts" in data and source_name == "forum":
+                    return data["posts"]
+                elif "forum_posts" in data and source_name == "forum":
+                    # 🔧 FIX: Handle alternative forum data structure
+                    return data["forum_posts"]
+                else:
+                    # 🔧 FIX: Enhanced debugging for forum data structures
+                    if source_name == "forum":
+                        print(f"🔍 Debug: Forum data keys found: {list(data.keys())}")
+                        # Try to find any list of forum-like data
+                        for key, value in data.items():
+                            if isinstance(value, list) and len(value) > 0:
+                                first_item = value[0]
+                                if isinstance(first_item, dict) and (
+                                    "post_id" in first_item or "topic_id" in first_item
+                                ):
+                                    print(
+                                        f"🔧 Found forum posts in key '{key}': "
+                                        f"{len(value)} items"
+                                    )
+                                    return value
+
+                    # 🔧 FIX: Return as list if it's a dict with data
+                    # (helps with briefing generation)
+                    if isinstance(data, dict) and any(
+                        isinstance(v, list) for v in data.values()
+                    ):
+                        # For sources like forum, convert dict values to flattened list
+                        all_items = []
+                        for key, value in data.items():
+                            if isinstance(value, list):
+                                all_items.extend(value)
+                        return all_items
+
+                    # If it's a dict but no expected keys, return empty
+                    return []
             elif isinstance(data, list):
-                # Handle legacy structure (list of items)
-                print(f"📁 Loaded {len(data)} items from {source_name}")
+                # Direct list of items
                 return data
             else:
-                print(f"⚠️  Unexpected data structure in {source_name}")
+                # Unexpected format
                 return []
 
         except Exception as e:
-            print(f"⚠️  Error loading {source_name} data: {e}")
+            print(f"⚠️  Warning: Could not read {date_file}: {e}")
             return []
 
     def load_telegram_data(self, date: str) -> List[Dict]:
@@ -135,8 +200,9 @@ class SourcesAggregator:
                             and data.get("status") == "no_new_content"
                         ):
                             print(
-                                f"📁 No new content found for {group_dir.name} "
-                                f"on {date} (empty file with metadata)"
+                                f"📁 No new content found for "
+                                f"{group_dir.name} on {date} "
+                                f"(empty file with metadata)"
                             )
                             group_count += 1  # Still count as processed
                         elif isinstance(data, dict) and "messages" in data:
@@ -146,8 +212,8 @@ class SourcesAggregator:
                             group_count += 1
                             group_msg_count = len(group_data)
                             print(
-                                f"📁 Loaded {group_msg_count} messages "
-                                f"from {group_dir.name}"
+                                f"📁 Loaded {group_msg_count} "
+                                f"messages from {group_dir.name}"
                             )
                         elif isinstance(data, list):
                             # Legacy structure (list of messages)
@@ -206,149 +272,144 @@ class SourcesAggregator:
             return []
 
     def load_github_activities(self, date: str) -> List[Dict]:
-        """Load raw GitHub activities with metadata for facts extraction."""
-        github_dir = self.sources_dir / "github"
-        github_file = github_dir / f"{date}.json"
+        """Load processed GitHub activity data for a given date."""
+        github_folder = Path(self.sources_dir) / "github"
 
-        if not github_file.exists():
-            print(f"📁 No raw GitHub data found for {date}")
+        # For backfill mode, look for full_history.json
+        if date == "full_history":
+            history_file = github_folder / "full_history.json"
+            if history_file.exists():
+                try:
+                    with open(history_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+
+                    # Process GitHub history data structure
+                    if isinstance(data, dict):
+                        activities = []
+                        # GitHub full_history structure:
+                        # { repo_name: { activity_type: [items] } }
+                        for repo_name, repo_data in data.items():
+                            if isinstance(repo_data, dict):
+                                for activity_type, items in repo_data.items():
+                                    if isinstance(items, list):
+                                        for item in items:
+                                            if isinstance(item, dict):
+                                                # 🔧 FIX: Add proper title mapping
+                                                # for GitHub activities
+                                                enriched_item = {
+                                                    **item,
+                                                    "repo": repo_name,
+                                                    "activity_type": activity_type,
+                                                }
+
+                                                # Map proper titles based on
+                                                # activity type
+                                                if activity_type == "commits":
+                                                    enriched_item["title"] = item.get(
+                                                        "message", "Unknown commit"
+                                                    )
+                                                elif activity_type in [
+                                                    "pull_requests",
+                                                    "issues",
+                                                ]:
+                                                    enriched_item["title"] = item.get(
+                                                        "title",
+                                                        f"Unknown {activity_type[:-1]}",
+                                                    )
+
+                                                # Ensure content field exists
+                                                # for facts extraction
+                                                if "content" not in enriched_item:
+                                                    if activity_type == "commits":
+                                                        enriched_item["content"] = (
+                                                            item.get("message", "")
+                                                        )
+                                                    elif (
+                                                        activity_type == "pull_requests"
+                                                    ):
+                                                        enriched_item["content"] = (
+                                                            item.get("body", "")
+                                                        )
+                                                    elif activity_type == "issues":
+                                                        enriched_item["content"] = (
+                                                            item.get("body", "")
+                                                        )
+                                                    else:
+                                                        enriched_item["content"] = ""
+
+                                                activities.append(enriched_item)
+                        return activities
+                    elif isinstance(data, list):
+                        return data
+                    return []
+                except Exception as e:
+                    print(f"⚠️  Warning: Could not read GitHub history: {e}")
+                    return []
+            else:
+                return []
+
+        # Regular dated file processing (existing logic)
+        date_file = github_folder / f"{date}.json"
+        if not date_file.exists():
             return []
 
         try:
-            with open(github_file, "r", encoding="utf-8") as f:
+            with open(date_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             activities = []
+            if isinstance(data, dict):
+                # Process each repository's activities
+                for repo_name, repo_data in data.items():
+                    if isinstance(repo_data, dict):
+                        for activity_type, items in repo_data.items():
+                            if isinstance(items, list):
+                                for item in items:
+                                    if isinstance(item, dict):
+                                        # 🔧 FIX: Add proper title mapping
+                                        # for GitHub activities
+                                        enriched_item = {
+                                            **item,
+                                            "repo": repo_name,
+                                            "activity_type": activity_type,
+                                        }
 
-            # Process each repository's activities
-            for repo_name, repo_data in data.items():
-                if not isinstance(repo_data, dict):
-                    continue
+                                        # Map proper titles based on activity type
+                                        if activity_type == "commits":
+                                            enriched_item["title"] = item.get(
+                                                "message", "Unknown commit"
+                                            )
+                                        elif activity_type in [
+                                            "pull_requests",
+                                            "issues",
+                                        ]:
+                                            enriched_item["title"] = item.get(
+                                                "title", f"Unknown {activity_type[:-1]}"
+                                            )
 
-                repo_info = repo_data.get("repository", {})
+                                        # Ensure content field exists
+                                        # for facts extraction
+                                        if "content" not in enriched_item:
+                                            if activity_type == "commits":
+                                                enriched_item["content"] = item.get(
+                                                    "message", ""
+                                                )
+                                            elif activity_type == "pull_requests":
+                                                enriched_item["content"] = item.get(
+                                                    "body", ""
+                                                )
+                                            elif activity_type == "issues":
+                                                enriched_item["content"] = item.get(
+                                                    "body", ""
+                                                )
+                                            else:
+                                                enriched_item["content"] = ""
 
-                # Process commits
-                for commit in repo_data.get("commits", []):
-                    commit_msg = commit.get("message", "")
-                    title = commit_msg.split("\n")[0]  # First line of commit
-                    files_changed = commit.get("files_changed", 0)
-                    additions = commit.get("stats", {}).get("additions", 0)
-                    deletions = commit.get("stats", {}).get("deletions", 0)
-
-                    content = (
-                        f"Commit: {commit_msg}\n"
-                        f"Files changed: {files_changed}\n"
-                        f"Additions: {additions}\n"
-                        f"Deletions: {deletions}"
-                    )
-
-                    activities.append(
-                        {
-                            "type": "github_commit",
-                            "repository": repo_name,
-                            "repository_url": repo_info.get(
-                                "url", f"https://github.com/{repo_name}"
-                            ),
-                            "title": title,
-                            "author": commit.get("author", "Unknown"),
-                            "url": commit.get("url", ""),
-                            "date": commit.get("date", ""),
-                            "content": content,
-                            "metadata": {
-                                "sha": commit.get("sha", ""),
-                                "stats": commit.get("stats", {}),
-                                "files_changed": files_changed,
-                            },
-                        }
-                    )
-
-                # Process pull requests
-                for pr in repo_data.get("pull_requests", []):
-                    pr_number = pr.get("number", "")
-                    pr_title = pr.get("title", "")
-                    pr_body = pr.get("body", "")
-                    pr_state = pr.get("state", "")
-                    changed_files = pr.get("changed_files", 0)
-                    additions = pr.get("additions", 0)
-                    deletions = pr.get("deletions", 0)
-
-                    content = (
-                        f"PR #{pr_number}: {pr_title}\n"
-                        f"{pr_body}\n"
-                        f"State: {pr_state}\n"
-                        f"Files changed: {changed_files}\n"
-                        f"Additions: {additions}\n"
-                        f"Deletions: {deletions}"
-                    )
-
-                    activities.append(
-                        {
-                            "type": "github_pull_request",
-                            "repository": repo_name,
-                            "repository_url": repo_info.get(
-                                "url", f"https://github.com/{repo_name}"
-                            ),
-                            "title": pr_title,
-                            "author": pr.get("author", "Unknown"),
-                            "url": pr.get("url", ""),
-                            "date": pr.get("created_at", ""),
-                            "content": content,
-                            "metadata": {
-                                "number": pr_number,
-                                "state": pr_state,
-                                "draft": pr.get("draft", False),
-                                "merged_at": pr.get("merged_at", ""),
-                                "stats": {
-                                    "additions": additions,
-                                    "deletions": deletions,
-                                    "changed_files": changed_files,
-                                },
-                            },
-                        }
-                    )
-
-                # Process issues
-                for issue in repo_data.get("issues", []):
-                    issue_number = issue.get("number", "")
-                    issue_title = issue.get("title", "")
-                    issue_body = issue.get("body", "")
-                    issue_state = issue.get("state", "")
-                    comments = issue.get("comments", 0)
-
-                    content = (
-                        f"Issue #{issue_number}: {issue_title}\n"
-                        f"{issue_body}\n"
-                        f"State: {issue_state}\n"
-                        f"Comments: {comments}"
-                    )
-
-                    activities.append(
-                        {
-                            "type": "github_issue",
-                            "repository": repo_name,
-                            "repository_url": repo_info.get(
-                                "url", f"https://github.com/{repo_name}"
-                            ),
-                            "title": issue_title,
-                            "author": issue.get("author", "Unknown"),
-                            "url": issue.get("url", ""),
-                            "date": issue.get("created_at", ""),
-                            "content": content,
-                            "metadata": {
-                                "number": issue_number,
-                                "state": issue_state,
-                                "comments": comments,
-                                "labels": issue.get("labels", []),
-                                "assignees": issue.get("assignees", []),
-                            },
-                        }
-                    )
-
-            print(f"📁 Loaded {len(activities)} GitHub activities with metadata")
+                                        activities.append(enriched_item)
             return activities
 
         except Exception as e:
-            print(f"⚠️  Error loading GitHub activities: {e}")
+            print(f"⚠️  Warning: Could not read GitHub activities: {e}")
             return []
 
     def aggregate_daily_sources(self, date: str = None) -> Dict[str, Any]:
@@ -356,62 +417,66 @@ class SourcesAggregator:
         if date is None:
             date = datetime.now().strftime("%Y-%m-%d")
 
-        print(f"\n🔄 Aggregating raw sources for {date}")
+        if date == "full_history":
+            print("\n🔄 Aggregating comprehensive historical data (backfill mode)")
+            print("📚 Processing full_history.json files from all sources")
+        else:
+            print(f"\n🔄 Aggregating raw sources for {date}")
         print("=" * 50)
 
         # Check if aggregated data already exists for this date (deduplication)
-        if not self.force:
+        # Skip this check for backfill mode to allow reprocessing
+        if not self.force and date != "full_history":
             existing_aggregated_path = self.get_daily_file_path(date)
             if existing_aggregated_path.exists():
                 try:
                     with open(existing_aggregated_path, "r", encoding="utf-8") as f:
                         existing_data = json.load(f)
 
-                    # Check if existing aggregated file has substantial content
-                    if existing_data and existing_data.get("sources"):
-                        print("📋 Aggregated data already exists for this date")
-                        print("⚡ Skipping aggregation to avoid duplicates")
-                        print("ℹ️  Use --force flag to override this behavior")
+                    # Add flag to indicate this was loaded from existing file
+                    existing_data["_loaded_from_existing"] = True
 
-                        # Return existing data to maintain consistency
-                        print("\n💾 Using existing aggregated data")
-                        print(f"   📁 {existing_aggregated_path}")
+                    print(f"📁 Found existing aggregated data for {date}")
+                    print(f"   Using existing file: {existing_aggregated_path}")
+                    print("   (Use --force to regenerate)")
 
-                        # Mark this data as loaded from existing file for
-                        # summary logic
-                        existing_data["_loaded_from_existing"] = True
-                        return existing_data
+                    return existing_data
+                except Exception as e:
+                    print(f"⚠️  Warning: Could not read existing data: {e}")
+                    print("   Proceeding with fresh aggregation...")
 
-                except (json.JSONDecodeError, IOError) as e:
-                    print(
-                        f"⚠️  Warning: Could not read existing aggregated " f"file: {e}"
-                    )
-                    print("🔄 Proceeding with fresh aggregation...")
-        else:
-            print("⚠️  Force flag used - bypassing deduplication checks")
-
-        # Initialize aggregated data structure
+        # Create the aggregated data structure
         aggregated_data = {
             "date": date,
             "generated_at": datetime.now().isoformat(),
+            "processing_mode": "backfill" if date == "full_history" else "daily_sync",
             "sources": {},
             "metadata": {
                 "total_items": 0,
-                "processing_time": "0.00s",
-                "pipeline_version": "2.0.0",
                 "sources_processed": [],
+                "pipeline_version": "2.0.0",
+                "processing_notes": (
+                    "Enhanced with intelligent scoring system"
+                    if date == "full_history"
+                    else "Raw aggregation with signal enrichment"
+                ),
             },
         }
 
-        # Load data from each source and apply signal enrichment
+        # Load data from each source and apply signal enrichment with scoring
         for source_folder, aggregated_key in self.source_mappings.items():
             source_data = self.load_source_data(source_folder, date)
 
-            # Apply signal enrichment and sorting
+            # Apply signal enrichment and sorting with appropriate date fields
             if source_data:
-                # Enrich items with signal metadata
-                enriched_data = self.signal_service.enrich_items(source_data)
-                # Sort by signal priority (lead developers first)
+                # Determine the date field based on source type
+                date_field = self._get_date_field_for_source(source_folder)
+
+                # Enrich items with signal metadata and scoring
+                enriched_data = self.signal_service.enrich_items(
+                    source_data, date_field=date_field
+                )
+                # Sort by signal priority using the new final_score
                 sorted_data = self.signal_service.sort_by_signal_priority(enriched_data)
                 aggregated_data["sources"][aggregated_key] = sorted_data
             else:
@@ -424,14 +489,14 @@ class SourcesAggregator:
                 )
 
         # Load GitHub activities separately (for facts extraction) and apply
-        # signal enrichment
+        # signal enrichment with scoring
         github_activities = self.load_github_activities(date)
         if github_activities:
-            # Apply signal enrichment to GitHub activities
+            # Apply signal enrichment to GitHub activities with appropriate date field
             enriched_github_activities = self.signal_service.enrich_items(
-                github_activities
+                github_activities, date_field="date"
             )
-            # Sort GitHub activities by signal priority (lead developers first)
+            # Sort GitHub activities by signal priority using final_score
             sorted_github_activities = self.signal_service.sort_by_signal_priority(
                 enriched_github_activities
             )
@@ -446,7 +511,7 @@ class SourcesAggregator:
         aggregated_data["sources"]["onchain_data"] = {}
         aggregated_data["sources"]["documentation"] = []
 
-        # Add signal analysis metadata if high-signal contributors are
+        # Add enhanced signal analysis metadata if high-signal contributors are
         # configured
         if self.signal_service.is_enabled():
             signal_analysis = self.signal_service.analyze_signal_distribution(
@@ -454,36 +519,63 @@ class SourcesAggregator:
             )
             aggregated_data["metadata"]["signal_analysis"] = signal_analysis
 
-            # Add summary to processing metadata
+            # Add enhanced summary to processing metadata including scoring info
             if signal_analysis["high_signal_items"] > 0:
                 high_signal_count = signal_analysis["high_signal_items"]
                 lead_count = signal_analysis["lead_developer_items"]
                 founder_count = signal_analysis.get("founder_items", 0)
 
+                # Build signal summary with scoring information
+                signal_parts = [f"{high_signal_count} high-signal items"]
+                if lead_count > 0:
+                    signal_parts.append(f"{lead_count} from lead developer")
                 if founder_count > 0:
-                    signal_summary = (
-                        f"{high_signal_count} high-signal items "
-                        f"({lead_count} from lead developer, "
-                        f"{founder_count} from founder)"
-                    )
-                else:
-                    signal_summary = (
-                        f"{high_signal_count} high-signal items "
-                        f"({lead_count} from lead developer)"
+                    signal_parts.append(f"{founder_count} from founder")
+
+                # Add scoring information if available
+                scoring_enabled = signal_analysis.get("scoring_enabled", False)
+                if scoring_enabled:
+                    avg_score = signal_analysis.get("average_final_score", 0)
+                    max_score = signal_analysis.get("max_final_score", 0)
+                    signal_parts.append(
+                        f"avg score: {avg_score:.2f}, max: {max_score:.2f}"
                     )
 
+                signal_summary = (
+                    " (" + ", ".join(signal_parts[1:]) + ")"
+                    if len(signal_parts) > 1
+                    else ""
+                )
+                full_summary = signal_parts[0] + signal_summary
+
                 aggregated_data["metadata"]["sources_processed"].append(
-                    f"signal_analysis: {signal_summary}"
+                    f"signal_analysis: {full_summary}"
                 )
 
         return aggregated_data
+
+    def _get_date_field_for_source(self, source_folder: str) -> str:
+        """Get the appropriate date field name for a given source type."""
+        date_field_mapping = {
+            "medium": "published",
+            "telegram": "date",
+            "github_summaries": "date",
+            "discord": "date",
+            "forum": "created_at",
+            "news": "date",
+        }
+        return date_field_mapping.get(source_folder, "date")
 
     def save_aggregated_data(self, data: Dict[str, Any], date: str = None) -> Path:
         """Save the aggregated data to file."""
         if date is None:
             date = data.get("date", datetime.now().strftime("%Y-%m-%d"))
 
-        output_path = self.get_daily_file_path(date)
+        # For backfill mode, save to a special backfill file
+        if date == "full_history":
+            output_path = self.output_dir / "full_history_aggregated.json"
+        else:
+            output_path = self.get_daily_file_path(date)
 
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)

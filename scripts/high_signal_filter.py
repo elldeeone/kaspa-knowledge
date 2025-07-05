@@ -259,6 +259,9 @@ class HighSignalFilter:
         """
         Calculate comprehensive signal score for an item.
 
+        Uses the new scoring system (final_score) when available, falls back to
+        legacy scoring for backward compatibility.
+
         Args:
             item: Item data with signal metadata
             source_type: Type of source (github_activities, medium_articles, etc.)
@@ -270,6 +273,89 @@ class HighSignalFilter:
         if not signal_data:
             signal_data = self._create_fallback_signal_metadata(item, source_type)
 
+        # NEW: Check if item has final_score from the new scoring system
+        if "final_score" in signal_data:
+            return self._create_score_from_final_score(item, signal_data, source_type)
+
+        # LEGACY: Fall back to existing scoring logic for backward compatibility
+        return self._calculate_legacy_signal_score(item, signal_data, source_type)
+
+    def _create_score_from_final_score(
+        self, item: Dict[str, Any], signal_data: Dict[str, Any], source_type: str
+    ) -> SignalScore:
+        """
+        Create a SignalScore object from the new scoring system's final_score.
+
+        Args:
+            item: Item data
+            signal_data: Signal metadata with final_score
+            source_type: Type of source
+
+        Returns:
+            SignalScore object based on the new scoring system
+        """
+        final_score = signal_data.get("final_score", 0.0)
+        author_weight = signal_data.get("author_weight", 0.0)
+        recency_weight = signal_data.get("recency_weight", 0.0)
+
+        # Convert the 0-1 range final_score to our 0-100 range
+        total_score = final_score * 100
+
+        # Determine signal strength based on final score
+        if total_score >= self.config.critical_signal_threshold:
+            strength = SignalStrength.CRITICAL
+        elif total_score >= self.config.high_signal_threshold:
+            strength = SignalStrength.HIGH
+        elif total_score >= self.config.minimum_score:
+            strength = SignalStrength.MEDIUM
+        else:
+            strength = SignalStrength.LOW
+
+        # Create score object with breakdown from new scoring system
+        score = SignalScore(
+            total_score=total_score,
+            base_score=total_score * 0.6,  # Base portion
+            contributor_bonus=author_weight * 70,  # Author weight contribution
+            content_bonus=0.0,  # Content analysis not separate in new system
+            recency_bonus=recency_weight * 30,  # Recency weight contribution
+            impact_bonus=0.0,  # Impact analysis not separate in new system
+            engagement_bonus=0.0,  # Engagement analysis not separate in new system
+            signal_strength=strength,
+        )
+
+        # Add explanation for new scoring system
+        score.add_explanation(
+            f"Using new scoring system (final_score: {final_score:.3f})"
+        )
+        score.add_explanation(
+            f"Author weight: {author_weight:.3f} "
+            f"(role: {signal_data.get('contributor_role', 'unknown')})"
+        )
+        score.add_explanation(f"Recency weight: {recency_weight:.3f}")
+
+        if signal_data.get("is_founder", False):
+            score.add_explanation("Founder content - highest priority")
+        elif signal_data.get("is_lead", False):
+            score.add_explanation("Lead developer content - high priority")
+        elif signal_data.get("contributor_role") == "core_developer":
+            score.add_explanation("Core developer content - prioritized")
+
+        return score
+
+    def _calculate_legacy_signal_score(
+        self, item: Dict[str, Any], signal_data: Dict[str, Any], source_type: str
+    ) -> SignalScore:
+        """
+        Calculate signal score using the legacy scoring system.
+
+        Args:
+            item: Item data with signal metadata
+            signal_data: Signal metadata
+            source_type: Type of source
+
+        Returns:
+            Detailed signal score using legacy algorithm
+        """
         # Base score from existing signal strength
         base_score = self._get_base_score(signal_data)
 

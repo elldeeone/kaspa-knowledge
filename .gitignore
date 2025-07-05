@@ -93,3 +93,7 @@ output/
 AGENTS.md
 CLAUDE.md# Backup files from manual operations
 sources/medium/*.backup
+
+# Task files
+# tasks.json
+# tasks/ 

@@ -31,7 +31,11 @@ class FactsExtractor:
 
     def load_daily_data(self, date: str) -> Dict[str, Any]:
         """Load the raw aggregated data for a given date."""
-        input_path = self.input_dir / f"{date}.json"
+        # Handle both regular dates and backfill mode
+        if date == "full_history":
+            input_path = self.input_dir / f"{date}_aggregated.json"
+        else:
+            input_path = self.input_dir / f"{date}.json"
 
         if not input_path.exists():
             raise FileNotFoundError(
@@ -115,6 +119,76 @@ class FactsExtractor:
             print(f"    ⚠️  Failed to extract facts from {source_info['type']}: {e}")
             return []
 
+    def extract_facts_from_batch(
+        self, batch_items: List[Dict[str, Any]], source_type: str
+    ) -> List[Dict[str, Any]]:
+        """Extract facts from a batch of items using a single LLM call."""
+        if not batch_items:
+            return []
+
+        # Build a combined prompt for the batch
+        batch_content = f"BATCH PROCESSING: {len(batch_items)} {source_type} items\n\n"
+
+        for i, item in enumerate(batch_items, 1):
+            source_info = item["source_info"]
+            content = item["content"]
+
+            batch_content += f"=== ITEM {i} ===\n"
+            batch_content += f"Title: {source_info.get('title', 'N/A')}\n"
+            batch_content += f"Author: {source_info.get('author', 'N/A')}\n"
+            batch_content += f"Date: {source_info.get('date', 'N/A')}\n"
+            batch_content += f"URL: {source_info.get('url', 'N/A')}\n"
+            truncated_content = content[:2000] + ("..." if len(content) > 2000 else "")
+            batch_content += f"Content: {truncated_content}\n\n"
+
+        try:
+            # Create batch prompt
+            count = len(batch_items)
+            prompt = (
+                f"""Extract key technical facts from this batch of {count} """
+                f"""{source_type} items:
+
+{batch_content}
+
+Please extract and list technical facts, announcements, or insights related to Kaspa.
+For each fact, format as:
+- ITEM: [item number from above]
+- FACT: [specific technical fact or announcement]
+- CATEGORY: [technical|governance|development|security|mining|consensus|community|
+  performance|other]
+- IMPACT: [high|medium|low]
+- CONTEXT: [brief explanation of why this matters to Kaspa]
+
+Only include factual, verifiable information. Skip opinions or speculation.
+Focus on information that is technically relevant to Kaspa's development,
+ecosystem, or technology."""
+            )
+
+            system_prompt = prompt_loader.get_system_prompt("extract_kaspa_facts")
+            facts_response = self.llm.call_llm(
+                prompt=prompt,
+                system_prompt=system_prompt,
+            )
+
+            # Parse the batch facts response
+            facts = self.parse_batch_facts_response(facts_response, batch_items)
+            return facts
+
+        except Exception as e:
+            print(
+                f"    ⚠️  Failed to extract facts from batch of "
+                f"{len(batch_items)} {source_type}: {e}"
+            )
+            # Fallback to individual processing for this batch
+            print("    🔄 Falling back to individual processing for this batch...")
+            all_facts = []
+            for item in batch_items:
+                individual_facts = self.extract_facts_from_content(
+                    item["content"], item["source_info"]
+                )
+                all_facts.extend(individual_facts)
+            return all_facts
+
     def extract_medium_facts(
         self, articles: List[Dict], processed_urls: Set[str]
     ) -> List[Dict[str, Any]]:
@@ -162,22 +236,18 @@ class FactsExtractor:
     def extract_github_facts(
         self, github_activities: List[Dict], processed_urls: Set[str]
     ) -> List[Dict[str, Any]]:
-        """Extract key facts from individual GitHub activities with proper metadata."""
+        """Extract key facts from GitHub activities using efficient batching."""
         if not github_activities:
             return []
 
         print(f"🔍 Extracting facts from {len(github_activities)} GitHub activities...")
 
-        all_facts = []
+        # Filter out duplicates first
+        valid_activities = []
         skipped_count = 0
 
-        for i, activity in enumerate(github_activities, 1):
-            activity_type = activity.get("type", "unknown")
-            title_preview = activity.get("title", "untitled")[:60]
-            print(
-                f"  {i}/{len(github_activities)} - {activity_type}: "
-                f"{title_preview}..."
-            )
+        for activity in github_activities:
+            activity_type = activity.get("activity_type", "unknown")
 
             source_info = {
                 "type": activity_type,
@@ -185,28 +255,58 @@ class FactsExtractor:
                 "author": activity.get("author", "Unknown"),
                 "url": activity.get("url", ""),
                 "date": activity.get("date", ""),
-                "repository": activity.get("repository", ""),
+                "repository": activity.get("repo", ""),
             }
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
-            facts = self.extract_facts_from_content(
-                activity.get("content", ""), source_info
+            valid_activities.append(
+                {
+                    "activity": activity,
+                    "source_info": source_info,
+                    "content": activity.get("content", ""),
+                }
             )
-            all_facts.extend(facts)
-
-            if facts:
-                print(f"    ✅ Extracted {len(facts)} facts")
-            else:
-                print("    ℹ️  No facts extracted")
 
         if skipped_count > 0:
             print(f"⏭️  Skipped {skipped_count} duplicate GitHub activities")
 
+        print(f"📦 Processing {len(valid_activities)} valid activities in batches...")
+
+        # Process in batches of 10 for GitHub activities (they tend to be shorter)
+        BATCH_SIZE = 10
+        all_facts = []
+
+        for i in range(0, len(valid_activities), BATCH_SIZE):
+            batch = valid_activities[i : i + BATCH_SIZE]
+            batch_num = (i // BATCH_SIZE) + 1
+            total_batches = (len(valid_activities) + BATCH_SIZE - 1) // BATCH_SIZE
+
+            print(
+                f"  📦 Processing batch {batch_num}/{total_batches} "
+                f"({len(batch)} activities)..."
+            )
+
+            # Prepare batch items for processing
+            batch_items = []
+            for item in batch:
+                batch_items.append(
+                    {"source_info": item["source_info"], "content": item["content"]}
+                )
+
+            # Process batch
+            batch_facts = self.extract_facts_from_batch(batch_items, "github_activity")
+            all_facts.extend(batch_facts)
+
+            if batch_facts:
+                print(f"    ✅ Extracted {len(batch_facts)} facts from batch")
+            else:
+                print("    ℹ️  No facts extracted from batch")
+
+        print(f"🐙 GitHub processing complete: {len(all_facts)} total facts extracted")
         return all_facts
 
     def extract_telegram_facts(
@@ -302,29 +402,19 @@ class FactsExtractor:
     def extract_forum_facts(
         self, posts: List[Dict], processed_urls: Set[str]
     ) -> List[Dict[str, Any]]:
-        """Extract key facts from forum posts."""
+        """Extract key facts from forum posts using efficient batching."""
         if not posts:
             return []
 
         print(f"🔍 Extracting facts from {len(posts)} forum posts...")
-        print(
-            f"⏰ Note: Processing {len(posts)} posts may take "
-            f"{len(posts) * 5}-{len(posts) * 10} seconds..."
-        )
 
-        all_facts = []
+        # Filter out duplicates first
+        valid_posts = []
         skipped_count = 0
 
-        for i, post in enumerate(posts, 1):
-            # Get post info for better progress display
+        for post in posts:
             post_author = post.get("author", "Unknown")
             post_topic = post.get("topic_title") or post.get("title") or "untitled"
-            post_id = post.get("post_id", "unknown")
-
-            print(
-                f"  {i}/{len(posts)} - Post #{post_id} by {post_author}: "
-                f"{post_topic[:60]}..."
-            )
 
             source_info = {
                 "type": "forum_post",
@@ -336,22 +426,51 @@ class FactsExtractor:
 
             # Check for duplicates
             if self.is_duplicate_source(source_info, processed_urls):
-                print("    ⏭️  Skipping - already processed this URL")
                 skipped_count += 1
                 continue
 
-            facts = self.extract_facts_from_content(
-                post.get("content", ""), source_info
+            valid_posts.append(
+                {
+                    "post": post,
+                    "source_info": source_info,
+                    "content": post.get("content", ""),
+                }
             )
-            all_facts.extend(facts)
-
-            if facts:
-                print(f"    ✅ Extracted {len(facts)} facts")
-            else:
-                print("    ℹ️  No facts extracted")
 
         if skipped_count > 0:
             print(f"⏭️  Skipped {skipped_count} duplicate forum posts")
+
+        print(f"📦 Processing {len(valid_posts)} valid posts in batches...")
+
+        # Process in batches of 5 to balance efficiency with context limits
+        BATCH_SIZE = 5
+        all_facts = []
+
+        for i in range(0, len(valid_posts), BATCH_SIZE):
+            batch = valid_posts[i : i + BATCH_SIZE]
+            batch_num = (i // BATCH_SIZE) + 1
+            total_batches = (len(valid_posts) + BATCH_SIZE - 1) // BATCH_SIZE
+
+            print(
+                f"  📦 Processing batch {batch_num}/{total_batches} "
+                f"({len(batch)} posts)..."
+            )
+
+            # Prepare batch items for processing
+            batch_items = []
+            for item in batch:
+                batch_items.append(
+                    {"source_info": item["source_info"], "content": item["content"]}
+                )
+
+            # Process batch
+            batch_facts = self.extract_facts_from_batch(batch_items, "forum_post")
+            all_facts.extend(batch_facts)
+
+            if batch_facts:
+                print(f"    ✅ Extracted {len(batch_facts)} facts from batch")
+            else:
+                print("    ℹ️  No facts extracted from batch")
 
         print(f"🏛️ Forum processing complete: {len(all_facts)} total facts extracted")
         return all_facts
@@ -464,6 +583,46 @@ class FactsExtractor:
         # Don't forget the last fact
         if current_fact:
             facts.append(self.finalize_fact(current_fact, source_info))
+
+        return facts
+
+    def parse_batch_facts_response(
+        self, response: str, batch_items: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Parse batch facts response into structured facts."""
+        facts = []
+        lines = response.split("\n")
+        current_fact = {}
+        current_item_index = None
+
+        for line in lines:
+            line = line.strip()
+            if line.startswith("- ITEM:"):
+                # Extract item number
+                try:
+                    item_num = int(line[7:].strip())
+                    current_item_index = item_num - 1  # Convert to 0-based index
+                except (ValueError, IndexError):
+                    current_item_index = None
+            elif line.startswith("- FACT:"):
+                if current_fact and current_item_index is not None:
+                    # Save previous fact
+                    if current_item_index < len(batch_items):
+                        source_info = batch_items[current_item_index]["source_info"]
+                        facts.append(self.finalize_fact(current_fact, source_info))
+                current_fact = {"fact": line[7:].strip()}
+            elif line.startswith("- CATEGORY:"):
+                current_fact["category"] = line[11:].strip()
+            elif line.startswith("- IMPACT:"):
+                current_fact["impact"] = line[9:].strip()
+            elif line.startswith("- CONTEXT:"):
+                current_fact["context"] = line[10:].strip()
+
+        # Don't forget the last fact
+        if current_fact and current_item_index is not None:
+            if current_item_index < len(batch_items):
+                source_info = batch_items[current_item_index]["source_info"]
+                facts.append(self.finalize_fact(current_fact, source_info))
 
         return facts
 

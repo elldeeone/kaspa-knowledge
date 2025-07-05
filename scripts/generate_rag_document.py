@@ -54,7 +54,11 @@ from error_handler import (  # noqa: E402
 
 
 def validate_date_format(date_string: str) -> bool:
-    """Validate that date string is in YYYY-MM-DD format."""
+    """Validate date string is in YYYY-MM-DD format or 'full_history' for backfill."""
+    # Allow 'full_history' for backfill mode
+    if date_string == "full_history":
+        return True
+
     try:
         datetime.strptime(date_string, "%Y-%m-%d")
         return True
@@ -137,8 +141,8 @@ def generate_rag_document(
             source_count = len(loaded_data.aggregated_data.get("sources", {}))
             logger.logger.info(f"  - Aggregated: {source_count} sources")
         if loaded_data.briefings_data:
-            summary_count = len(loaded_data.briefings_data.get("summaries", {}))
-            logger.logger.info(f"  - Briefings: {summary_count} summaries")
+            source_count = len(loaded_data.briefings_data.get("sources", {}))
+            logger.logger.info(f"  - Briefings: {source_count} summaries")
         if loaded_data.facts_data:
             facts_count = len(loaded_data.facts_data.get("facts", []))
             logger.logger.info(f"  - Facts: {facts_count} facts")

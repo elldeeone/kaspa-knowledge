@@ -130,13 +130,15 @@ class JSONDataLoader:
         Load and validate all data sources for a specific date.
 
         Args:
-            date: Date string in YYYY-MM-DD format
+            date: Date string in YYYY-MM-DD format or 'full_history' for backfill
 
         Returns:
             LoadedData object containing all loaded data and validation results
         """
         if not self._validate_date_format(date):
-            raise ValueError(f"Invalid date format: {date}. Expected YYYY-MM-DD")
+            raise ValueError(
+                f"Invalid date format: {date}. Expected YYYY-MM-DD or 'full_history'"
+            )
 
         logger.info(f"Loading data for date: {date}")
 
@@ -153,7 +155,11 @@ class JSONDataLoader:
         return loaded_data
 
     def _validate_date_format(self, date: str) -> bool:
-        """Validate date format (YYYY-MM-DD)."""
+        """Validate date format (YYYY-MM-DD) or 'full_history' for backfill."""
+        # Allow 'full_history' for backfill mode
+        if date == "full_history":
+            return True
+
         pattern = r"^\d{4}-\d{2}-\d{2}$"
         if not re.match(pattern, date):
             return False
@@ -166,7 +172,12 @@ class JSONDataLoader:
 
     def _load_aggregated_data(self, date: str, loaded_data: LoadedData) -> None:
         """Load and validate aggregated data."""
-        file_path = self.aggregated_dir / f"{date}.json"
+        # Handle both regular dates and backfill mode
+        if date == "full_history":
+            file_path = self.aggregated_dir / f"{date}_aggregated.json"
+        else:
+            file_path = self.aggregated_dir / f"{date}.json"
+
         source_name = "aggregated"
 
         result = self._load_and_validate_json_file(file_path, source_name)
@@ -308,6 +319,105 @@ class JSONDataLoader:
                         sources[source_type], source_type, result, file_path
                     )
 
+    def _normalize_source_item(
+        self, item: Dict[str, Any], source_type: str
+    ) -> Dict[str, Any]:
+        """Normalize source-specific field names to expected schema."""
+        normalized = item.copy()
+
+        # Field mappings by source type (match actual source types in data)
+        field_mappings = {
+            "medium_articles": {
+                "link": "url",
+                "summary": "content",
+                "published": "date",
+            },
+            "github_activities": {
+                "message": "content",
+                "sha": "github_sha",  # Keep sha as additional field
+                "created_at": "date",  # Use created_at as the primary date
+            },
+            "github_activity": {  # Alternative naming
+                "message": "content",
+                "sha": "github_sha",
+                "created_at": "date",
+            },
+            "telegram_messages": {"timestamp": "date", "text": "content"},
+            "forum_posts": {
+                "created_at": "date",
+                "raw_content": "content",  # Use raw_content if content is not available
+            },
+            "discord_messages": {"timestamp": "date", "content": "content"},
+        }
+
+        # Apply field mappings
+        if source_type in field_mappings:
+            for old_field, new_field in field_mappings[source_type].items():
+                if old_field in normalized and new_field not in normalized:
+                    normalized[new_field] = normalized[old_field]
+
+        # Add missing type field based on source
+        if "type" not in normalized:
+            type_mappings = {
+                "medium_articles": "medium_article",
+                "github_activities": "github_activity",
+                "github_activity": "github_activity",
+                "telegram_messages": "telegram_message",
+                "forum_posts": "forum_post",
+                "discord_messages": "discord_message",
+            }
+            normalized["type"] = type_mappings.get(source_type, f"{source_type}_item")
+
+        # Add default title if missing (for GitHub commits and other sources)
+        if "title" not in normalized:
+            if "message" in normalized:
+                # Use first line of commit message as title
+                message_lines = normalized["message"].split("\n")
+                normalized["title"] = (
+                    message_lines[0][:100] + "..."
+                    if len(message_lines[0]) > 100
+                    else message_lines[0]
+                )
+            elif "content" in normalized:
+                # Use first line of content as title
+                content_lines = str(normalized["content"]).split("\n")
+                normalized["title"] = (
+                    content_lines[0][:100] + "..."
+                    if len(content_lines[0]) > 100
+                    else content_lines[0]
+                )
+            elif "topic_title" in normalized:
+                # For forum posts, use topic_title
+                normalized["title"] = normalized["topic_title"]
+
+        # Ensure author field exists
+        if "author" not in normalized:
+            # Try common author field variations
+            for author_field in ["user", "username", "created_by", "poster"]:
+                if author_field in normalized:
+                    normalized["author"] = normalized[author_field]
+                    break
+            else:
+                normalized["author"] = "Unknown"
+
+        # Ensure url field exists
+        if "url" not in normalized:
+            # Try common URL field variations
+            for url_field in ["link", "permalink", "html_url", "web_url"]:
+                if url_field in normalized:
+                    normalized["url"] = normalized[url_field]
+                    break
+
+        # Ensure content field exists
+        if "content" not in normalized:
+            # Try common content field variations
+            for content_field in ["body", "text", "message", "summary", "description"]:
+                if content_field in normalized:
+                    normalized["content"] = normalized[content_field]
+                    break
+
+        return normalized
+
     def _validate_source_items(
         self,
         items: List[Any],
@@ -325,10 +435,13 @@ class JSONDataLoader:
                 )
                 continue
 
+            # Normalize the item before validation
+            normalized_item = self._normalize_source_item(item, source_type)
+
             # Check for common required fields
             common_fields = ["type", "title", "author", "url", "date", "content"]
             for field_name in common_fields:
-                if field_name not in item:
+                if field_name not in normalized_item:
                     result.add_warning(
                         file_path,
                         "missing_item_field",
@@ -336,9 +449,12 @@ class JSONDataLoader:
                     )
 
             # Validate signal metadata if present
-            if "signal" in item:
+            if "signal" in normalized_item:
                 self._validate_signal_metadata(
-                    item["signal"], result, file_path, f"{source_type}[{i}].signal"
+                    normalized_item["signal"],
+                    result,
+                    file_path,
+                    f"{source_type}[{i}].signal",
                 )
 
     def _validate_signal_metadata(
@@ -360,7 +476,7 @@ class JSONDataLoader:
 
         # Validate signal strength values
         if "strength" in signal:
-            valid_strengths = ["high", "medium", "low"]
+            valid_strengths = ["high", "medium", "low", "standard"]
             if signal["strength"] not in valid_strengths:
                 result.add_warning(
                     file_path,
@@ -372,14 +488,19 @@ class JSONDataLoader:
         self, metadata: Dict[str, Any], result: DataValidationResult, file_path: str
     ) -> None:
         """Validate aggregated data metadata."""
-        expected_fields = ["total_items", "processing_time", "pipeline_version"]
-        for field_name in expected_fields:
+        # Required fields that must be present
+        required_fields = ["total_items", "pipeline_version"]
+        for field_name in required_fields:
             if field_name not in metadata:
                 result.add_warning(
                     file_path,
                     "missing_metadata_field",
-                    f"Metadata missing field: {field_name}",
+                    f"Metadata missing required field: {field_name}",
                 )
+
+        # Optional fields that are nice to have but not required:
+        # ["processing_time", "sources_processed", "processing_notes"]
+        # No warnings for missing optional fields - they're just informational
 
     def _validate_briefings_schema(
         self, data: Dict[str, Any], result: DataValidationResult, file_path: str
