@@ -248,7 +248,8 @@ def generate_rag_document(
             # Handle multiple files validation with comprehensive edge case handling
             if not isinstance(document_content, dict):
                 error = error_handler.create_error(
-                    f"Split output mode expected dictionary, got {type(document_content).__name__}",
+                    f"Split output mode expected dictionary, got "
+                    f"{type(document_content).__name__}",
                     ErrorSeverity.HIGH,
                     ErrorCategory.DATA_VALIDATION,
                     component="document_validator",
@@ -261,7 +262,16 @@ def generate_rag_document(
                 )
                 # Fallback: Create a minimal document with just header
                 document_content = {
-                    "01_minimal": f"# Kaspa Knowledge Digest: {date}\n\n**CONTEXT:** No content sections were generated for this date.\n\nThis may indicate:\n- No data available for the specified date\n- Data processing issues\n- Empty source files\n\nPlease check the source data and logs for more information."
+                    "01_minimal": (
+                        f"# Kaspa Knowledge Digest: {date}\n\n"
+                        f"**CONTEXT:** No content sections were generated for this "
+                        f"date.\n\n"
+                        f"This may indicate:\n"
+                        f"- No data available for the specified date\n"
+                        f"- Data processing issues\n"
+                        f"- Empty source files\n\n"
+                        f"Please check the source data and logs for more information."
+                    )
                 }
 
             # Validate and sanitize each split document
@@ -302,7 +312,8 @@ def generate_rag_document(
                 # Check minimum content length with more flexible threshold
                 if len(content.strip()) < 50:
                     logger.logger.warning(
-                        f"Very short section content for: {filename} ({len(content)} chars)"
+                        f"Very short section content for: {filename} "
+                        f"({len(content)} chars)"
                     )
                     # Still include short sections, but log the warning
 
@@ -320,7 +331,8 @@ def generate_rag_document(
                 # Check for extremely large content (>10MB)
                 if len(content) > 10 * 1024 * 1024:
                     logger.logger.warning(
-                        f"Very large section detected: {filename} ({len(content):,} chars)"
+                        f"Very large section detected: {filename} "
+                        f"({len(content):,} chars)"
                     )
                     # Optionally truncate or continue with warning
 
@@ -335,12 +347,16 @@ def generate_rag_document(
                             f"Empty sections: {', '.join(empty_sections)}"
                         )
                     if problematic_sections:
+                        problem_list = [
+                            f"{name} ({issue})" for name, issue in problematic_sections
+                        ]
                         error_details.append(
-                            f"Problematic sections: {', '.join([f'{name} ({issue})' for name, issue in problematic_sections])}"
+                            f"Problematic sections: {', '.join(problem_list)}"
                         )
 
                     error = error_handler.create_error(
-                        f"No valid sections for split output. {'; '.join(error_details)}",
+                        f"No valid sections for split output. "
+                        f"{'; '.join(error_details)}",
                         ErrorSeverity.HIGH,
                         ErrorCategory.DATA_VALIDATION,
                         component="document_validator",
@@ -352,7 +368,12 @@ def generate_rag_document(
                         "No valid sections found - creating fallback content"
                     )
                     valid_sections = {
-                        "01_fallback": f"# Kaspa Knowledge Digest: {date}\n\n**CONTEXT:** Document generation completed but no valid content sections were produced.\n\nThis may indicate data processing issues or empty source files."
+                        "01_fallback": (
+                            f"# Kaspa Knowledge Digest: {date}\n\n"
+                            f"**CONTEXT:** Document generation completed but no valid "
+                            f"content sections were produced.\n\n"
+                            f"This may indicate data processing issues or empty files."
+                        )
                     }
 
             # Log section summary
@@ -362,11 +383,13 @@ def generate_rag_document(
                 )
             if problematic_sections:
                 logger.logger.warning(
-                    f"Skipped problematic sections: {', '.join([name for name, _ in problematic_sections])}"
+                    f"Skipped problematic sections: "
+                    f"{', '.join([name for name, _ in problematic_sections])}"
                 )
 
             logger.logger.info(
-                f"Proceeding with {len(valid_sections)} valid sections out of {len(document_content)} total"
+                f"Proceeding with {len(valid_sections)} valid sections out of "
+                f"{len(document_content)} total"
             )
 
             # Update document_content to only include valid sections
@@ -418,7 +441,8 @@ def generate_rag_document(
                             if conflicted_file not in existing_paths:
                                 split_output_file = conflicted_file
                                 logger.logger.warning(
-                                    f"Resolved filename conflict: {safe_filename} -> {safe_filename}_{counter}"
+                                    f"Resolved filename conflict: {safe_filename} -> "
+                                    f"{safe_filename}_{counter}"
                                 )
                                 break
                             counter += 1
@@ -429,7 +453,8 @@ def generate_rag_document(
                     # Check if file exists and handle force flag
                     if split_output_file.exists() and not force:
                         error = error_handler.create_error(
-                            f"Output file already exists: {split_output_file}. Use --force to overwrite.",
+                            f"Output file already exists: {split_output_file}. "
+                            f"Use --force to overwrite.",
                             ErrorSeverity.MEDIUM,
                             ErrorCategory.FILE_OPERATIONS,
                             component="file_checker",
@@ -446,7 +471,8 @@ def generate_rag_document(
 
                         if free_space < required_space:
                             error = error_handler.create_error(
-                                f"Insufficient disk space. Required: {required_space:,} bytes, Available: {free_space:,} bytes",
+                                f"Insufficient space. Required: {required_space:,} "
+                                f"bytes, Available: {free_space:,} bytes",
                                 ErrorSeverity.CRITICAL,
                                 ErrorCategory.FILE_OPERATIONS,
                                 component="disk_space_checker",
@@ -454,17 +480,19 @@ def generate_rag_document(
                             return False, error.message
 
                         logger.logger.debug(
-                            f"Disk space check passed: {free_space:,} bytes available, {required_space:,} bytes required"
+                            f"Disk space check passed: {free_space:,} bytes available, "
+                            f"{required_space:,} bytes required"
                         )
                 except (OSError, AttributeError) as e:
                     # Disk space check failed, but continue with warning
                     logger.logger.warning(f"Could not check disk space: {e}")
 
                 logger.logger.info(
-                    f"Pre-flight checks passed for {len(final_files)} files ({total_content_size:,} bytes total)"
+                    f"Pre-flight checks passed for {len(final_files)} files "
+                    f"({total_content_size:,} bytes total)"
                 )
 
-                # Phase 2: Write all content to temporary files with enhanced error handling
+                # Phase 2: Write all content to temporary files with error handling
                 logger.logger.info("Writing content to temporary files...")
                 for filename, content, final_path in final_files:
                     temp_fd = None
@@ -488,7 +516,7 @@ def generate_rag_document(
                                 None  # File descriptor is now managed by temp_file
                             )
 
-                            # For large content, write in chunks to handle memory efficiently
+                            # For large content, write in chunks for memory efficiency
                             if len(content) > chunk_size:
                                 for i in range(0, len(content), chunk_size):
                                     chunk = content[i : i + chunk_size]
@@ -526,18 +554,20 @@ def generate_rag_document(
                                     read_content = verify_file.read()
                                     if read_content != content:
                                         raise IOError(
-                                            f"Content verification failed for: {temp_path}"
+                                            f"Content verification failed for: "
+                                            f"{temp_path}"
                                         )
                                 else:
-                                    # For larger files, verify start and end more reliably
+                                    # For larger files, verify start and end
                                     read_start = verify_file.read(100)
                                     if not content.startswith(read_start):
                                         raise IOError(
-                                            f"Content verification failed (start) for: {temp_path}"
+                                            f"Content verification failed (start) for: "
+                                            f"{temp_path}"
                                         )
 
                                     # For end verification, use a more reliable approach
-                                    # Read the last portion by seeking from the end with bytes
+                                    # Read the last portion by seeking from the end
                                     verify_file.seek(0, 2)  # Seek to end
                                     file_size_bytes = verify_file.tell()
 
@@ -559,22 +589,25 @@ def generate_rag_document(
                                         if not read_end or not expected_end.endswith(
                                             read_end[-50:]
                                         ):
-                                            # Use a less strict verification for very large files
+                                            # Less strict verification for large files
                                             if (
                                                 len(content) < 50000
                                             ):  # Only strict check for medium files
                                                 raise IOError(
-                                                    f"Content verification failed (end) for: {temp_path}"
+                                                    f"Content verify failed (end): "
+                                                    f"{temp_path}"
                                                 )
                         except (OSError, UnicodeDecodeError) as verify_error:
                             raise IOError(
-                                f"Content verification error for {temp_path}: {verify_error}"
+                                f"Content verification error for {temp_path}: "
+                                f"{verify_error}"
                             )
 
                         # Track temporary file for atomic operation
                         temp_files.append((temp_file_path, final_path))
                         logger.logger.debug(
-                            f"Successfully wrote temp file: {temp_path} ({actual_size:,} bytes)"
+                            f"Successfully wrote temp file: {temp_path} "
+                            f"({actual_size:,} bytes)"
                         )
 
                     except Exception as e:
@@ -600,7 +633,8 @@ def generate_rag_document(
                                 )
                             except Exception as cleanup_error:
                                 logger.logger.warning(
-                                    f"Failed to cleanup temp file {temp_path}: {cleanup_error}"
+                                    f"Failed to cleanup temp file {temp_path}: "
+                                    f"{cleanup_error}"
                                 )
                                 cleanup_success = False
 
@@ -611,7 +645,8 @@ def generate_rag_document(
                             else " (cleanup failed)"
                         )
                         raise IOError(
-                            f"Failed to write section '{filename}' to temporary file: {e}{cleanup_msg}"
+                            f"Failed to write section '{filename}' to temporary file: "
+                            f"{e}{cleanup_msg}"
                         ) from e
 
                 # Phase 3: Atomically move all temp files to final locations
@@ -633,7 +668,8 @@ def generate_rag_document(
                 temp_files.clear()
 
                 logger.logger.info(
-                    f"Successfully generated {len(written_files)} split documents atomically"
+                    f"Successfully generated {len(written_files)} split documents "
+                    f"atomically"
                 )
                 logger.logger.info(f"Files: {', '.join(written_files)}")
                 logger.logger.info(f"Total size: {total_size:,} bytes")
@@ -787,7 +823,8 @@ Examples:
     parser.add_argument(
         "--split-output",
         action="store_true",
-        help="Split output into multiple files by section (recommended for full history)",
+        help="Split output into multiple files by section "
+        "(recommended for full history)",
     )
 
     args = parser.parse_args()
@@ -805,7 +842,7 @@ Examples:
     print(f"🚀 Starting RAG document generation for {args.date}")
     print(f"📋 Organization style: {args.organization}")
     if args.split_output:
-        print(f"📂 Split output mode: Multiple files will be created")
+        print("📂 Split output mode: Multiple files will be created")
 
     success, error_message = generate_rag_document(
         date=args.date,

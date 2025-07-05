@@ -304,7 +304,7 @@ class MarkdownTemplateGenerator:
                 else:
                     base_filename = f"05_{section_name}"
 
-                # Check if section needs granular splitting (Facts and High Signal sections)
+                # Check if section needs granular splitting (Facts and High Signal)
                 if base_filename in ["02_facts", "03_high_signal"]:
                     split_files = self._split_large_section(
                         section_content, base_filename, header_content, date
@@ -818,7 +818,7 @@ class MarkdownTemplateGenerator:
         self, section_content: str, base_filename: str, header_content: str, date: str
     ) -> Dict[str, str]:
         """
-        Split large sections (Facts and High Signal) into multiple files for better organization.
+        Split large sections (Facts and High Signal) into multiple files for better org.
 
         Args:
             section_content: The full content of the section to split
@@ -856,7 +856,8 @@ class MarkdownTemplateGenerator:
         lines_per_file = total_lines // num_files
 
         logger.info(
-            f"Splitting {base_filename} into {num_files} files (~{lines_per_file:,} lines each)"
+            f"Splitting {base_filename} into {num_files} files "
+            f"(~{lines_per_file:,} lines each)"
         )
 
         # Split content intelligently by sections/headings when possible
@@ -884,7 +885,7 @@ class MarkdownTemplateGenerator:
 
                     next_line = content_lines[i + j]
 
-                    # Good split points: markdown headings, YAML blocks, or context blocks
+                    # Good split points: markdown headings, YAML, or context blocks
                     if (
                         next_line.startswith("### ")
                         or next_line.startswith("> **CONTEXT:**")
