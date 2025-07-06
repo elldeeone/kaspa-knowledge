@@ -1,0 +1,26 @@
+{
+  "kaspanet/rusty-kaspa": {
+    "commits": [],
+    "pull_requests": [
+      {
+        "number": 703,
+        "title": "Adds payload support in PSKT",
+        "body": "Closes https://github.com/kaspanet/rusty-kaspa/issues/700",
+        "state": "open",
+        "author": "danwt",
+        "created_at": "2025-07-04T14:58:35+00:00",
+        "updated_at": "2025-07-04T17:04:06+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/703",
+        "draft": false,
+        "mergeable": true,
+        "additions": 8,
+        "deletions": 1,
+        "changed_files": 2,
+        "commits": 5,
+        "labels": []
+      }
+    ],
+    "issues": []
+  }
+}
