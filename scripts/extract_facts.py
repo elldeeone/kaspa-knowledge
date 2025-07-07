@@ -20,20 +20,44 @@ class FactsExtractor:
         input_dir: str = "data/aggregated",
         output_dir: str = "data/facts",
         force: bool = False,
+        period_summary: bool = False,
     ):
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.force = force
+        self.period_summary = period_summary
 
         # Initialize LLM interface
         self.llm = LLMInterface()
 
     def load_daily_data(self, date: str) -> Dict[str, Any]:
-        """Load the raw aggregated data for a given date."""
+        """Load the raw aggregated data for a given date or period."""
         # Handle both regular dates and backfill mode
         if date == "full_history":
             input_path = self.input_dir / f"{date}_aggregated.json"
+        elif self.period_summary:
+            # For period summary mode, look for period-based files
+            # Try different patterns: YYYY-MM-monthly.json, YYYY-MM-DD-weekly.json, etc.
+            potential_paths = [
+                self.input_dir / f"{date}.json",  # Direct match first
+                self.input_dir / f"{date}-monthly.json",
+                self.input_dir / f"{date}-weekly.json",
+                self.input_dir / f"{date}-quarterly.json",
+                self.input_dir / f"{date}-historical.json",
+            ]
+
+            input_path = None
+            for path in potential_paths:
+                if path.exists():
+                    input_path = path
+                    break
+
+            if input_path is None:
+                raise FileNotFoundError(
+                    f"No period-based aggregated data found for {date}. "
+                    f"Checked paths: {[str(p) for p in potential_paths]}"
+                )
         else:
             input_path = self.input_dir / f"{date}.json"
 
@@ -87,6 +111,61 @@ class FactsExtractor:
         url = source_info.get("url", "")
         return url in processed_urls if url else False
 
+    def extract_period_metadata(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract period-specific metadata from aggregated data."""
+        if not self.period_summary:
+            return {}
+
+        metadata = {}
+
+        # Extract period information
+        metadata["period_label"] = data.get("period", "Unknown Period")
+        metadata["date_range"] = data.get("date_range", "Unknown Range")
+
+        # Parse date range for start and end dates
+        date_range = metadata["date_range"]
+        if " to " in date_range:
+            start_date, end_date = date_range.split(" to ")
+            metadata["start_date"] = start_date.strip()
+            metadata["end_date"] = end_date.strip()
+
+            # Calculate duration in days
+            try:
+                start = datetime.strptime(start_date.strip(), "%Y-%m-%d")
+                end = datetime.strptime(end_date.strip(), "%Y-%m-%d")
+                metadata["duration_days"] = (end - start).days + 1
+            except ValueError:
+                metadata["duration_days"] = "Unknown"
+        else:
+            metadata["start_date"] = "Unknown"
+            metadata["end_date"] = "Unknown"
+            metadata["duration_days"] = "Unknown"
+
+        # Count total items across all sources
+        sources = data.get("sources", {})
+        total_items = 0
+        sources_processed = []
+
+        for source_name, source_data in sources.items():
+            if source_data and len(source_data) > 0:
+                total_items += len(source_data)
+                sources_processed.append(source_name)
+
+        metadata["total_items"] = total_items
+        metadata["sources_processed"] = ", ".join(sources_processed)
+
+        return metadata
+
+    def select_period_prompt(self, period_metadata: Dict[str, Any]) -> str:
+        """Select appropriate prompt based on period type and duration."""
+        if not self.period_summary:
+            return "extract_kaspa_facts"
+
+        # For facts extraction, we use the same kaspa facts prompt
+        # but may enhance context. All period types use the same core
+        # facts extraction prompt
+        return "extract_kaspa_facts"
+
     def extract_facts_from_content(
         self, content: str, source_info: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
@@ -95,13 +174,20 @@ class FactsExtractor:
             return []
 
         try:
+            # Enhance source_info with period context if available
+            enhanced_source_info = source_info.copy()
+            if self.period_summary and hasattr(self, "_current_period_metadata"):
+                enhanced_source_info["period_context"] = (
+                    self._current_period_metadata.get("period_label", "")
+                )
+
             prompt = prompt_loader.format_prompt(
                 "extract_kaspa_facts",
-                source_type=source_info["type"],
-                title=source_info.get("title", "N/A"),
-                author=source_info.get("author", "N/A"),
-                url=source_info.get("url", "N/A"),
-                date=source_info.get("date", "N/A"),
+                source_type=enhanced_source_info["type"],
+                title=enhanced_source_info.get("title", "N/A"),
+                author=enhanced_source_info.get("author", "N/A"),
+                url=enhanced_source_info.get("url", "N/A"),
+                date=enhanced_source_info.get("date", "N/A"),
                 content=content[:4000] + ("..." if len(content) > 4000 else ""),
             )
 
@@ -112,7 +198,7 @@ class FactsExtractor:
             )
 
             # Parse the facts
-            facts = self.parse_facts_response(facts_response, source_info)
+            facts = self.parse_facts_response(facts_response, enhanced_source_info)
             return facts
 
         except Exception as e:
@@ -650,12 +736,13 @@ ecosystem, or technology."""
         }
 
     def extract_daily_facts(self, date: str = None) -> Dict[str, Any]:
-        """Extract facts from all sources for a given date."""
+        """Extract facts from daily/period aggregated data."""
         if date is None:
             date = datetime.now().strftime("%Y-%m-%d")
 
-        print(f"\n🔍 Extracting daily facts for {date}")
-        print("=" * 50)
+        period_type = "period" if self.period_summary else "daily"
+        print(f"\n🔍 Extracting facts from {period_type} data for {date}")
+        print("=" * 60)
 
         # Check if facts already exist for this date (deduplication)
         if not self.force:
@@ -666,15 +753,14 @@ ecosystem, or technology."""
                         existing_data = json.load(f)
 
                     # Check if existing facts file has substantial content
-                    existing_facts = existing_data.get("facts", [])
-                    if len(existing_facts) > 0:
+                    if existing_data and existing_data.get("facts"):
                         print("📋 Facts already exist for this date")
-                        print(f"📊 Found {len(existing_facts)} existing facts")
                         print("⚡ Skipping extraction to avoid duplicates")
                         print("ℹ️  Use --force flag to override this behavior")
 
                         # Return existing data to maintain consistency
-                        print(f"\n💾 Using existing facts from: {existing_facts_path}")
+                        print("\n💾 Using existing facts")
+                        print(f"   📁 {existing_facts_path}")
 
                         # Mark this data as loaded from existing file for summary logic
                         existing_data["_loaded_from_existing"] = True
@@ -686,57 +772,36 @@ ecosystem, or technology."""
         else:
             print("⚠️  Force flag used - bypassing deduplication checks")
 
-        # Load raw data
-        daily_data = self.load_daily_data(date)
-        sources = daily_data.get("sources", {})
+        # Load aggregated data (daily or period-based)
+        try:
+            aggregated_data = self.load_daily_data(date)
+        except FileNotFoundError as e:
+            print(f"❌ Error loading data: {e}")
+            raise
 
-        # Check if there's actually any data to process
-        total_items = sum(
-            len(source_data)
-            for source_data in sources.values()
-            if isinstance(source_data, list)
-        )
-        if total_items == 0:
-            print("📋 No source data available for fact extraction")
-            print("✨ Creating empty facts file with metadata")
+        # Extract period metadata if in period summary mode
+        period_metadata = self.extract_period_metadata(aggregated_data)
 
-            # Create empty facts file with metadata (similar to ingestion scripts)
-            empty_facts_data = {
-                "date": date,
-                "generated_at": datetime.now().isoformat(),
-                "facts": [],
-                "facts_by_category": {},
-                "statistics": {
-                    "total_facts": 0,
-                    "by_category": {},
-                    "by_impact": {"high": 0, "medium": 0, "low": 0},
-                    "by_source": {
-                        "medium": 0,
-                        "github": 0,
-                        "telegram": 0,
-                        "discord": 0,
-                        "forum": 0,
-                        "news": 0,
-                        "documentation": 0,
-                    },
-                },
-                "metadata": {
-                    "extractor_version": "2.0.0",
-                    "llm_model": self.llm.model,
-                    "status": "no_content_available",
-                    "total_sources_processed": 0,
-                    "sources_with_data": [],
-                },
-            }
+        # Store period metadata for use in fact extraction
+        if self.period_summary and period_metadata:
+            self._current_period_metadata = period_metadata
+            print(f"📊 Period: {period_metadata.get('period_label', 'Unknown')}")
+            print(f"📅 Range: {period_metadata.get('date_range', 'Unknown')}")
+            print(f"📈 Total items: {period_metadata.get('total_items', 0)}")
 
-            return empty_facts_data
-
-        # Extract facts from each source
+        sources = aggregated_data.get("sources", {})
         all_facts = []
         source_stats = {}
 
+        # Load processed URLs to avoid duplicate fact extraction
+        # For period summaries, expand the lookback window
+        lookback_days = 30 if self.period_summary else 7
+        processed_urls = self.load_processed_source_urls(days_back=lookback_days)
+
+        # Extract facts from each source type
+        print(f"\n🔍 Processing {len(sources)} source types...")
+
         # Medium articles
-        processed_urls = self.load_processed_source_urls()
         medium_facts = self.extract_medium_facts(
             sources.get("medium_articles", []), processed_urls
         )
@@ -818,8 +883,13 @@ ecosystem, or technology."""
                 "llm_model": self.llm.model,
                 "total_sources_processed": len([k for k, v in sources.items() if v]),
                 "sources_with_data": [k for k, v in sources.items() if v],
+                "is_period_summary": self.period_summary,
             },
         }
+
+        # Add period metadata to facts data if in period summary mode
+        if self.period_summary and period_metadata:
+            facts_data["period_metadata"] = period_metadata
 
         return facts_data
 
@@ -925,10 +995,16 @@ def main():
         action="store_true",
         help="Force re-extraction even if facts already exist for this date",
     )
+    parser.add_argument(
+        "--period-summary",
+        action="store_true",
+        help="Extract facts from period-based aggregated data "
+        "(weekly, monthly, historical) instead of daily data",
+    )
 
     args = parser.parse_args()
 
-    extractor = FactsExtractor(force=args.force)
+    extractor = FactsExtractor(force=args.force, period_summary=args.period_summary)
     result = extractor.run_facts_extraction(args.date)
     print(f"\n🎯 {result}")
 

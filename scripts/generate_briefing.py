@@ -20,20 +20,44 @@ class BriefingGenerator:
         input_dir: str = "data/aggregated",
         output_dir: str = "data/briefings",
         force: bool = False,
+        period_summary: bool = False,
     ):
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.force = force
+        self.period_summary = period_summary
 
         # Initialize LLM interface
         self.llm = LLMInterface()
 
     def load_daily_data(self, date: str) -> Dict[str, Any]:
-        """Load the raw aggregated data for a given date."""
+        """Load the raw aggregated data for a given date or period."""
         # Handle both regular dates and backfill mode
         if date == "full_history":
             input_path = self.input_dir / f"{date}_aggregated.json"
+        elif self.period_summary:
+            # For period summary mode, look for period-based files
+            # Try different patterns: YYYY-MM-monthly.json, YYYY-MM-DD-weekly.json, etc.
+            potential_paths = [
+                self.input_dir / f"{date}.json",  # Direct match first
+                self.input_dir / f"{date}-monthly.json",
+                self.input_dir / f"{date}-weekly.json",
+                self.input_dir / f"{date}-quarterly.json",
+                self.input_dir / f"{date}-historical.json",
+            ]
+
+            input_path = None
+            for path in potential_paths:
+                if path.exists():
+                    input_path = path
+                    break
+
+            if input_path is None:
+                raise FileNotFoundError(
+                    f"No period-based aggregated data found for {date}. "
+                    f"Checked paths: {[str(p) for p in potential_paths]}"
+                )
         else:
             input_path = self.input_dir / f"{date}.json"
 
@@ -45,6 +69,76 @@ class BriefingGenerator:
         with open(input_path, "r", encoding="utf-8") as f:
             return json.load(f)
 
+    def extract_period_metadata(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract period-specific metadata from aggregated data."""
+        if not self.period_summary:
+            return {}
+
+        metadata = {}
+
+        # Extract period information
+        metadata["period_label"] = data.get("period", "Unknown Period")
+        metadata["date_range"] = data.get("date_range", "Unknown Range")
+
+        # Parse date range for start and end dates
+        date_range = metadata["date_range"]
+        if " to " in date_range:
+            start_date, end_date = date_range.split(" to ")
+            metadata["start_date"] = start_date.strip()
+            metadata["end_date"] = end_date.strip()
+
+            # Calculate duration in days
+            try:
+                start = datetime.strptime(start_date.strip(), "%Y-%m-%d")
+                end = datetime.strptime(end_date.strip(), "%Y-%m-%d")
+                metadata["duration_days"] = (end - start).days + 1
+            except ValueError:
+                metadata["duration_days"] = "Unknown"
+        else:
+            metadata["start_date"] = "Unknown"
+            metadata["end_date"] = "Unknown"
+            metadata["duration_days"] = "Unknown"
+
+        # Count total items across all sources
+        sources = data.get("sources", {})
+        total_items = 0
+        sources_processed = []
+
+        for source_name, source_data in sources.items():
+            if source_data and len(source_data) > 0:
+                total_items += len(source_data)
+                sources_processed.append(source_name)
+
+        metadata["total_items"] = total_items
+        metadata["sources_processed"] = ", ".join(sources_processed)
+
+        return metadata
+
+    def select_period_prompt(self, period_metadata: Dict[str, Any]) -> str:
+        """Select appropriate prompt based on period type and duration."""
+        if not self.period_summary:
+            return "generate_daily_briefing"
+
+        period_label = period_metadata.get("period_label", "").lower()
+        duration_days = period_metadata.get("duration_days", 0)
+
+        # Determine prompt based on period type or duration
+        if "monthly" in period_label or (
+            isinstance(duration_days, int) and duration_days >= 28
+        ):
+            return "generate_monthly_summary"
+        elif "weekly" in period_label or (
+            isinstance(duration_days, int) and 7 <= duration_days < 28
+        ):
+            return "generate_weekly_summary"
+        elif "historical" in period_label or (
+            isinstance(duration_days, int) and duration_days > 90
+        ):
+            return "generate_historical_summary"
+        else:
+            # Default to historical summary for period mode
+            return "generate_historical_summary"
+
     def generate_medium_briefing(self, articles: List[Dict]) -> Dict[str, Any]:
         """Generate a briefing for Medium articles."""
         if not articles:
@@ -53,6 +147,12 @@ class BriefingGenerator:
                 "key_topics": [],
                 "article_summaries": [],
             }
+
+        # If in period summary mode, use period-aware generation
+        if self.period_summary:
+            # We'll need period metadata here, but for now use existing logic
+            # This will be enhanced when period metadata is available at this level
+            pass
 
         print(f"🤖 Generating briefing for {len(articles)} Medium articles...")
 
@@ -347,7 +447,8 @@ class BriefingGenerator:
         if date is None:
             date = datetime.now().strftime("%Y-%m-%d")
 
-        print(f"\n🔄 Generating daily briefing for {date}")
+        briefing_type = "period" if self.period_summary else "daily"
+        print(f"\n🔄 Generating {briefing_type} briefing for {date}")
         print("=" * 50)
 
         # Check if briefing already exists for this date (deduplication)
@@ -381,6 +482,9 @@ class BriefingGenerator:
         # Load raw data
         daily_data = self.load_daily_data(date)
 
+        # Extract period metadata if in period summary mode
+        period_metadata = self.extract_period_metadata(daily_data)
+
         briefing = {
             "date": date,
             "generated_at": datetime.now().isoformat(),
@@ -404,8 +508,13 @@ class BriefingGenerator:
                 ),
                 "briefing_version": "1.0.0",
                 "llm_model": self.llm.model,
+                "is_period_summary": self.period_summary,
             },
         }
+
+        # Add period metadata to briefing if in period summary mode
+        if self.period_summary and period_metadata:
+            briefing["period_metadata"] = period_metadata
 
         return briefing
 
@@ -473,6 +582,129 @@ class BriefingGenerator:
 
         return success_msg
 
+    def generate_period_briefing(
+        self, articles: List[Dict], period_metadata: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Generate period-based briefing for Medium articles."""
+        if not articles:
+            return {
+                "summary": f"No Medium articles found for "
+                f"{period_metadata.get('period_label', 'this period')}.",
+                "key_topics": [],
+                "article_summaries": [],
+            }
+
+        print(f"🤖 Generating period briefing for {len(articles)} Medium articles...")
+
+        # Select appropriate prompt based on period
+        prompt_name = self.select_period_prompt(period_metadata)
+
+        # Create article summaries (using existing logic)
+        article_summaries = []
+        for i, article in enumerate(articles, 1):
+            print(f"  {i}/{len(articles)} - {article['title'][:60]}...")
+
+            try:
+                prompt = prompt_loader.format_prompt(
+                    "generate_article_summary",
+                    title=article["title"],
+                    author=article["author"],
+                    url=article["link"],
+                    content=article["summary"][:4000] + "...",
+                )
+
+                system_prompt = prompt_loader.get_system_prompt(
+                    "generate_article_summary"
+                )
+                summary = self.llm.call_llm(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                )
+
+                article_summaries.append(
+                    {
+                        "title": article["title"],
+                        "author": article["author"],
+                        "url": article["link"],
+                        "published": article.get("published", "Unknown"),
+                        "summary": summary,
+                    }
+                )
+
+                print(f"    ✅ Generated summary ({len(summary)} chars)")
+
+            except Exception as e:
+                print(f"    ⚠️  Failed to summarize: {e}")
+                article_summaries.append(
+                    {
+                        "title": article["title"],
+                        "author": article["author"],
+                        "url": article["link"],
+                        "published": article.get("published", "Unknown"),
+                        "summary": f"[Summary generation failed: {str(e)}]",
+                    }
+                )
+
+        # Generate overall period briefing using period-specific prompts
+        print(f"🤖 Generating overall period briefing using {prompt_name}...")
+
+        # Prepare content for period summary
+        titles_and_authors = "\n".join(
+            [f"- {art['title']} (by {art['author']})" for art in articles]
+        )
+
+        try:
+            # Use period-specific prompt with metadata
+            period_prompt = prompt_loader.format_prompt(
+                prompt_name,
+                period_label=period_metadata.get("period_label", "Unknown Period"),
+                start_date=period_metadata.get("start_date", "Unknown"),
+                end_date=period_metadata.get("end_date", "Unknown"),
+                total_items=period_metadata.get("total_items", len(articles)),
+                sources_processed=period_metadata.get("sources_processed", "Medium"),
+                duration_days=period_metadata.get("duration_days", "Unknown"),
+                article_count=len(articles),
+                articles_list=titles_and_authors,
+            )
+
+            system_prompt = prompt_loader.get_system_prompt(prompt_name)
+            overall_summary = self.llm.call_llm(
+                prompt=period_prompt,
+                system_prompt=system_prompt,
+            )
+        except Exception as e:
+            overall_summary = f"[Period briefing generation failed: {str(e)}]"
+
+        # Extract key topics (enhanced for period analysis)
+        key_topics = []
+        for article in articles:
+            title_words = article["title"].lower().split()
+            technical_terms = [
+                "dagknight",
+                "kaspa",
+                "consensus",
+                "pow",
+                "mining",
+                "asic",
+                "optical",
+                "blockchain",
+                "cryptocurrency",
+                "protocol",
+                "scalability",
+                "decentralization",
+            ]
+            for term in technical_terms:
+                if term in " ".join(title_words) and term not in key_topics:
+                    key_topics.append(term)
+
+        return {
+            "summary": overall_summary,
+            "key_topics": key_topics,
+            "article_summaries": article_summaries,
+            "article_count": len(articles),
+            "period_metadata": period_metadata,
+        }
+
 
 def main():
     """CLI entry point."""
@@ -491,10 +723,16 @@ def main():
         action="store_true",
         help="Force re-generation even if briefing already exists for this date",
     )
+    parser.add_argument(
+        "--period-summary",
+        action="store_true",
+        help="Generate period-based summary (weekly, monthly, historical) "
+        "instead of daily briefing",
+    )
 
     args = parser.parse_args()
 
-    generator = BriefingGenerator(force=args.force)
+    generator = BriefingGenerator(force=args.force, period_summary=args.period_summary)
     result = generator.run_briefing_generation(args.date)
     print(f"\n🎯 {result}")
 
