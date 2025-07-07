@@ -1,8 +1,9 @@
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Iterator, Tuple
+from calendar import monthrange
 
 # Add the scripts directory to Python path for imports
 scripts_dir = Path(__file__).parent
@@ -68,7 +69,7 @@ class SourcesAggregator:
                         elif "posts" in data and source_name == "forum":
                             return data["posts"]
                         elif "forum_posts" in data and source_name == "forum":
-                            # 🔧 FIX: Handle forum_posts key in backfill mode
+                            # FIX: Handle forum_posts key in backfill mode
                             return data["forum_posts"]
                         else:
                             # If it's a dict but no expected keys, return empty
@@ -78,7 +79,7 @@ class SourcesAggregator:
                     else:
                         return []
                 except Exception as e:
-                    print(f"⚠️  Warning: Could not read {history_file}: {e}")
+                    print(f"Warning: Could not read {history_file}: {e}")
                     return []
             else:
                 # No full_history.json file exists for this source
@@ -107,12 +108,12 @@ class SourcesAggregator:
                 elif "posts" in data and source_name == "forum":
                     return data["posts"]
                 elif "forum_posts" in data and source_name == "forum":
-                    # 🔧 FIX: Handle alternative forum data structure
+                    # FIX: Handle alternative forum data structure
                     return data["forum_posts"]
                 else:
-                    # 🔧 FIX: Enhanced debugging for forum data structures
+                    # FIX: Enhanced debugging for forum data structures
                     if source_name == "forum":
-                        print(f"🔍 Debug: Forum data keys found: {list(data.keys())}")
+                        print(f"Debug: Forum data keys found: {list(data.keys())}")
                         # Try to find any list of forum-like data
                         for key, value in data.items():
                             if isinstance(value, list) and len(value) > 0:
@@ -121,12 +122,12 @@ class SourcesAggregator:
                                     "post_id" in first_item or "topic_id" in first_item
                                 ):
                                     print(
-                                        f"🔧 Found forum posts in key '{key}': "
+                                        f"Found forum posts in key '{key}': "
                                         f"{len(value)} items"
                                     )
                                     return value
 
-                    # 🔧 FIX: Return as list if it's a dict with data
+                    # FIX: Return as list if it's a dict with data
                     # (helps with briefing generation)
                     if isinstance(data, dict) and any(
                         isinstance(v, list) for v in data.values()
@@ -148,7 +149,7 @@ class SourcesAggregator:
                 return []
 
         except Exception as e:
-            print(f"⚠️  Warning: Could not read {date_file}: {e}")
+            print(f"Warning: Could not read {date_file}: {e}")
             return []
 
     def load_telegram_data(self, date: str) -> List[Dict]:
@@ -157,7 +158,7 @@ class SourcesAggregator:
         all_messages = []
 
         if not telegram_dir.exists():
-            print("📁 No Telegram directory found")
+            print("No Telegram directory found")
             return []
 
         # Check for main telegram file first (new structure)
@@ -169,20 +170,20 @@ class SourcesAggregator:
 
                 if isinstance(data, dict) and data.get("status") == "no_new_content":
                     print(
-                        f"📁 No Telegram data found for {date} "
+                        f"No Telegram data found for {date} "
                         "(empty file with metadata)"
                     )
                     return []
                 elif isinstance(data, dict) and "messages" in data:
                     messages = data.get("messages", [])
                     msg_count = len(messages)
-                    print(f"📁 Loaded {msg_count} Telegram messages from main")
+                    print(f"Loaded {msg_count} Telegram messages from main")
                     return messages
                 elif isinstance(data, list):
-                    print(f"📁 Loaded {len(data)} Telegram messages from main")
+                    print(f"Loaded {len(data)} Telegram messages from main")
                     return data
             except Exception as e:
-                print(f"⚠️  Error loading main Telegram file: {e}")
+                print(f"Error loading main Telegram file: {e}")
 
         # Fallback: Check group subdirectories (legacy structure)
         group_count = 0
@@ -200,7 +201,7 @@ class SourcesAggregator:
                             and data.get("status") == "no_new_content"
                         ):
                             print(
-                                f"📁 No new content found for "
+                                f"No new content found for "
                                 f"{group_dir.name} on {date} "
                                 f"(empty file with metadata)"
                             )
@@ -212,7 +213,7 @@ class SourcesAggregator:
                             group_count += 1
                             group_msg_count = len(group_data)
                             print(
-                                f"📁 Loaded {group_msg_count} "
+                                f"Loaded {group_msg_count} "
                                 f"messages from {group_dir.name}"
                             )
                         elif isinstance(data, list):
@@ -220,21 +221,20 @@ class SourcesAggregator:
                             all_messages.extend(data)
                             group_count += 1
                             print(
-                                f"📁 Loaded {len(data)} messages "
-                                f"from {group_dir.name}"
+                                f"Loaded {len(data)} messages " f"from {group_dir.name}"
                             )
                         else:
-                            print(f"⚠️  Unexpected data in {group_dir.name}")
+                            print(f"Unexpected data in {group_dir.name}")
 
                     except Exception as e:
-                        print(f"⚠️  Error loading {group_dir.name} data: {e}")
+                        print(f"Error loading {group_dir.name} data: {e}")
 
         if group_count == 0:
-            print(f"📁 No Telegram data found for {date}")
+            print(f"No Telegram data found for {date}")
         else:
             total_msgs = len(all_messages)
             print(
-                f"📁 Loaded {total_msgs} total Telegram messages "
+                f"Loaded {total_msgs} total Telegram messages "
                 f"from {group_count} groups"
             )
 
@@ -246,7 +246,7 @@ class SourcesAggregator:
         summary_file = github_summaries_dir / f"{date}.md"
 
         if not summary_file.exists():
-            print(f"📁 No GitHub summaries found for {date}")
+            print(f"No GitHub summaries found for {date}")
             return []
 
         try:
@@ -264,11 +264,11 @@ class SourcesAggregator:
                 "source": "github_summaries",
             }
 
-            print(f"📁 Loaded GitHub summary ({len(content)} characters)")
+            print(f"Loaded GitHub summary ({len(content)} characters)")
             return [summary_data]  # Return as single-item list for consistency
 
         except Exception as e:
-            print(f"⚠️  Error loading GitHub summaries: {e}")
+            print(f"Error loading GitHub summaries: {e}")
             return []
 
     def load_github_activities(self, date: str) -> List[Dict]:
@@ -294,7 +294,7 @@ class SourcesAggregator:
                                     if isinstance(items, list):
                                         for item in items:
                                             if isinstance(item, dict):
-                                                # 🔧 FIX: Add proper title mapping
+                                                # FIX: Add proper title mapping
                                                 # for GitHub activities
                                                 enriched_item = {
                                                     **item,
@@ -343,7 +343,7 @@ class SourcesAggregator:
                         return data
                     return []
                 except Exception as e:
-                    print(f"⚠️  Warning: Could not read GitHub history: {e}")
+                    print(f"Warning: Could not read GitHub history: {e}")
                     return []
             else:
                 return []
@@ -366,7 +366,7 @@ class SourcesAggregator:
                             if isinstance(items, list):
                                 for item in items:
                                     if isinstance(item, dict):
-                                        # 🔧 FIX: Add proper title mapping
+                                        # FIX: Add proper title mapping
                                         # for GitHub activities
                                         enriched_item = {
                                             **item,
@@ -409,7 +409,7 @@ class SourcesAggregator:
             return activities
 
         except Exception as e:
-            print(f"⚠️  Warning: Could not read GitHub activities: {e}")
+            print(f"Warning: Could not read GitHub activities: {e}")
             return []
 
     def aggregate_daily_sources(self, date: str = None) -> Dict[str, Any]:
@@ -436,13 +436,13 @@ class SourcesAggregator:
                     # Add flag to indicate this was loaded from existing file
                     existing_data["_loaded_from_existing"] = True
 
-                    print(f"📁 Found existing aggregated data for {date}")
+                    print(f"Found existing aggregated data for {date}")
                     print(f"   Using existing file: {existing_aggregated_path}")
                     print("   (Use --force to regenerate)")
 
                     return existing_data
                 except Exception as e:
-                    print(f"⚠️  Warning: Could not read existing data: {e}")
+                    print(f"Warning: Could not read existing data: {e}")
                     print("   Proceeding with fresh aggregation...")
 
         # Create the aggregated data structure
@@ -605,7 +605,7 @@ class SourcesAggregator:
         # aggregated
         if loaded_from_existing:
             print(
-                "\nℹ️  Raw Sources Aggregation found existing content - "
+                "\nRaw Sources Aggregation found existing content - "
                 "skipping downstream processing"
             )
             success_msg = (
@@ -613,40 +613,330 @@ class SourcesAggregator:
             )
         else:
             # Print detailed summary for new aggregations
-            print("\n✅ Raw aggregation complete!")
-            print(f"📁 Output: {output_path}")
-            print(f"📊 Total items: {aggregated_data['metadata']['total_items']}")
-            print("📋 Sources processed:")
+            print("\nRaw aggregation complete!")
+            print(f"Output: {output_path}")
+            print(f"Total items: {aggregated_data['metadata']['total_items']}")
+            print("Sources processed:")
             for source in aggregated_data["metadata"]["sources_processed"]:
                 print(f"   - {source}")
 
             # Display signal analysis summary if available
             signal_analysis = aggregated_data.get("metadata", {}).get("signal_analysis")
             if signal_analysis:
-                print("\n🎯 Signal Analysis Summary:")
+                print("\nSignal Analysis Summary:")
                 high_signal = signal_analysis["high_signal_items"]
                 total_items = signal_analysis["total_items"]
                 lead_items = signal_analysis["lead_developer_items"]
                 founder_items = signal_analysis.get("founder_items", 0)
-                print(f"   📈 High-signal items: {high_signal}/{total_items}")
-                print(f"   👑 Lead developer items: {lead_items}")
+                print(f"   High-signal items: {high_signal}/{total_items}")
+                print(f"   Lead developer items: {lead_items}")
                 if founder_items > 0:
-                    print(f"   🏛️  Founder items: {founder_items}")
+                    print(f"   Founder items: {founder_items}")
                 if signal_analysis["contributor_roles"]:
                     roles = signal_analysis["contributor_roles"]
                     role_items = [f"{role}({count})" for role, count in roles.items()]
                     role_summary = ", ".join(role_items)
-                    print(f"   👥 Contributor roles: {role_summary}")
+                    print(f"   Contributor roles: {role_summary}")
                 if signal_analysis["sources_with_signals"]:
                     sources = signal_analysis["sources_with_signals"].keys()
                     sources_summary = ", ".join(sources)
-                    print(f"   📊 Sources with signals: {sources_summary}")
+                    print(f"   Sources with signals: {sources_summary}")
 
-            success_msg = (
-                f"🎯 Raw sources aggregation completed! Saved to {output_path}"
-            )
+            success_msg = f"Raw sources aggregation completed! Saved to {output_path}"
 
         return success_msg
+
+    def generate_date_range(self, start_date: str, end_date: str) -> Iterator[str]:
+        """Generate a range of dates between start_date and end_date (inclusive)."""
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+
+        current = start
+        while current <= end:
+            yield current.strftime("%Y-%m-%d")
+            current += timedelta(days=1)
+
+    def get_period_chunks(
+        self, start_date: str, end_date: str, period: str
+    ) -> List[Tuple[str, str, str]]:
+        """
+        Generate period chunks (weekly/monthly) between start_date and end_date.
+        Returns list of tuples: (period_start, period_end, period_label)
+        """
+        chunks = []
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+
+        if period == "weekly":
+            # Start from the Monday of the week containing start_date
+            current = start - timedelta(days=start.weekday())
+
+            while current <= end:
+                week_end = current + timedelta(days=6)
+                # Don't go beyond the requested end date
+                actual_end = min(week_end, end)
+
+                # Only include if the week overlaps with our date range
+                if current <= end and actual_end >= start:
+                    period_start = max(current, start).strftime("%Y-%m-%d")
+                    period_end = actual_end.strftime("%Y-%m-%d")
+                    week_label = f"{current.strftime('%Y-W%U')}"
+                    chunks.append((period_start, period_end, week_label))
+
+                current = week_end + timedelta(days=1)
+
+        elif period == "monthly":
+            current = start.replace(day=1)  # Start of the month
+
+            while current <= end:
+                # Last day of the current month
+                last_day = monthrange(current.year, current.month)[1]
+                month_end = current.replace(day=last_day)
+
+                # Don't go beyond the requested end date
+                actual_end = min(month_end, end)
+
+                # Only include if the month overlaps with our date range
+                if current <= end and actual_end >= start:
+                    period_start = max(current, start).strftime("%Y-%m-%d")
+                    period_end = actual_end.strftime("%Y-%m-%d")
+                    month_label = current.strftime("%Y-%m")
+                    chunks.append((period_start, period_end, month_label))
+
+                # Move to next month
+                if current.month == 12:
+                    current = current.replace(year=current.year + 1, month=1)
+                else:
+                    current = current.replace(month=current.month + 1)
+
+        return chunks
+
+    def aggregate_period_data(
+        self, start_date: str, end_date: str, period_label: str
+    ) -> Dict[str, Any]:
+        """
+        Aggregate data across multiple daily files for a given period.
+        Returns combined aggregated data for the period.
+        """
+        print(
+            f"Aggregating data for period {period_label} ({start_date} to {end_date})"
+        )
+
+        # Initialize combined data structure
+        combined_data = {
+            "date_range": f"{start_date} to {end_date}",
+            "period": period_label,
+            "generated_at": datetime.now().isoformat(),
+            "sources": {},
+            "metadata": {
+                "total_items": 0,
+                "sources_processed": [],
+                "date_range": f"{start_date} to {end_date}",
+                "period_type": (
+                    period_label.split("-")[0] if "-" in period_label else "custom"
+                ),
+                "days_processed": 0,
+                "files_found": 0,
+                "files_missing": 0,
+            },
+        }
+
+        # Initialize source containers
+        for source_name, aggregated_key in self.source_mappings.items():
+            combined_data["sources"][aggregated_key] = []
+
+        # Add containers for special sources
+        combined_data["sources"]["github_activities"] = []
+        combined_data["sources"]["onchain_data"] = {}
+        combined_data["sources"]["documentation"] = []
+
+        # Process each date in the range
+        dates_processed = []
+        files_found = 0
+        files_missing = 0
+
+        for date in self.generate_date_range(start_date, end_date):
+            print(f"  Processing date: {date}")
+
+            # Check if aggregated data exists for this date
+            daily_file = self.get_daily_file_path(date)
+            if daily_file.exists():
+                try:
+                    with open(daily_file, "r", encoding="utf-8") as f:
+                        daily_data = json.load(f)
+
+                    files_found += 1
+                    dates_processed.append(date)
+
+                    # Merge sources data
+                    if "sources" in daily_data:
+                        for source_key, source_data in daily_data["sources"].items():
+                            if source_key in combined_data["sources"]:
+                                if isinstance(source_data, list):
+                                    combined_data["sources"][source_key].extend(
+                                        source_data
+                                    )
+                                elif (
+                                    isinstance(source_data, dict)
+                                    and source_key == "onchain_data"
+                                ):
+                                    # For onchain_data, merge dict keys
+                                    for key, value in source_data.items():
+                                        if (
+                                            key
+                                            not in combined_data["sources"][source_key]
+                                        ):
+                                            combined_data["sources"][source_key][
+                                                key
+                                            ] = value
+                                        else:
+                                            # If it's a list, extend it
+                                            if isinstance(
+                                                combined_data["sources"][source_key][
+                                                    key
+                                                ],
+                                                list,
+                                            ):
+                                                combined_data["sources"][source_key][
+                                                    key
+                                                ].extend(value)
+
+                    # Add to metadata
+                    if "metadata" in daily_data:
+                        daily_meta = daily_data["metadata"]
+                        if "total_items" in daily_meta:
+                            combined_data["metadata"]["total_items"] += daily_meta[
+                                "total_items"
+                            ]
+
+                        if "sources_processed" in daily_meta:
+                            for source_info in daily_meta["sources_processed"]:
+                                combined_data["metadata"]["sources_processed"].append(
+                                    f"{date}: {source_info}"
+                                )
+
+                except Exception as e:
+                    print(f"    Warning: Could not process {daily_file}: {e}")
+                    files_missing += 1
+            else:
+                print(f"    No data file found for {date}")
+                files_missing += 1
+
+        # Update metadata
+        combined_data["metadata"]["days_processed"] = len(dates_processed)
+        combined_data["metadata"]["files_found"] = files_found
+        combined_data["metadata"]["files_missing"] = files_missing
+        combined_data["metadata"]["dates_processed"] = dates_processed
+
+        # Apply signal enrichment to combined data if enabled
+        if self.signal_service.is_enabled():
+            print("  Applying signal enrichment to combined data...")
+            for source_key, source_data in combined_data["sources"].items():
+                if isinstance(source_data, list) and source_data:
+                    # Get appropriate date field for this source
+                    source_name = next(
+                        (k for k, v in self.source_mappings.items() if v == source_key),
+                        None,
+                    )
+                    if source_name:
+                        date_field = self._get_date_field_for_source(source_name)
+                        enriched_data = self.signal_service.enrich_items(
+                            source_data, date_field=date_field
+                        )
+                        sorted_data = self.signal_service.sort_by_signal_priority(
+                            enriched_data
+                        )
+                        combined_data["sources"][source_key] = sorted_data
+
+            # Analyze signal distribution for the period
+            signal_analysis = self.signal_service.analyze_signal_distribution(
+                combined_data["sources"]
+            )
+            combined_data["metadata"]["signal_analysis"] = signal_analysis
+
+        return combined_data
+
+    def save_period_data(
+        self, data: Dict[str, Any], period_label: str, period_type: str
+    ) -> Path:
+        """Save period-aggregated data to file with appropriate naming."""
+        filename = f"{period_label}-{period_type}.json"
+        output_path = self.output_dir / filename
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+        return output_path
+
+    def run_period_aggregation(
+        self, start_date: str, end_date: str, period: str = "monthly"
+    ) -> str:
+        """
+        Run period-based aggregation across a date range.
+
+        Args:
+            start_date: Start date in YYYY-MM-DD format
+            end_date: End date in YYYY-MM-DD format
+            period: Period type - 'daily', 'weekly', or 'monthly'
+
+        Returns:
+            Success message with summary
+        """
+        if period == "daily":
+            # For daily period, just process each date individually
+            results = []
+            for date in self.generate_date_range(start_date, end_date):
+                result = self.run_aggregation(date)
+                results.append(f"  {date}: {result}")
+
+            return (
+                f"Daily aggregation completed for {start_date} to {end_date}:\n"
+                + "\n".join(results)
+            )
+
+        # Get period chunks
+        chunks = self.get_period_chunks(start_date, end_date, period)
+
+        if not chunks:
+            return (
+                f"No valid {period} periods found for date range "
+                f"{start_date} to {end_date}"
+            )
+
+        print(f"Found {len(chunks)} {period} periods to process")
+
+        results = []
+        for period_start, period_end, period_label in chunks:
+            # Aggregate data for this period
+            period_data = self.aggregate_period_data(
+                period_start, period_end, period_label
+            )
+
+            # Save period data
+            output_path = self.save_period_data(period_data, period_label, period)
+
+            # Create summary
+            total_items = period_data["metadata"]["total_items"]
+            files_found = period_data["metadata"]["files_found"]
+            files_missing = period_data["metadata"]["files_missing"]
+
+            result_summary = (
+                f"{period_label}: {total_items} items from {files_found} files"
+            )
+            if files_missing > 0:
+                result_summary += f" ({files_missing} missing)"
+
+            results.append(result_summary)
+
+            print(f"  Completed {period_label}: {output_path}")
+            print(f"    Total items: {total_items}")
+            print(f"    Files processed: {files_found}")
+            if files_missing > 0:
+                print(f"    Files missing: {files_missing}")
+
+        return f"Period-based aggregation completed ({period}):\n" + "\n".join(
+            f"  {r}" for r in results
+        )
 
 
 def main():
@@ -656,6 +946,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Aggregate raw sources from Kaspa knowledge data"
     )
+
+    # Original single-date arguments
     parser.add_argument(
         "--date",
         help="Date to process (YYYY-MM-DD format). Defaults to today.",
@@ -667,11 +959,61 @@ def main():
         help="Force re-aggregation even if data already exists for this date",
     )
 
+    # New period-based arguments
+    parser.add_argument(
+        "--start-date",
+        help="Start date for period aggregation (YYYY-MM-DD format)",
+        default=None,
+    )
+    parser.add_argument(
+        "--end-date",
+        help="End date for period aggregation (YYYY-MM-DD format)",
+        default=None,
+    )
+    parser.add_argument(
+        "--period",
+        choices=["daily", "weekly", "monthly"],
+        default="monthly",
+        help="Period type for aggregation (daily, weekly, monthly). Default: monthly",
+    )
+
     args = parser.parse_args()
 
-    aggregator = SourcesAggregator(force=args.force)
-    result = aggregator.run_aggregation(args.date)
-    print(f"\n🎯 {result}")
+    # Validate arguments
+    if args.start_date or args.end_date:
+        # Period-based aggregation mode
+        if not args.start_date:
+            parser.error("--start-date is required when using period aggregation")
+        if not args.end_date:
+            parser.error("--end-date is required when using period aggregation")
+
+        # Validate date format
+        try:
+            start_datetime = datetime.strptime(args.start_date, "%Y-%m-%d")
+            end_datetime = datetime.strptime(args.end_date, "%Y-%m-%d")
+        except ValueError as e:
+            parser.error(f"Invalid date format: {e}")
+
+        # Validate date range
+        if start_datetime > end_datetime:
+            parser.error("--start-date must be before or equal to --end-date")
+
+        # Check for conflicting arguments
+        if args.date:
+            parser.error("Cannot use --date with --start-date/--end-date")
+
+        # Run period-based aggregation
+        aggregator = SourcesAggregator(force=args.force)
+        result = aggregator.run_period_aggregation(
+            args.start_date, args.end_date, args.period
+        )
+        print(f"\nPeriod aggregation completed:\n{result}")
+
+    else:
+        # Single-date aggregation mode (original behavior)
+        aggregator = SourcesAggregator(force=args.force)
+        result = aggregator.run_aggregation(args.date)
+        print(f"\n{result}")
 
 
 if __name__ == "__main__":
