@@ -229,13 +229,13 @@ python scripts/aggregate_sources.py --date=2025-07-02 --force
 The system provides real-time feedback during aggregation:
 
 ```
-📋 Loaded 3 high-signal contributors
+Loaded 3 high-signal contributors
 
-🎯 Signal Analysis Summary:
-   📈 High-signal items: 3/9
-   👑 Lead developer items: 0
-   👥 Contributor roles: core_developer(3)
-   📊 Sources with signals: github_activities
+Signal Analysis Summary:
+   High-signal items: 3/9
+   Lead developer items: 0
+   Contributor roles: core_developer(3)
+   Sources with signals: github_activities
 ```
 
 ## Backward Compatibility
