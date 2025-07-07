@@ -373,36 +373,16 @@ def run_full_pipeline(force=False, backfill=False, days_back=None):
         f"steps successful in {stage_execution_time:.2f}s"
     )
 
-    # Skip remaining stages if no new content was found AND not in backfill mode
+    # Continue processing to create placeholder files when no new content is found
     if not ingestion_found_new_content and not backfill:
-        pipeline_execution_time = time.time() - pipeline_start_time
-
-        print("\n🎉 PIPELINE COMPLETED - NO NEW CONTENT")
+        print("\n📊 NO NEW CONTENT FOUND - CONTINUING WITH PLACEHOLDER GENERATION")
         print("=" * 60)
         print("📊 No new content found during ingestion")
-        print("⚡ Skipping aggregation and AI processing stages")
-        print(f"✅ Successful steps: {success_count}/{total_steps}")
-        print(f"📊 Success rate: {(success_count/total_steps)*100:.1f}%")
-        print(f"⏱️  Total execution time: {pipeline_execution_time:.2f}s")
-
-        # Log pipeline completion
+        print("📝 Continuing to create placeholder files for consistency")
+        print("📋 Each stage will generate appropriate 'no content' placeholders")
         LOGGER.logger.info(
-            f"Pipeline completed with no new content. "
-            f"Success rate: {(success_count/total_steps)*100:.1f}% "
-            f"({success_count}/{total_steps} steps) in {pipeline_execution_time:.2f}s"
+            "No new content found during ingestion - continuing with placeholder files"
         )
-
-        # Generate pipeline report
-        generate_pipeline_report(
-            stage_results,
-            success_count,
-            total_steps,
-            pipeline_execution_time,
-            pipeline_errors,
-            "completed_no_content",
-        )
-
-        return True
 
     # In backfill mode, continue processing even if no new content was found
     if backfill and not ingestion_found_new_content:
