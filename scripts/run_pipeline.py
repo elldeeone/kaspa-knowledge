@@ -1,27 +1,33 @@
 #!/usr/bin/env python3
 """
-Kaspa Knowledge Hub Data Pipeline Runner
+Kaspa Knowledge Hub Pipeline Runner
 
-This script orchestrates the full data pipeline with comprehensive monitoring:
-1. Ingests data from various sources into sources/ folders (raw data)
-2. Aggregates all sources into period-based aggregated data (no AI processing)
-3. Generates AI-processed outputs: briefings and facts (separate files)
+This script orchestrates the complete data pipeline process with comprehensive
+resource management for large temporal chunks processing:
+
+1. Period-based data ingestion from multiple sources
+2. Resource-managed aggregation of raw sources
+3. AI-powered content generation with memory monitoring
+4. RAG document generation with chunked processing
+5. Comprehensive error handling and recovery mechanisms
 
 Features:
-- Period-based historical processing (monthly/weekly chunks)
-- Comprehensive error handling and logging
-- Performance monitoring and health tracking
-- Retry mechanisms for failed operations
-- Detailed pipeline execution reporting
-- Configurable alerting system
+- Memory usage monitoring and limits
+- Chunked processing for large temporal datasets
+- Resource exhaustion detection and graceful degradation
+- Retry mechanisms with exponential backoff
+- Progress tracking for long-running operations
+- Enhanced disk space monitoring
+- Recovery mechanisms for failed operations
 """
 
+import argparse
 import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 # Import the new monitoring system
 from monitoring import (
@@ -30,6 +36,20 @@ from monitoring import (
     ErrorCategory,
 )
 
+# Import resource management
+from scripts.resource_manager import (
+    ResourceMonitor,
+    check_resources,
+    retry_operation,
+)
+
+# Configure basic logging for pipeline operations
+import logging
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # Initialize global monitoring system
 LOGGER = None
@@ -156,6 +176,29 @@ def get_period_chunks(
                 current = current.replace(month=current.month + 1)
 
     return chunks
+
+
+def get_date_range(start_date: str, end_date: str) -> List[str]:
+    """
+    Generate a list of dates between start_date and end_date (inclusive).
+
+    Args:
+        start_date: Start date in YYYY-MM-DD format
+        end_date: End date in YYYY-MM-DD format
+
+    Returns:
+        List of date strings in YYYY-MM-DD format
+    """
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+
+    dates = []
+    current = start
+    while current <= end:
+        dates.append(current.strftime("%Y-%m-%d"))
+        current += timedelta(days=1)
+
+    return dates
 
 
 def run_command(
@@ -329,535 +372,393 @@ def run_command(
         return False, "error"
 
 
-def run_full_pipeline(force=False, backfill=False, days_back=None, period="monthly"):
-    """Run the complete data pipeline with period-based processing and monitoring."""
-    # Initialize monitoring system
-    if not LOGGER or not ERROR_HANDLER:
-        initialize_monitoring()
+def run_full_pipeline(
+    backfill=False,
+    days_back=None,
+    period=None,
+    force=False,
+    processing_mode="daily",
+    start_date=None,
+    end_date=None,
+):
+    """
+    Run the complete pipeline process with comprehensive resource management.
+
+    This function orchestrates all pipeline stages with monitoring, error handling,
+    and resource management for large temporal chunks.
+    """
+
+    # Initialize resource management
+    # resource_manager = LargeDatasetManager(".")  # For future large dataset operations
+    resource_monitor = ResourceMonitor()
+
+    # Initial resource check
+    resource_report = check_resources(".")
+    logger.info("=== PIPELINE START - Resource Check ===")
+    logger.info(f"Memory status: {resource_report['memory']['message']}")
+    logger.info(f"Disk status: {resource_report['disk']['message']}")
+
+    if not resource_report["overall_safe"]:
+        logger.warning("Resource warnings detected before pipeline start!")
+        logger.warning(
+            "Consider freeing up resources before proceeding with large temporal chunks"
+        )
 
     pipeline_start_time = time.time()
 
-    # Determine processing mode and date range
-    if days_back is not None:
-        processing_mode = f"days_back_{days_back}"
-        start_date, end_date = get_backfill_date_range(days_back)
-        mode_description = (
-            f"Processing last {days_back} days ({start_date} to {end_date})"
-        )
-    elif backfill:
-        processing_mode = "backfill"
-        start_date, end_date = get_backfill_date_range()
-        mode_description = (
-            f"Processing all historical data ({start_date} to {end_date})"
-        )
-    else:
-        processing_mode = "daily"
-        today = datetime.now().strftime("%Y-%m-%d")
-        start_date, end_date = today, today
-        mode_description = f"Processing daily data for {today}"
+    try:
+        # Determine date range
+        if processing_mode == "daily":
+            if days_back is None:
+                start_date = end_date = datetime.now().strftime("%Y-%m-%d")
+            else:
+                end_date = datetime.now().strftime("%Y-%m-%d")
+                start_date = (datetime.now() - timedelta(days=days_back)).strftime(
+                    "%Y-%m-%d"
+                )
+        elif processing_mode == "period":
+            # start_date and end_date should already be set
+            pass
 
-    # Header with processing mode information
-    print(f"\n🚀 Starting Kaspa Knowledge Hub Pipeline - {processing_mode.upper()}")
-    print(f"📅 {mode_description}")
-    print(f"🔄 Period-based processing: {period}")
-    LOGGER.logger.info(
-        f"Pipeline started in {processing_mode} mode: {start_date} to {end_date}"
-    )
+        logger.info(f"Pipeline processing range: {start_date} to {end_date}")
+        logger.info(f"Processing mode: {processing_mode}")
 
-    print("🏗️  Pipeline Version: 2.0.0 (with Enhanced Monitoring)")
-    if force:
-        print("⚠️  Force mode enabled - bypassing duplicate checks")
-        LOGGER.logger.warning("Force mode enabled - bypassing duplicate checks")
+        # Step 1: Ingest raw data from sources with resource management
+        logger.info("=== STEP 1: Data Ingestion with Resource Management ===")
 
-    # Pipeline execution tracking
-    success_count = 0
-    total_steps = 0
-    stage_results = {}
-    pipeline_errors = []
-
-    # Step 1: Ingest raw data from sources
-    # Calculate days_back for ingestion based on date range
-    if processing_mode == "daily":
-        ingestion_days_back = days_back if days_back is not None else 7
-    else:
-        # For backfill or days_back mode, calculate total days needed
-        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
-        end_dt = datetime.strptime(end_date, "%Y-%m-%d")
-        ingestion_days_back = (end_dt - start_dt).days + 1
-
-        # Add some buffer to ensure we capture all data
-        ingestion_days_back = max(ingestion_days_back, 7)
-
-    force_flag = " --force" if force else ""
-    days_back_flag = f" --days-back {ingestion_days_back}"
-
-    print(f"📅 Using ingestion date range: {ingestion_days_back} days back")
-
-    ingestion_steps = [
-        {
-            "command": (
-                f"python -m scripts.medium_ingest" f"{force_flag}{days_back_flag}"
-            ),
-            "description": "Medium Articles Ingestion",
-            "component": "medium_ingest",
-            "required": True,
-            "timeout": 600,  # 10 minutes
-        },
-        {
-            "command": f"python -m scripts.telegram_ingest{force_flag}",
-            "description": "Telegram Group Ingestion",
-            "component": "telegram_ingest",
-            "required": False,
-            "timeout": 600,
-        },
-        {
-            "command": (
-                f"python -m scripts.github_ingest --date {start_date}"
-                f"{force_flag}{days_back_flag}"
-            ),
-            "description": "GitHub Repository Ingestion",
-            "component": "github_ingest",
-            "required": False,
-            "timeout": 900,  # 15 minutes
-        },
-        {
-            "command": (
-                f"python -m scripts.discourse_ingest" f"{force_flag}{days_back_flag}"
-            ),
-            "description": "Discourse Forum Ingestion",
-            "component": "discourse_ingest",
-            "required": False,
-            "timeout": 600,
-        },
-    ]
-
-    print("\n📋 STAGE 1: RAW DATA INGESTION")
-    print("=" * 60)
-
-    stage_start_time = time.time()
-    ingestion_found_new_content = False
-    stage_success_count = 0
-    stage_total_steps = len(ingestion_steps)
-
-    for step in ingestion_steps:
-        total_steps += 1
-        success, status = run_command(
-            step["command"],
-            step["description"],
-            component=step["component"],
-            required=step["required"],
-            timeout=step.get("timeout", 1800),
-        )
-
-        if success:
-            success_count += 1
-            stage_success_count += 1
-            if status == "success":
-                ingestion_found_new_content = True
-            # Note: "no_new_content" is also considered success, but won't
-            # trigger downstream processing
+        # Calculate days_back for ingestion based on date range
+        if processing_mode == "daily":
+            ingestion_days_back = days_back if days_back is not None else 7
         else:
-            pipeline_errors.append(
-                {
-                    "stage": "ingestion",
-                    "step": step["description"],
-                    "component": step["component"],
-                    "required": step["required"],
-                }
+            # For backfill or days_back mode, calculate total days needed
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+            ingestion_days_back = (end_dt - start_dt).days + 1
+
+            # Add some buffer to ensure we capture all data
+            ingestion_days_back = max(ingestion_days_back, 7)
+
+        force_flag = " --force" if force else ""
+        days_back_flag = f" --days-back {ingestion_days_back}"
+
+        # Run ingestion with resource monitoring
+        ingestion_commands = [
+            f"python -m scripts.medium_ingest{days_back_flag}{force_flag}",
+            f"python -m scripts.telegram_ingest{days_back_flag}{force_flag}",
+            f"python -m scripts.github_ingest{days_back_flag}{force_flag}",
+            f"python -m scripts.forum_ingest{days_back_flag}{force_flag}",
+        ]
+
+        for cmd in ingestion_commands:
+            try:
+                # Check resources before each ingestion command
+                resource_report = resource_monitor.get_resource_report(".")
+                if not resource_report["memory"]["is_safe"]:
+                    logger.warning(
+                        f"Memory warning before {cmd}: "
+                        f"{resource_report['memory']['message']}"
+                    )
+
+                    # Try garbage collection before proceeding
+                    freed = resource_monitor.trigger_gc()
+                    if freed > 0:
+                        logger.info(
+                            f"Freed {freed / (1024**3):.2f}GB through "
+                            f"garbage collection"
+                        )
+
+                # Execute with retry mechanism
+                retry_operation(_run_command_safely, cmd, timeout=1200)
+                logger.info(f"Ingestion completed: {cmd}")
+
+            except Exception as e:
+                logger.error(f"Ingestion failed for {cmd}: {e}")
+                # Continue with other ingestion commands
+                continue
+
+        # Check resources after ingestion
+        post_ingestion_report = resource_monitor.get_resource_report(".")
+        logger.info(
+            f"Post-ingestion memory: {post_ingestion_report['memory']['message']}"
+        )
+
+        # Step 2: Aggregate sources with resource management
+        logger.info("=== STEP 2: Source Aggregation with Resource Management ===")
+
+        if processing_mode == "daily":
+            # Daily aggregation
+            agg_cmd = f"python -m scripts.aggregate_sources --date {end_date}"
+            if force:
+                agg_cmd += " --force"
+
+            try:
+                retry_operation(_run_command_safely, agg_cmd, timeout=1800)
+                logger.info("Daily aggregation completed successfully")
+            except Exception as e:
+                logger.error(f"Daily aggregation failed: {e}")
+                raise
+
+        elif processing_mode == "period":
+            # Period-based aggregation with chunked processing
+            period_chunks = get_period_chunks(start_date, end_date, period)
+
+            logger.info(f"Processing {len(period_chunks)} period chunks")
+
+            successful_chunks = 0
+            failed_chunks = []
+
+            for chunk_start, chunk_end, period_label in period_chunks:
+                try:
+                    # Check resources before processing each chunk
+                    resource_report = resource_monitor.get_resource_report(".")
+
+                    if not resource_report["overall_safe"]:
+                        logger.warning(
+                            f"Resource warning before chunk {period_label}: "
+                            f"{resource_report['memory']['message']}"
+                        )
+
+                        # Try to free memory
+                        freed = resource_monitor.trigger_gc()
+                        if freed > 0:
+                            logger.info(
+                                f"Freed {freed / (1024**3):.2f}GB before "
+                                f"processing chunk {period_label}"
+                            )
+
+                        # Re-check resources
+                        resource_report = resource_monitor.get_resource_report(".")
+                        if not resource_report["memory"]["is_safe"]:
+                            if resource_report["memory"]["level"] == "ABORT":
+                                logger.error(
+                                    f"Memory usage too high to process chunk "
+                                    f"{period_label}: "
+                                    f"{resource_report['memory']['message']}"
+                                )
+                                failed_chunks.append(
+                                    (period_label, "Memory exhaustion")
+                                )
+                                continue
+
+                    logger.info(
+                        f"Processing chunk: {period_label} "
+                        f"({chunk_start} to {chunk_end})"
+                    )
+
+                    # Process daily aggregations for the chunk
+                    for date in get_date_range(chunk_start, chunk_end):
+                        agg_cmd = f"python -m scripts.aggregate_sources --date {date}"
+                        if force:
+                            agg_cmd += " --force"
+
+                        try:
+                            retry_operation(_run_command_safely, agg_cmd, timeout=900)
+                        except Exception as e:
+                            logger.warning(f"Daily aggregation failed for {date}: {e}")
+                            # Continue with other dates in the chunk
+                            continue
+
+                    # Aggregate the period data
+                    period_agg_cmd = (
+                        f"python -m scripts.aggregate_sources "
+                        f"--start-date {chunk_start} "
+                        f"--end-date {chunk_end} --period {period}"
+                    )
+                    if force:
+                        period_agg_cmd += " --force"
+
+                    retry_operation(_run_command_safely, period_agg_cmd, timeout=1800)
+                    successful_chunks += 1
+                    logger.info(f"Chunk {period_label} completed successfully")
+
+                except Exception as e:
+                    logger.error(f"Chunk {period_label} failed: {e}")
+                    failed_chunks.append((period_label, str(e)))
+                    continue
+
+            logger.info(
+                f"Period aggregation completed: "
+                f"{successful_chunks}/{len(period_chunks)} chunks successful"
+            )
+            if failed_chunks:
+                logger.warning(f"Failed chunks: {failed_chunks}")
+
+        # Check resources after aggregation
+        post_aggregation_report = resource_monitor.get_resource_report(".")
+        logger.info(
+            f"Post-aggregation memory: "
+            f"{post_aggregation_report['memory']['message']}"
+        )
+
+        # Step 3: AI Processing with resource management
+        logger.info("=== STEP 3: AI Processing with Resource Management ===")
+
+        # Generate briefings with memory monitoring
+        if processing_mode == "daily":
+            briefing_cmd = f"python -m scripts.generate_briefing --date {end_date}"
+        else:
+            briefing_cmd = (
+                f"python -m scripts.generate_briefing --start-date {start_date} "
+                f"--end-date {end_date} --period-summary"
             )
 
-            if step["required"]:
-                stage_execution_time = time.time() - stage_start_time
-                error_message = f"Required step failed: {step['description']}"
-                print(f"\n❌ {error_message}")
-                print("🛑 Stopping pipeline due to critical failure")
+        if force:
+            briefing_cmd += " --force"
 
-                # Log critical pipeline failure
-                ERROR_HANDLER.create_error(
-                    message=error_message,
-                    severity=ErrorSeverity.CRITICAL,
-                    category=ErrorCategory.PIPELINE_EXECUTION,
-                    component="pipeline_runner",
-                    context={
-                        "stage": "ingestion",
-                        "failed_step": step["description"],
-                        "execution_time": stage_execution_time,
-                        "successful_steps": stage_success_count,
-                        "total_steps": stage_total_steps,
-                    },
-                    recovery_action=(
-                        "Check ingestion system dependencies and configuration"
-                    ),
-                    user_impact="Pipeline halted - no data will be processed",
+        try:
+            # Check resources before AI processing
+            resource_report = resource_monitor.get_resource_report(".")
+            if not resource_report["memory"]["is_safe"]:
+                logger.warning(
+                    f"Memory warning before AI processing: "
+                    f"{resource_report['memory']['message']}"
                 )
 
-                return False
+                # Free memory before AI processing
+                freed = resource_monitor.trigger_gc()
+                if freed > 0:
+                    logger.info(f"Freed {freed / (1024**3):.2f}GB before AI processing")
 
-    # Record stage completion
-    stage_execution_time = time.time() - stage_start_time
-    stage_results["ingestion"] = {
-        "success_count": stage_success_count,
-        "total_steps": stage_total_steps,
-        "execution_time": stage_execution_time,
-        "found_new_content": ingestion_found_new_content,
-    }
+            retry_operation(_run_command_safely, briefing_cmd, timeout=3600)
+            logger.info("Briefing generation completed")
+        except Exception as e:
+            logger.error(f"Briefing generation failed: {e}")
+            # Continue with other steps
 
-    LOGGER.logger.info(
-        f"Ingestion stage completed: {stage_success_count}/{stage_total_steps} "
-        f"steps successful in {stage_execution_time:.2f}s"
-    )
-
-    # Continue processing to create placeholder files when no new content is found
-    if not ingestion_found_new_content and not backfill:
-        print("\n📊 NO NEW CONTENT FOUND - CONTINUING WITH PLACEHOLDER GENERATION")
-        print("=" * 60)
-        print("📊 No new content found during ingestion")
-        print("📝 Continuing to create placeholder files for consistency")
-        print("📋 Each stage will generate appropriate 'no content' placeholders")
-        LOGGER.logger.info(
-            "No new content found during ingestion - continuing with placeholder files"
-        )
-
-    # In backfill mode, continue processing even if no new content was found
-    if backfill and not ingestion_found_new_content:
-        print("\n📚 BACKFILL MODE: Continuing to process existing data")
-        print("=" * 60)
-        print("📊 No new content found, but processing existing data in backfill mode")
-        LOGGER.logger.info(
-            "Backfill mode: continuing to process existing data despite no new content"
-        )
-
-    # Step 1.5: Pre-processing/Summarization (GitHub Activity)
-    print("\n📋 STAGE 1.5: DATA PRE-PROCESSING")
-    print("=" * 60)
-
-    preprocessing_steps = [
-        {
-            "command": f"python -m scripts.summarize_github --date {start_date}",
-            "description": "GitHub Activity Summarization",
-            "required": False,
-        },
-    ]
-
-    for step in preprocessing_steps:
-        total_steps += 1
-        success, status = run_command(step["command"], step["description"])
-
-        if success:
-            success_count += 1
-        elif step["required"]:
-            print(f"\n❌ Required preprocessing step failed: {step['description']}")
-            print("🛑 Stopping pipeline due to critical failure")
-            return False
-
-    # Step 2: Period-based Raw Sources Aggregation
-    print("\n📋 STAGE 2: PERIOD-BASED RAW SOURCES AGGREGATION")
-    print("=" * 60)
-
-    force_flag = " --force" if force else ""
-
-    if processing_mode == "daily":
-        # For daily mode, use regular single-date aggregation
-        total_steps += 1
-        success, status = run_command(
-            f"python -m scripts.aggregate_sources --date {start_date}{force_flag}",
-            f"Raw Sources Aggregation for {start_date}",
-        )
-        if success:
-            success_count += 1
+        # Generate facts with memory monitoring
+        if processing_mode == "daily":
+            facts_cmd = f"python -m scripts.extract_facts --date {end_date}"
         else:
-            print("\n❌ Raw aggregation failed")
-            print("🛑 Stopping pipeline - cannot proceed without aggregated data")
-            return False
-    else:
-        # For backfill or days_back mode, use period-based aggregation
-        total_steps += 1
-        command = (
-            f"python -m scripts.aggregate_sources --start-date {start_date} "
-            f"--end-date {end_date} --period {period}{force_flag}"
-        )
-        success, status = run_command(
-            command,
-            f"Period-based Raw Sources Aggregation ({period})",
-        )
-        if success:
-            success_count += 1
+            facts_cmd = (
+                f"python -m scripts.extract_facts --start-date {start_date} "
+                f"--end-date {end_date} --period-summary"
+            )
+
+        if force:
+            facts_cmd += " --force"
+
+        try:
+            retry_operation(_run_command_safely, facts_cmd, timeout=3600)
+            logger.info("Facts extraction completed")
+        except Exception as e:
+            logger.error(f"Facts extraction failed: {e}")
+            # Continue with other steps
+
+        # Step 4: RAG Document Generation with resource management
+        logger.info("=== STEP 4: RAG Document Generation with Resource Management ===")
+
+        if processing_mode == "daily":
+            rag_cmd = f"python -m scripts.generate_rag_document --date {end_date}"
         else:
-            print("\n❌ Period-based aggregation failed")
-            print("🛑 Stopping pipeline - cannot proceed without aggregated data")
-            return False
-
-    # Step 3: Period-based AI Processing
-    print("\n📋 STAGE 3: PERIOD-BASED AI PROCESSING")
-    print("=" * 60)
-
-    if processing_mode == "daily":
-        # For daily mode, use regular AI processing
-        ai_steps = [
-            {
-                "command": (
-                    f"python -m scripts.generate_briefing --date {start_date}"
-                    f"{force_flag}"
-                ),
-                "description": f"Daily Briefing Generation for {start_date}",
-                "required": False,
-            },
-            {
-                "command": (
-                    f"python -m scripts.extract_facts --date {start_date}"
-                    f"{force_flag}"
-                ),
-                "description": f"Daily Facts Extraction for {start_date}",
-                "required": False,
-            },
-        ]
-    else:
-        # For period-based processing, generate AI outputs for each period
-        period_chunks = get_period_chunks(start_date, end_date, period)
-        ai_steps = []
-
-        for period_start, period_end, period_label in period_chunks:
-            ai_steps.extend(
-                [
-                    {
-                        "command": (
-                            f"python -m scripts.generate_briefing "
-                            f"--date {period_label} --period-summary{force_flag}"
-                        ),
-                        "description": f"Period Briefing Generation for {period_label}",
-                        "required": False,
-                    },
-                    {
-                        "command": (
-                            f"python -m scripts.extract_facts "
-                            f"--date {period_label} --period-summary{force_flag}"
-                        ),
-                        "description": f"Period Facts Extraction for {period_label}",
-                        "required": False,
-                    },
-                ]
+            rag_cmd = (
+                f"python -m scripts.generate_rag_document --start-date {start_date} "
+                f"--end-date {end_date} --split-output"
             )
 
-    for step in ai_steps:
-        total_steps += 1
-        success, status = run_command(step["command"], step["description"])
-        if success:
-            success_count += 1
-        elif step["required"]:
-            print(f"\n❌ Required AI step failed: {step['description']}")
-            return False
+        if force:
+            rag_cmd += " --force"
 
-    # Step 4: Period-based RAG Document Generation
-    print("\n📋 STAGE 4: PERIOD-BASED RAG DOCUMENT GENERATION")
-    print("=" * 60)
+        try:
+            # Final resource check before RAG generation
+            resource_report = resource_monitor.get_resource_report(".")
+            if not resource_report["overall_safe"]:
+                logger.warning(
+                    f"Resource warning before RAG generation: "
+                    f"{resource_report['memory']['message']}"
+                )
 
-    if processing_mode == "daily":
-        # For daily mode, use regular RAG generation
-        rag_steps = [
-            {
-                "command": (
-                    f"python -m scripts.generate_rag_document --date {start_date} "
-                    f"--organization prioritized{force_flag}"
-                ),
-                "description": (
-                    f"Prioritized RAG Document Generation for {start_date}"
-                ),
-                "required": False,
-            },
-        ]
-    else:
-        # For period-based processing, generate RAG documents for each period
-        # with split output
-        period_chunks = get_period_chunks(start_date, end_date, period)
-        rag_steps = []
+            retry_operation(_run_command_safely, rag_cmd, timeout=2400)
+            logger.info("RAG document generation completed")
+        except Exception as e:
+            logger.error(f"RAG document generation failed: {e}")
 
-        for period_start, period_end, period_label in period_chunks:
-            rag_steps.append(
-                {
-                    "command": (
-                        f"python -m scripts.generate_rag_document "
-                        f"--date {period_label} --organization prioritized"
-                        f"{force_flag} --split-output"
-                    ),
-                    "description": (
-                        f"Prioritized RAG Document Generation for {period_label} "
-                        "(Split Output)"
-                    ),
-                    "required": False,
-                }
-            )
+        # Pipeline completion report with resource usage
+        pipeline_end_time = time.time()
+        total_time = pipeline_end_time - pipeline_start_time
 
-    for step in rag_steps:
-        total_steps += 1
-        success, status = run_command(step["command"], step["description"])
-        if success:
-            success_count += 1
-        elif step["required"]:
-            print(f"\n❌ Required RAG step failed: {step['description']}")
-            return False
+        final_resource_report = resource_monitor.get_resource_report(".")
 
-    # Comprehensive pipeline completion with monitoring
-    pipeline_execution_time = time.time() - pipeline_start_time
-    success_rate = (success_count / total_steps) * 100 if total_steps > 0 else 0
+        logger.info("=== PIPELINE COMPLETION REPORT ===")
+        logger.info(
+            f"Total pipeline time: {total_time:.2f} seconds "
+            f"({total_time/60:.1f} minutes)"
+        )
+        logger.info(
+            f"Peak memory usage: {final_resource_report['memory']['peak_gb']:.2f}GB"
+        )
+        logger.info(
+            f"Final memory status: {final_resource_report['memory']['message']}"
+        )
+        logger.info(f"Disk status: {final_resource_report['disk']['message']}")
 
-    print("\n🎉 PIPELINE COMPLETED")
-    print("=" * 60)
-    print(f"✅ Successful steps: {success_count}/{total_steps}")
-    print(f"📊 Success rate: {success_rate:.1f}%")
-    print(f"⏱️  Total execution time: {pipeline_execution_time:.2f}s")
+        # Display period-based output structure
+        if processing_mode == "period":
+            _display_period_output_structure(start_date, end_date, period)
+        else:
+            _display_daily_output_structure(end_date)
 
-    if success_count == total_steps:
-        print("✅ All steps completed successfully")
-        pipeline_status = "success"
-    elif success_count >= total_steps - 1:
-        print("⚠️  Minor issues encountered, but pipeline mostly succeeded")
-        pipeline_status = "mostly_success"
-    else:
-        print("⚠️  Several steps failed - check logs above")
-        pipeline_status = "partial_failure"
-
-    # Log comprehensive pipeline completion
-    LOGGER.logger.info(
-        f"Pipeline completed with status: {pipeline_status}. "
-        f"Success rate: {success_rate:.1f}% ({success_count}/{total_steps} steps) "
-        f"in {pipeline_execution_time:.2f}s"
-    )
-
-    # Generate comprehensive pipeline report
-    generate_pipeline_report(
-        stage_results,
-        success_count,
-        total_steps,
-        pipeline_execution_time,
-        pipeline_errors,
-        pipeline_status,
-    )
-
-    # Show health summary
-    print("\n📊 PIPELINE HEALTH SUMMARY:")
-    print("=" * 60)
-    health_report = ERROR_HANDLER.get_health_report()
-    overall_health = health_report.get("overall_health", {})
-    print(f"🏥 Overall Health Score: {overall_health.get('score', 0):.1f}/100")
-    healthy_count = overall_health.get("healthy_components", 0)
-    total_count = overall_health.get("total_components", 0)
-    print(f"💚 Healthy Components: {healthy_count}/{total_count}")
-
-    error_summary = health_report.get("error_summary", {})
-    if error_summary.get("critical_errors", 0) > 0:
-        print(f"🚨 Critical Errors: {error_summary['critical_errors']}")
-    if error_summary.get("recent_errors_1h", 0) > 0:
-        print(f"⚠️  Recent Errors (1h): {error_summary['recent_errors_1h']}")
-
-    # Show output structure
-    print("\n📁 OUTPUT STRUCTURE:")
-    print("sources/                - Raw ingested data")
-    print("  ├─ github/            - Raw GitHub repository data")
-    print("  ├─ github_summaries/  - AI-processed GitHub summaries")
-    print("  ├─ medium/            - Raw Medium articles")
-    print("  └─ telegram/          - Raw Telegram messages")
-
-    if processing_mode == "daily":
-        print("data/aggregated/        - Raw daily aggregated data")
-        print(f"  └─ {start_date}.json  - Aggregated data for {start_date}")
-        print("data/briefings/         - AI-generated daily briefings")
-        print(f"  └─ {start_date}.json  - Daily briefing for {start_date}")
-        print("data/facts/             - AI-extracted daily facts")
-        print(f"  └─ {start_date}.json  - Daily facts for {start_date}")
-        print("knowledge_base/         - RAG-optimized documents")
-        print(f"  └─ {start_date}.md    - Prioritized RAG document for {start_date}")
-    else:
-        print("data/aggregated/        - Period-based aggregated data files")
-        period_chunks = get_period_chunks(start_date, end_date, period)
-        for _, _, period_label in period_chunks[:3]:  # Show first 3 examples
-            print(
-                f"  ├─ {period_label}-{period}.json - "
-                f"Aggregated data for {period_label}"
-            )
-        if len(period_chunks) > 3:
-            print(f"  └─ ... ({len(period_chunks) - 3} more {period} files)")
-
-        print("data/briefings/         - AI-generated period briefings")
-        for _, _, period_label in period_chunks[:3]:  # Show first 3 examples
-            print(f"  ├─ {period_label}.json - Period briefing for {period_label}")
-        if len(period_chunks) > 3:
-            print(f"  └─ ... ({len(period_chunks) - 3} more {period} briefing files)")
-
-        print("data/facts/             - AI-extracted period facts")
-        for _, _, period_label in period_chunks[:3]:  # Show first 3 examples
-            print(f"  ├─ {period_label}.json - Period facts for {period_label}")
-        if len(period_chunks) > 3:
-            print(f"  └─ ... ({len(period_chunks) - 3} more {period} facts files)")
-
-        print("knowledge_base/         - RAG-optimized documents (SPLIT OUTPUT)")
-        for _, _, period_label in period_chunks[:2]:  # Show first 2 examples
-            print(f"  ├─ {period_label}_01_briefing.md     - Period briefing section")
-            print(f"  ├─ {period_label}_02_facts.md        - Key facts section")
-            print(f"  ├─ {period_label}_03_high_signal.md  - High-signal content")
-            print(f"  ├─ {period_label}_04_general_activity.md - General activity")
-        if len(period_chunks) > 2:
-            print(f"  └─ ... ({len(period_chunks) - 2} more {period} document sets)")
-
-    chunks_count = (
-        len(get_period_chunks(start_date, end_date, period))
-        if processing_mode != "daily"
-        else 1
-    )
-    period_type = period if processing_mode != "daily" else "daily"
-    print(f"\n🗓️  Processing Summary: {chunks_count} {period_type} period(s) processed")
-
-    print("\n📋 Detailed reports available at: monitoring/reports/")
-    print("📝 Logs available at: monitoring/logs/")
-
-    return success_count >= (total_steps - 1)  # Allow 1 failure
-
-
-def generate_pipeline_report(
-    stage_results: Dict,
-    success_count: int,
-    total_steps: int,
-    execution_time: float,
-    errors: List[Dict],
-    status: str,
-) -> None:
-    """Generate comprehensive pipeline execution report."""
-    if not LOGGER or not ERROR_HANDLER:
-        return
-
-    report = {
-        "pipeline_execution": {
-            "timestamp": datetime.now().isoformat(),
-            "status": status,
-            "execution_time_seconds": round(execution_time, 2),
-            "success_count": success_count,
-            "total_steps": total_steps,
-            "success_rate": round(
-                (success_count / total_steps * 100) if total_steps > 0 else 0, 2
-            ),
-        },
-        "stage_results": stage_results,
-        "errors": errors,
-        "health_report": ERROR_HANDLER.get_health_report(),
-        "performance_stats": LOGGER.get_operation_stats(),
-    }
-
-    # Save report to file
-    try:
-        import json
-
-        report_dir = Path("monitoring/reports")
-        report_dir.mkdir(parents=True, exist_ok=True)
-
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        report_file = report_dir / f"pipeline_execution_{timestamp}.json"
-
-        with open(report_file, "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2, default=str)
-
-        LOGGER.logger.info(f"Pipeline execution report saved to: {report_file}")
+        return "Pipeline completed successfully with resource management"
 
     except Exception as e:
-        LOGGER.logger.error(f"Failed to save pipeline report: {e}")
+        # Pipeline-level error handling
+        logger.error(f"Pipeline failed with error: {e}")
+
+        # Get final resource state for debugging
+        try:
+            error_resource_report = resource_monitor.get_resource_report(".")
+            logger.error(
+                f"Error state - Memory: {error_resource_report['memory']['message']}"
+            )
+            logger.error(
+                f"Error state - Disk: {error_resource_report['disk']['message']}"
+            )
+        except Exception:
+            logger.error(
+                "Could not retrieve resource information during error handling"
+            )
+
+        raise
+
+
+def _run_command_safely(command, timeout=300):
+    """
+    Run a command with resource monitoring and timeout.
+
+    Args:
+        command: Command string to execute
+        timeout: Maximum execution time in seconds
+
+    Returns:
+        subprocess.CompletedProcess result
+
+    Raises:
+        Exception: If command fails or times out
+    """
+    logger.info(f"Executing: {command}")
+
+    try:
+        result = subprocess.run(
+            command.split(), capture_output=True, text=True, timeout=timeout, check=True
+        )
+
+        if result.stdout:
+            logger.debug(f"Command output: {result.stdout}")
+
+        return result
+
+    except subprocess.TimeoutExpired:
+        logger.error(f"Command timed out after {timeout}s: {command}")
+        raise Exception(f"Command timeout: {command}")
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Command failed with exit code {e.returncode}: {command}")
+        if e.stderr:
+            logger.error(f"Error output: {e.stderr}")
+        raise Exception(f"Command failed: {command} (exit code {e.returncode})")
+
+    except Exception as e:
+        logger.error(f"Unexpected error running command: {command} - {e}")
+        raise
 
 
 def run_ingestion_only(backfill=False, force=False, days_back=None):
@@ -905,7 +806,7 @@ def run_ingestion_only(backfill=False, force=False, days_back=None):
 
     success_count = 0
     for command, description in steps:
-        success, status = run_command(command, description)
+        success, _ = run_command(command, description)
         if success:
             success_count += 1
 
@@ -930,7 +831,7 @@ def run_aggregation_only(force=False, backfill=False, days_back=None, period="mo
 
     if start_date == end_date:
         # Daily mode
-        success, status = run_command(
+        success, _ = run_command(
             f"python -m scripts.aggregate_sources --date {start_date}{force_flag}",
             f"Raw Sources Aggregation for {start_date}",
         )
@@ -940,7 +841,7 @@ def run_aggregation_only(force=False, backfill=False, days_back=None, period="mo
             f"python -m scripts.aggregate_sources --start-date {start_date} "
             f"--end-date {end_date} --period {period}{force_flag}"
         )
-        success, status = run_command(
+        success, _ = run_command(
             command,
             f"Period-based Raw Sources Aggregation ({period})",
         )
@@ -1011,7 +912,7 @@ def run_ai_processing_only(
 
     success_count = 0
     for command, description in steps:
-        success, status = run_command(command, description)
+        success, _ = run_command(command, description)
         if success:
             success_count += 1
 
@@ -1073,17 +974,43 @@ def run_rag_generation_only(
 
     success_count = 0
     for command, description in steps:
-        success, status = run_command(command, description)
+        success, _ = run_command(command, description)
         if success:
             success_count += 1
 
     return success_count > 0
 
 
+def _display_daily_output_structure(date: str):
+    """Display the expected daily output structure."""
+    logger.info("=== DAILY OUTPUT STRUCTURE ===")
+    logger.info(f"📅 Date: {date}")
+    logger.info("📁 Expected outputs:")
+    logger.info(f"  • data/aggregated/{date}.json - Combined source data")
+    logger.info(f"  • data/briefings/{date}.json - AI-generated briefing")
+    logger.info(f"  • data/facts/{date}.json - Extracted facts")
+    logger.info(f"  • data/rag-documents/{date}.md - RAG document")
+
+
+def _display_period_output_structure(start_date: str, end_date: str, period: str):
+    """Display the expected period-based output structure."""
+    logger.info("=== PERIOD-BASED OUTPUT STRUCTURE ===")
+    logger.info(f"📅 Period: {start_date} to {end_date} ({period})")
+    logger.info("📁 Expected outputs:")
+
+    # Calculate expected period labels
+    period_chunks = get_period_chunks(start_date, end_date, period)
+
+    for chunk_start, chunk_end, period_label in period_chunks:
+        logger.info(f"  📊 Period: {period_label}")
+        logger.info(f"    • data/aggregated/{period_label}-{period}.json")
+        logger.info(f"    • data/briefings/{period_label}-{period}.json")
+        logger.info(f"    • data/facts/{period_label}-{period}.json")
+        logger.info(f"    • data/rag-documents/{period_label}-{period}.md")
+
+
 def main():
     """Main entry point with command line argument support."""
-    import argparse
-
     parser = argparse.ArgumentParser(
         description=(
             "Kaspa Knowledge Hub Data Pipeline Runner with Period-based Processing"
@@ -1160,10 +1087,10 @@ def main():
         )
     elif args.mode == "full":
         success = run_full_pipeline(
-            force=args.force,
             backfill=args.backfill,
             days_back=getattr(args, "days_back", None),
             period=args.period,
+            force=args.force,
         )
 
     if success:

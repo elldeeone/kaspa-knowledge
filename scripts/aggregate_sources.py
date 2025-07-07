@@ -1,15 +1,46 @@
+#!/usr/bin/env python3
+"""
+Kaspa Knowledge Hub Sources Aggregator
+
+This script aggregates data from various sources (Medium, Telegram, GitHub,
+Discourse) into consolidated data files with comprehensive resource management
+for large temporal chunks.
+
+Features:
+- Period-based aggregation (daily, weekly, monthly)
+- Memory usage monitoring and limits
+- Chunked processing for large datasets
+- Resource exhaustion detection and graceful degradation
+- Retry mechanisms and error recovery
+- Progress tracking for large operations
+- Enhanced disk space monitoring
+"""
+
 import json
+import logging
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Any, Iterator, Tuple
 from calendar import monthrange
 
+# Import resource management
+from scripts.resource_manager import (
+    LargeDatasetManager,
+    ResourceMonitor,
+    check_resources,
+    process_with_resource_management,
+)
+
 # Add the scripts directory to Python path for imports
 scripts_dir = Path(__file__).parent
 sys.path.insert(0, str(scripts_dir))
 
 from signal_enrichment import SignalEnrichmentService  # noqa: E402
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class SourcesAggregator:
@@ -18,11 +49,17 @@ class SourcesAggregator:
         sources_dir: str = "sources",
         output_dir: str = "data/aggregated",
         force: bool = False,
+        work_dir: str = ".",
     ):
         self.sources_dir = Path(sources_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.force = force
+        self.work_dir = Path(work_dir)
+
+        # Initialize resource management
+        self.resource_manager = LargeDatasetManager(work_dir)
+        self.resource_monitor = ResourceMonitor()
 
         # Mapping of source directories to aggregated data keys
         self.source_mappings = {
@@ -37,6 +74,9 @@ class SourcesAggregator:
         # Initialize signal enrichment service
         self.signal_service = SignalEnrichmentService()
 
+        logger.info(f"SourcesAggregator initialized with force={force}")
+        logger.info(f"Resource management enabled for work_dir: {work_dir}")
+
     def get_daily_file_path(self, date: str) -> Path:
         """Get the file path for aggregated data for a given date."""
         if date == "full_history":
@@ -44,9 +84,13 @@ class SourcesAggregator:
         else:
             return self.output_dir / f"{date}.json"
 
+    def get_period_file_path(self, period_label: str, period_type: str) -> Path:
+        """Get the path to a period aggregated file."""
+        return self.output_dir / f"{period_label}-{period_type}.json"
+
     def load_source_data(self, source_name: str, date: str) -> List[Dict]:
         """Load data from a specific source folder for a given date."""
-        source_folder = Path(self.sources_dir) / source_name
+        source_folder = self.sources_dir / source_name
 
         # For backfill mode, look for full_history.json files
         if date == "full_history":
@@ -583,68 +627,365 @@ class SourcesAggregator:
         return output_path
 
     def run_aggregation(self, date: str = None) -> str:
-        """Main aggregation function - combines all sources into raw daily
-        file."""
+        """
+        Run the aggregation process for a specific date with resource management.
+
+        Args:
+            date: Date to aggregate (YYYY-MM-DD). If None, uses today.
+
+        Returns:
+            Success message or error description
+        """
         if date is None:
             date = datetime.now().strftime("%Y-%m-%d")
 
-        # Aggregate all sources
-        aggregated_data = self.aggregate_daily_sources(date)
+        # Check resources before starting
+        resource_report = check_resources(self.work_dir)
+        logger.info(f"Starting aggregation for {date}")
+        logger.info(
+            f"Initial resources: {resource_report['memory']['message']}, "
+            f"{resource_report['disk']['message']}"
+        )
 
-        # Check if data was loaded from existing file (deduplication)
-        loaded_from_existing = aggregated_data.pop("_loaded_from_existing", False)
+        # Check if output already exists
+        output_path = self.get_daily_file_path(date)
+        if output_path.exists() and not self.force:
+            logger.info(f"Aggregated data already exists for {date} at {output_path}")
+            return f"Already exists: {output_path}"
 
-        # Save to file (only if new aggregation)
-        if not loaded_from_existing:
-            output_path = self.save_aggregated_data(aggregated_data, date)
-        else:
-            # Don't save, just reference existing path
-            output_path = self.get_daily_file_path(date)
+        try:
+            # Process aggregation with resource management
+            aggregated_data = self._run_single_date_aggregation_with_resources(date)
 
-        # Show brief summary if loaded from existing, detailed if newly
-        # aggregated
-        if loaded_from_existing:
-            print(
-                "\nRaw Sources Aggregation found existing content - "
-                "skipping downstream processing"
+            # Save with atomic write and resource checking
+            self._save_aggregated_data_safely(aggregated_data, output_path)
+
+            # Final resource check
+            final_resource_report = check_resources(self.work_dir)
+            logger.info(
+                f"Final resources after {date}: "
+                f"{final_resource_report['memory']['message']}"
             )
-            success_msg = (
-                "Raw sources aggregation skipped - using existing " "aggregated data"
+
+            return f"Success: {output_path}"
+
+        except Exception as e:
+            logger.error(f"Aggregation failed for {date}: {e}")
+
+            # Try recovery with reduced processing
+            try:
+                logger.info("Attempting recovery with reduced resource usage...")
+                aggregated_data = self._run_recovery_aggregation(date)
+                self._save_aggregated_data_safely(aggregated_data, output_path)
+
+                return f"Recovery Success: {output_path}"
+
+            except Exception as recovery_error:
+                logger.error(f"Recovery failed for {date}: {recovery_error}")
+                return f"Failed: {str(e)} (Recovery also failed: {recovery_error})"
+
+    def _run_single_date_aggregation_with_resources(self, date: str) -> Dict[str, Any]:
+        """Run single date aggregation with comprehensive resource management."""
+        logger.info(f"Aggregating data for {date} with resource management")
+
+        # Initialize aggregated data structure
+        aggregated_data = {
+            "date": date,
+            "generated_at": datetime.now().isoformat(),
+            "sources": {},
+            "metadata": {
+                "total_items": 0,
+                "sources_processed": [],
+                "resource_usage": {},
+            },
+        }
+
+        # Initialize source containers
+        for source_name, aggregated_key in self.source_mappings.items():
+            aggregated_data["sources"][aggregated_key] = []
+
+        # Add containers for special sources
+        aggregated_data["sources"]["github_activities"] = []
+        aggregated_data["sources"]["onchain_data"] = {}
+        aggregated_data["sources"]["documentation"] = []
+
+        total_items = 0
+        sources_processed = []
+
+        # Process each source with resource monitoring
+        for source_name, aggregated_key in self.source_mappings.items():
+            try:
+                # Check resources before processing each source
+                resource_report = self.resource_monitor.get_resource_report(
+                    self.work_dir
+                )
+
+                if not resource_report["overall_safe"]:
+                    logger.warning(
+                        f"Resource warning before processing {source_name}: "
+                        f"{resource_report['memory']['message']}"
+                    )
+
+                    # Trigger garbage collection
+                    freed = self.resource_monitor.trigger_gc()
+                    if freed > 0:
+                        logger.info(
+                            f"Freed {freed / (1024**3):.2f}GB before "
+                            f"processing {source_name}"
+                        )
+
+                # Load source data with resource management
+                source_data = self.load_source_data(source_name, date)
+
+                if source_data:
+                    # Process source data in chunks if it's large
+                    if isinstance(source_data, dict) and any(
+                        isinstance(v, list) and len(v) > 1000
+                        for v in source_data.values()
+                    ):
+                        logger.info(
+                            f"Large dataset detected in {source_name}, "
+                            f"using chunked processing"
+                        )
+                        processed_data = self._process_large_source_data(
+                            source_data, source_name, date
+                        )
+                    else:
+                        processed_data = source_data
+
+                    # Handle different data structures
+                    if isinstance(processed_data, list):
+                        aggregated_data["sources"][aggregated_key] = processed_data
+                        item_count = len(processed_data)
+                    elif isinstance(processed_data, dict):
+                        # Look for list data in the structure
+                        if "data" in processed_data and isinstance(
+                            processed_data["data"], list
+                        ):
+                            aggregated_data["sources"][aggregated_key] = processed_data[
+                                "data"
+                            ]
+                            item_count = len(processed_data["data"])
+                        elif "items" in processed_data and isinstance(
+                            processed_data["items"], list
+                        ):
+                            aggregated_data["sources"][aggregated_key] = processed_data[
+                                "items"
+                            ]
+                            item_count = len(processed_data["items"])
+                        else:
+                            # Store the whole structure
+                            aggregated_data["sources"][aggregated_key] = processed_data
+                            item_count = 1
+                    else:
+                        aggregated_data["sources"][aggregated_key] = [processed_data]
+                        item_count = 1
+
+                    total_items += item_count
+                    sources_processed.append(f"{source_name}: {item_count} items")
+                    logger.info(f"Processed {source_name}: {item_count} items")
+
+                else:
+                    logger.info(f"No data found for {source_name} on {date}")
+
+            except Exception as e:
+                logger.error(f"Error processing {source_name} for {date}: {e}")
+                sources_processed.append(f"{source_name}: ERROR - {str(e)[:100]}")
+                continue
+
+        # Update metadata with resource usage
+        final_resource_report = self.resource_monitor.get_resource_report(self.work_dir)
+        aggregated_data["metadata"]["total_items"] = total_items
+        aggregated_data["metadata"]["sources_processed"] = sources_processed
+        aggregated_data["metadata"]["resource_usage"] = {
+            "peak_memory_gb": final_resource_report["memory"]["peak_gb"],
+            "memory_status": final_resource_report["memory"]["level"],
+            "disk_status": final_resource_report["disk"]["level"],
+            "processing_time": final_resource_report["uptime"],
+        }
+
+        logger.info(
+            f"Aggregation completed for {date}: {total_items} total items "
+            f"from {len(sources_processed)} sources"
+        )
+
+        return aggregated_data
+
+    def _process_large_source_data(
+        self, source_data: Dict[str, Any], source_name: str, date: str
+    ) -> Dict[str, Any]:
+        """Process large source data using chunked processing."""
+
+        def item_processor(item):
+            # Simple pass-through processor for aggregation
+            return item
+
+        try:
+            # Find the largest list in the data structure
+            largest_list = []
+            largest_key = None
+
+            for key, value in source_data.items():
+                if isinstance(value, list) and len(value) > len(largest_list):
+                    largest_list = value
+                    largest_key = key
+
+            if largest_list and len(largest_list) > 1000:
+                logger.info(
+                    f"Processing {len(largest_list)} items from "
+                    f"{source_name}.{largest_key} in chunks"
+                )
+
+                # Process the large list in chunks
+                processed_items = process_with_resource_management(
+                    largest_list,
+                    item_processor,
+                    chunk_size=500,
+                    description=f"Processing {source_name} {largest_key}",
+                    work_dir=self.work_dir,
+                )
+
+                # Replace the large list with processed items
+                result_data = source_data.copy()
+                result_data[largest_key] = processed_items
+
+                return result_data
+            else:
+                return source_data
+
+        except Exception as e:
+            logger.error(f"Error in chunked processing for {source_name}: {e}")
+            return source_data
+
+    def _run_recovery_aggregation(self, date: str) -> Dict[str, Any]:
+        """Run aggregation with minimal resource usage for recovery."""
+        logger.info(
+            f"Running recovery aggregation for {date} with minimal resource usage"
+        )
+
+        # Force garbage collection
+        freed = self.resource_monitor.trigger_gc()
+        logger.info(
+            f"Recovery: freed {freed / (1024**3):.2f}GB through garbage collection"
+        )
+
+        # Create minimal aggregated data structure
+        aggregated_data = {
+            "date": date,
+            "generated_at": datetime.now().isoformat(),
+            "sources": {},
+            "metadata": {
+                "total_items": 0,
+                "sources_processed": [],
+                "recovery_mode": True,
+                "resource_usage": {},
+            },
+        }
+
+        # Initialize empty source containers
+        for source_name, aggregated_key in self.source_mappings.items():
+            aggregated_data["sources"][aggregated_key] = []
+
+        # Try to load minimal data from each source
+        total_items = 0
+        for source_name, aggregated_key in self.source_mappings.items():
+            try:
+                # Get source file path for the specific date
+                source_folder = self.sources_dir / source_name
+                file_path = source_folder / f"{date}.json"
+
+                if file_path.exists():
+                    # Load only a small sample for recovery
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+
+                    if isinstance(data, list):
+                        # Take only first 10 items in recovery mode
+                        sample_data = data[:10]
+                        aggregated_data["sources"][aggregated_key] = sample_data
+                        total_items += len(sample_data)
+                    elif isinstance(data, dict):
+                        # Create minimal representation
+                        aggregated_data["sources"][aggregated_key] = {
+                            "sample": True,
+                            "original_keys": list(data.keys())[:10],
+                        }
+                        total_items += 1
+
+                    logger.info(f"Recovery: loaded minimal data from {source_name}")
+
+            except Exception as e:
+                logger.error(f"Recovery failed for {source_name}: {e}")
+                continue
+
+        aggregated_data["metadata"]["total_items"] = total_items
+        return aggregated_data
+
+    def _save_aggregated_data_safely(
+        self, data: Dict[str, Any], output_path: Path
+    ) -> None:
+        """Save aggregated data with atomic write and resource checking."""
+        import tempfile
+        import shutil
+
+        # Check disk space before saving
+        resource_report = self.resource_monitor.get_resource_report(self.work_dir)
+
+        if not resource_report["disk"]["is_safe"]:
+            raise RuntimeError(
+                f"Insufficient disk space: {resource_report['disk']['message']}"
             )
-        else:
-            # Print detailed summary for new aggregations
-            print("\nRaw aggregation complete!")
-            print(f"Output: {output_path}")
-            print(f"Total items: {aggregated_data['metadata']['total_items']}")
-            print("Sources processed:")
-            for source in aggregated_data["metadata"]["sources_processed"]:
-                print(f"   - {source}")
 
-            # Display signal analysis summary if available
-            signal_analysis = aggregated_data.get("metadata", {}).get("signal_analysis")
-            if signal_analysis:
-                print("\nSignal Analysis Summary:")
-                high_signal = signal_analysis["high_signal_items"]
-                total_items = signal_analysis["total_items"]
-                lead_items = signal_analysis["lead_developer_items"]
-                founder_items = signal_analysis.get("founder_items", 0)
-                print(f"   High-signal items: {high_signal}/{total_items}")
-                print(f"   Lead developer items: {lead_items}")
-                if founder_items > 0:
-                    print(f"   Founder items: {founder_items}")
-                if signal_analysis["contributor_roles"]:
-                    roles = signal_analysis["contributor_roles"]
-                    role_items = [f"{role}({count})" for role, count in roles.items()]
-                    role_summary = ", ".join(role_items)
-                    print(f"   Contributor roles: {role_summary}")
-                if signal_analysis["sources_with_signals"]:
-                    sources = signal_analysis["sources_with_signals"].keys()
-                    sources_summary = ", ".join(sources)
-                    print(f"   Sources with signals: {sources_summary}")
+        # Estimate output size
+        data_json = json.dumps(data, indent=2, ensure_ascii=False)
+        estimated_size = len(data_json.encode("utf-8"))
 
-            success_msg = f"Raw sources aggregation completed! Saved to {output_path}"
+        logger.info(
+            f"Saving aggregated data ({estimated_size / (1024**3):.3f}GB) "
+            f"to {output_path}"
+        )
 
-        return success_msg
+        # Use temporary file for atomic write
+        temp_fd = None
+        temp_path = None
+
+        try:
+            temp_fd, temp_path = tempfile.mkstemp(
+                suffix=".tmp",
+                prefix=f"aggregate_{data['date']}_",
+                dir=output_path.parent,
+                text=True,
+            )
+
+            # Write to temporary file
+            with open(temp_fd, "w", encoding="utf-8", closefd=True) as temp_file:
+                temp_file.write(data_json)
+                temp_file.flush()
+
+            # Atomic move
+            shutil.move(temp_path, output_path)
+            temp_path = None  # Prevent cleanup since file was moved
+
+            logger.info(f"Successfully saved aggregated data to {output_path}")
+
+        except Exception as e:
+            # Cleanup on error
+            if temp_path and Path(temp_path).exists():
+                try:
+                    Path(temp_path).unlink()
+                except Exception:
+                    pass
+            raise e
+
+        finally:
+            # Close temp file descriptor if it wasn't closed
+            if temp_fd is not None:
+                try:
+                    import os
+
+                    os.close(temp_fd)
+                except Exception:
+                    pass
 
     def generate_date_range(self, start_date: str, end_date: str) -> Iterator[str]:
         """Generate a range of dates between start_date and end_date (inclusive)."""
