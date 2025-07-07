@@ -13,10 +13,14 @@ Please provide:
 - Infrastructure and tooling advancements
 
 ## Core Contributor Insights
-- Prioritize insights from lead developers (marked with `signal.is_lead: true`)
-- Strategic decisions and technical direction discussions
-- Development priorities and roadmap updates
+**Prioritize content using signal enrichment system:**
+- **Top Insights** (signal.final_score > 0.85): Critical breakthroughs, major strategic decisions, breakthrough discoveries
+- **Recent Developments** (signal.final_score 0.70-0.85): Important ongoing work, significant progress updates, notable implementations
+- **Founders** (signal.is_founder: true): Strategic vision, architectural decisions, long-term roadmap insights
+- **Lead Developers** (signal.is_lead: true): Technical direction, implementation guidance, priority setting
+- **Core Developers** (signal.contributor_role: "core_developer"): Technical implementations, code reviews, system improvements
 - Cross-team collaboration and coordination efforts
+- Development priorities and roadmap updates
 
 ## Community and Ecosystem Activity
 - Developer community engagement and contributions

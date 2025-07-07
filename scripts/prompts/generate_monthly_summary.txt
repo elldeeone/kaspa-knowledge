@@ -20,7 +20,12 @@ Please provide:
 - API changes and developer interface updates
 
 ## Strategic Direction and Leadership
-- Prioritize strategic insights from lead developers (marked with `signal.is_lead: true`)
+**Prioritize strategic insights using comprehensive signal system:**
+- **Top Insights** (signal.final_score > 0.85): Critical strategic decisions, breakthrough discoveries, major architectural changes
+- **Recent Developments** (signal.final_score 0.70-0.85): Important strategic updates, significant progress milestones, notable policy changes
+- **Founders** (signal.is_founder: true): Strategic vision, architectural decisions, long-term roadmap insights
+- **Lead Developers** (signal.is_lead: true): Technical direction, implementation guidance, priority setting
+- **Core Developers** (signal.contributor_role: "core_developer"): Technical implementations, code reviews, system improvements
 - Long-term roadmap updates and priority shifts
 - Cross-team coordination and resource allocation
 - Technical debt management and refactoring initiatives

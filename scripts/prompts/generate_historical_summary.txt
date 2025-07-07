@@ -21,7 +21,14 @@ Please provide:
 - API changes and developer interface updates
 
 ## Leadership and Strategic Insights
-- Prioritize insights from lead developers (marked with `signal.is_lead: true`)
+**Use comprehensive signal enrichment system for content prioritization:**
+- **Top Insights** (signal.final_score > 0.85): Critical strategic decisions, breakthrough discoveries, major architectural changes
+- **Recent Developments** (signal.final_score 0.70-0.85): Important strategic updates, significant progress milestones, notable implementations
+- **Standard Contributions** (signal.final_score 0.40-0.70): Regular development activity, routine improvements, community contributions
+- **Archive Material** (signal.final_score < 0.40): Historical context, background information, reference material
+- **Founders** (signal.is_founder: true): Strategic vision, architectural decisions, long-term roadmap insights
+- **Lead Developers** (signal.is_lead: true): Technical direction, implementation guidance, priority setting
+- **Core Developers** (signal.contributor_role: "core_developer"): Technical implementations, code reviews, system improvements
 - Strategic planning and roadmap discussions
 - Development priority decisions and resource allocation
 - Cross-team coordination and collaboration efforts
