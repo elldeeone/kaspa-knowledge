@@ -376,18 +376,27 @@ def run_full_pipeline(force=False, backfill=False, days_back=None, period="month
     pipeline_errors = []
 
     # Step 1: Ingest raw data from sources
-    backfill_flag = " --full-history" if backfill else ""
-    force_flag = " --force" if force else ""
-    days_back_flag = f" --days-back {days_back}" if days_back is not None else ""
+    # Calculate days_back for ingestion based on date range
+    if processing_mode == "daily":
+        ingestion_days_back = days_back if days_back is not None else 7
+    else:
+        # For backfill or days_back mode, calculate total days needed
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+        ingestion_days_back = (end_dt - start_dt).days + 1
 
-    if days_back is not None:
-        print(f"📅 Using date filtering: {days_back} days back")
+        # Add some buffer to ensure we capture all data
+        ingestion_days_back = max(ingestion_days_back, 7)
+
+    force_flag = " --force" if force else ""
+    days_back_flag = f" --days-back {ingestion_days_back}"
+
+    print(f"📅 Using ingestion date range: {ingestion_days_back} days back")
 
     ingestion_steps = [
         {
             "command": (
-                f"python -m scripts.medium_ingest{backfill_flag}"
-                f"{force_flag}{days_back_flag}"
+                f"python -m scripts.medium_ingest" f"{force_flag}{days_back_flag}"
             ),
             "description": "Medium Articles Ingestion",
             "component": "medium_ingest",
@@ -395,7 +404,7 @@ def run_full_pipeline(force=False, backfill=False, days_back=None, period="month
             "timeout": 600,  # 10 minutes
         },
         {
-            "command": f"python -m scripts.telegram_ingest{backfill_flag}{force_flag}",
+            "command": f"python -m scripts.telegram_ingest{force_flag}",
             "description": "Telegram Group Ingestion",
             "component": "telegram_ingest",
             "required": False,
@@ -404,7 +413,7 @@ def run_full_pipeline(force=False, backfill=False, days_back=None, period="month
         {
             "command": (
                 f"python -m scripts.github_ingest --date {start_date}"
-                f"{backfill_flag}{force_flag}{days_back_flag}"
+                f"{force_flag}{days_back_flag}"
             ),
             "description": "GitHub Repository Ingestion",
             "component": "github_ingest",
@@ -413,8 +422,7 @@ def run_full_pipeline(force=False, backfill=False, days_back=None, period="month
         },
         {
             "command": (
-                f"python -m scripts.discourse_ingest{backfill_flag}"
-                f"{force_flag}{days_back_flag}"
+                f"python -m scripts.discourse_ingest" f"{force_flag}{days_back_flag}"
             ),
             "description": "Discourse Forum Ingestion",
             "component": "discourse_ingest",
@@ -856,43 +864,41 @@ def run_ingestion_only(backfill=False, force=False, days_back=None):
     """Run only the data ingestion steps."""
     if backfill:
         print("\n🔄 Running ingestion-only pipeline - BACKFILL MODE")
-        backfill_flag = " --full-history"
+        # Calculate days_back for comprehensive backfill
+        if days_back is None:
+            # Get available source date range for backfill
+            start_date, end_date = get_backfill_date_range()
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+            ingestion_days_back = (end_dt - start_dt).days + 1
+            # Add buffer to ensure we capture all data
+            ingestion_days_back = max(ingestion_days_back, 30)
+        else:
+            ingestion_days_back = days_back
     else:
         print("\n🔄 Running ingestion-only pipeline")
-        backfill_flag = ""
+        ingestion_days_back = days_back if days_back is not None else 7
 
     force_flag = " --force" if force else ""
+    days_back_flag = f" --days-back {ingestion_days_back}"
 
-    # Add days_back flag for Medium and GitHub if specified
-    days_back_flag = f" --days-back {days_back}" if days_back is not None else ""
-
-    if days_back is not None:
-        print(f"📅 Using date filtering: {days_back} days back")
+    print(f"📅 Using ingestion date range: {ingestion_days_back} days back")
 
     steps = [
         (
-            (
-                f"python -m scripts.medium_ingest{backfill_flag}"
-                f"{force_flag}{days_back_flag}"
-            ),
+            (f"python -m scripts.medium_ingest" f"{force_flag}{days_back_flag}"),
             "Medium Articles Ingestion",
         ),
         (
-            f"python -m scripts.telegram_ingest{backfill_flag}{force_flag}",
+            f"python -m scripts.telegram_ingest{force_flag}",
             "Telegram Group Ingestion",
         ),
         (
-            (
-                f"python -m scripts.github_ingest{backfill_flag}"
-                f"{force_flag}{days_back_flag}"
-            ),
+            (f"python -m scripts.github_ingest" f"{force_flag}{days_back_flag}"),
             "GitHub Repository Ingestion",
         ),
         (
-            (
-                f"python -m scripts.discourse_ingest{backfill_flag}"
-                f"{force_flag}{days_back_flag}"
-            ),
+            (f"python -m scripts.discourse_ingest" f"{force_flag}{days_back_flag}"),
             "Discourse Forum Ingestion",
         ),
     ]
