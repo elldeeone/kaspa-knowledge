@@ -32,9 +32,10 @@ import argparse
 import sys
 import tempfile
 import os
+import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 
 # Add the scripts directory to Python path for imports
 scripts_dir = Path(__file__).parent
@@ -56,16 +57,178 @@ from error_handler import (  # noqa: E402
 
 
 def validate_date_format(date_string: str) -> bool:
-    """Validate date string is in YYYY-MM-DD format or 'full_history' for backfill."""
+    """Validate date string in YYYY-MM-DD, period-based format, or 'full_history'."""
     # Allow 'full_history' for backfill mode
     if date_string == "full_history":
         return True
 
+    # Try standard daily format first
     try:
         datetime.strptime(date_string, "%Y-%m-%d")
         return True
     except ValueError:
-        return False
+        pass
+
+    # Try period-based formats
+    period_patterns = [
+        "%Y-%m-monthly",  # 2025-01-monthly
+        "%Y-%m-%d-weekly",  # 2025-01-15-weekly
+        "%Y-%m-quarterly",  # 2025-01-quarterly
+        "%Y-%m-%d-historical",  # 2025-01-15-historical
+    ]
+
+    for pattern in period_patterns:
+        try:
+            # Extract the base date part and validate it
+            if pattern.endswith("-monthly") or pattern.endswith("-quarterly"):
+                # Monthly/quarterly: validate YYYY-MM part
+                base_date = date_string.split("-")[0] + "-" + date_string.split("-")[1]
+                datetime.strptime(base_date, "%Y-%m")
+                return True
+            elif pattern.endswith("-weekly") or pattern.endswith("-historical"):
+                # Weekly/historical: validate YYYY-MM-DD part
+                base_date = "-".join(date_string.split("-")[0:3])
+                datetime.strptime(base_date, "%Y-%m-%d")
+                return True
+        except (ValueError, IndexError):
+            continue
+
+    return False
+
+
+def extract_period_metadata(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract period-specific metadata from aggregated data."""
+    metadata = {}
+
+    # Extract period information
+    metadata["period_label"] = data.get("period", "Unknown Period")
+    metadata["date_range"] = data.get("date_range", "Unknown Range")
+
+    # Parse date range for start and end dates
+    date_range = metadata["date_range"]
+    if " to " in date_range:
+        start_date, end_date = date_range.split(" to ")
+        metadata["start_date"] = start_date.strip()
+        metadata["end_date"] = end_date.strip()
+
+        # Calculate duration in days
+        try:
+            start = datetime.strptime(start_date.strip(), "%Y-%m-%d")
+            end = datetime.strptime(end_date.strip(), "%Y-%m-%d")
+            metadata["duration_days"] = (end - start).days + 1
+        except ValueError:
+            metadata["duration_days"] = "Unknown"
+    else:
+        metadata["start_date"] = "Unknown"
+        metadata["end_date"] = "Unknown"
+        metadata["duration_days"] = "Unknown"
+
+    # Count total items across all sources
+    sources = data.get("sources", {})
+    total_items = 0
+    sources_processed = []
+
+    for source_name, source_data in sources.items():
+        if source_data and len(source_data) > 0:
+            total_items += len(source_data)
+            sources_processed.append(source_name)
+
+    metadata["total_items"] = total_items
+    metadata["sources_processed"] = ", ".join(sources_processed)
+
+    return metadata
+
+
+def load_period_based_data(
+    date: str, data_dir: Path, period_summary: bool = False
+) -> Tuple[Optional[Any], Optional[str]]:
+    """
+    Load period-based data files following the same pattern as extract_facts.py.
+
+    Args:
+        date: Date string (could be period-based format)
+        data_dir: Directory containing source data
+        period_summary: Whether to look for period-based files
+
+    Returns:
+        Tuple of (LoadedData object or None, error_message or None)
+    """
+    if not period_summary:
+        # Use standard data loader for daily data
+        data_loader = JSONDataLoader(str(data_dir))
+        try:
+            loaded_data = data_loader.load_data_for_date(date)
+            return loaded_data, None
+        except Exception as e:
+            return None, f"Failed to load daily data: {str(e)}"
+
+    # For period-based data, we need to handle different file patterns
+    aggregated_dir = data_dir / "aggregated"
+    briefings_dir = data_dir / "briefings"
+    facts_dir = data_dir / "facts"
+
+    # Try different period-based file patterns
+    period_patterns = [
+        f"{date}.json",  # Direct match first
+        f"{date}-monthly.json",  # Monthly pattern
+        f"{date}-weekly.json",  # Weekly pattern
+        f"{date}-quarterly.json",  # Quarterly pattern
+        f"{date}-historical.json",  # Historical pattern
+    ]
+
+    # Try to find aggregated data file
+    aggregated_data = None
+    aggregated_path = None
+    for pattern in period_patterns:
+        potential_path = aggregated_dir / pattern
+        if potential_path.exists():
+            aggregated_path = potential_path
+            break
+
+    if aggregated_path is None:
+        return (
+            None,
+            f"No period-based aggregated data found for {date}. "
+            f"Checked patterns: {period_patterns}",
+        )
+
+    try:
+        # Load aggregated data
+        with open(aggregated_path, "r", encoding="utf-8") as f:
+            aggregated_data = json.load(f)
+
+        # Try to load briefings data (optional)
+        briefings_data = None
+        for pattern in period_patterns:
+            briefings_path = briefings_dir / pattern
+            if briefings_path.exists():
+                with open(briefings_path, "r", encoding="utf-8") as f:
+                    briefings_data = json.load(f)
+                break
+
+        # Try to load facts data (optional)
+        facts_data = None
+        for pattern in period_patterns:
+            facts_path = facts_dir / pattern
+            if facts_path.exists():
+                with open(facts_path, "r", encoding="utf-8") as f:
+                    facts_data = json.load(f)
+                break
+
+        # Create a LoadedData-like object
+        from data_loader import LoadedData
+
+        loaded_data = LoadedData(
+            date=date,
+            aggregated_data=aggregated_data,
+            briefings_data=briefings_data,
+            facts_data=facts_data,
+        )
+
+        return loaded_data, None
+
+    except Exception as e:
+        return None, f"Failed to load period-based data: {str(e)}"
 
 
 def generate_rag_document(
@@ -75,18 +238,21 @@ def generate_rag_document(
     data_dir: Path = Path("data"),
     output_dir: Path = Path("knowledge_base"),
     split_output: bool = False,
+    period_summary: bool = False,
 ) -> Tuple[bool, Optional[str]]:
     """
-    Generate a single, well-organized RAG document from daily JSON data.
+    Generate a single, well-organized RAG document from daily or period-based JSON data.
 
     Args:
-        date: Date string in YYYY-MM-DD format
+        date: Date string in YYYY-MM-DD format or period-based format
+            (e.g., "2025-01-monthly", "2025-01-15-weekly")
         force: Whether to overwrite existing files
         organization_style: How to organize content
             ("comprehensive", "prioritized", "minimal")
         data_dir: Directory containing source data
         output_dir: Directory for output files
         split_output: Whether to split output into multiple files by section
+        period_summary: Whether to process period-based data files instead of daily
 
     Returns:
         Tuple of (success: bool, error_message: Optional[str])
@@ -114,6 +280,9 @@ def generate_rag_document(
 
         logger.logger.info(f"Starting RAG document generation for date: {date}")
         logger.logger.info(f"Organization style: {organization_style}")
+        logger.logger.info(
+            f"Processing mode: {'period-based' if period_summary else 'daily'}"
+        )
 
         # Step 1: Validate data directory structure
         logger.logger.info("Validating data directory structure...")
@@ -130,14 +299,14 @@ def generate_rag_document(
 
         # Step 2: Load and validate JSON data
         logger.logger.info("Loading and validating JSON data...")
-        data_loader = JSONDataLoader(str(data_dir))
 
-        loaded_data, load_error = run_with_error_handling(
-            data_loader.load_data_for_date, "data_loader", error_handler, date=date
+        # Use period-aware data loading
+        loaded_data, load_error_msg = load_period_based_data(
+            date, data_dir, period_summary
         )
 
-        if load_error or not loaded_data:
-            error_msg = load_error.message if load_error else "Failed to load data"
+        if load_error_msg or not loaded_data:
+            error_msg = load_error_msg if load_error_msg else "Failed to load data"
             return False, error_msg
 
         logger.logger.info(f"Successfully loaded data for {date}")
@@ -223,6 +392,13 @@ def generate_rag_document(
         # Step 4: Generate single, well-organized Markdown document
         logger.logger.info("Generating Markdown document...")
         template_generator = MarkdownTemplateGenerator()
+
+        # Add period metadata to template generator if processing period-based data
+        if period_summary and organized_data.aggregated_data:
+            template_generator.period_summary = True
+            # Extract period metadata similar to extract_facts.py
+            period_metadata = extract_period_metadata(organized_data.aggregated_data)
+            template_generator.period_metadata = period_metadata
 
         document_content, template_error = run_with_error_handling(
             template_generator.generate_document,
@@ -827,22 +1003,36 @@ Examples:
         "(recommended for full history)",
     )
 
+    parser.add_argument(
+        "--period-summary",
+        action="store_true",
+        help="Process period-based data files (weekly, monthly, etc.) "
+        "instead of daily data",
+    )
+
     args = parser.parse_args()
 
     # Validate arguments
     if not validate_date_format(args.date):
-        print(f"❌ Error: Invalid date format '{args.date}'. Expected YYYY-MM-DD")
+        if args.period_summary:
+            print(
+                f"Error: Invalid date format '{args.date}'. Expected YYYY-MM-DD or "
+                f"period-based format (e.g., YYYY-MM-monthly, YYYY-MM-DD-weekly)"
+            )
+        else:
+            print(f"Error: Invalid date format '{args.date}'. Expected YYYY-MM-DD")
         sys.exit(1)
 
     if not args.data_dir.exists():
-        print(f"❌ Error: Data directory does not exist: {args.data_dir}")
+        print(f"Error: Data directory does not exist: {args.data_dir}")
         sys.exit(1)
 
     # Run the generation
-    print(f"🚀 Starting RAG document generation for {args.date}")
-    print(f"📋 Organization style: {args.organization}")
+    mode = "period-based" if args.period_summary else "daily"
+    print(f"Starting RAG document generation for {args.date} ({mode} mode)")
+    print(f"Organization style: {args.organization}")
     if args.split_output:
-        print("📂 Split output mode: Multiple files will be created")
+        print("Split output mode: Multiple files will be created")
 
     success, error_message = generate_rag_document(
         date=args.date,
@@ -851,19 +1041,20 @@ Examples:
         data_dir=args.data_dir,
         output_dir=args.output_dir,
         split_output=args.split_output,
+        period_summary=args.period_summary,
     )
 
     if success:
         if args.split_output:
-            print(f"✅ Successfully generated split RAG documents for {args.date}")
-            print(f"📂 Output directory: {args.output_dir}")
-            print(f"📄 Files: {args.date}_*.md")
+            print(f"Successfully generated split RAG documents for {args.date}")
+            print(f"Output directory: {args.output_dir}")
+            print(f"Files: {args.date}_*.md")
         else:
-            print(f"✅ Successfully generated RAG document for {args.date}")
-            print(f"📄 Output: {args.output_dir}/{args.date}.md")
+            print(f"Successfully generated RAG document for {args.date}")
+            print(f"Output: {args.output_dir}/{args.date}.md")
         sys.exit(0)
     else:
-        print(f"❌ Failed to generate RAG document: {error_message}")
+        print(f"Failed to generate RAG document: {error_message}")
         sys.exit(1)
 
 

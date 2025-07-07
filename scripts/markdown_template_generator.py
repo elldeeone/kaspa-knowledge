@@ -58,8 +58,15 @@ class MetadataBlock:
             "briefing_narrative": (
                 "This section contains executive briefing and analysis"
             ),
+            "period_briefing_narrative": (
+                "This section contains period-based briefing and comprehensive analysis"
+            ),
             "extracted_facts": (
                 "This section contains key facts and technical information"
+            ),
+            "period_extracted_facts": (
+                "This section contains key facts and technical information "
+                "aggregated over a period"
             ),
             "high_signal_insights": (
                 "This section contains high-priority insights and developments"
@@ -218,6 +225,9 @@ class MarkdownTemplateGenerator:
         self.target_chunk_size = target_chunk_size
         self.max_chunk_size = max_chunk_size
         self.chunk_counter = 0
+        # Period-based processing attributes
+        self.period_summary = False
+        self.period_metadata = {}
 
     def generate_document(
         self, loaded_data: Any, date: str, split_output: bool = False
@@ -339,7 +349,14 @@ class MarkdownTemplateGenerator:
 
     def _create_header_section(self, date: str) -> DocumentSection:
         """Create the document header section."""
-        header_section = DocumentSection("Kaspa Knowledge Digest: " + date, 1)
+        if self.period_summary and self.period_metadata:
+            # Use period label for title if available
+            period_label = self.period_metadata.get("period_label", date)
+            header_section = DocumentSection(
+                f"Kaspa Knowledge Digest: {period_label}", 1
+            )
+        else:
+            header_section = DocumentSection("Kaspa Knowledge Digest: " + date, 1)
 
         # Header metadata
         header_metadata = MetadataBlock(
@@ -349,12 +366,35 @@ class MarkdownTemplateGenerator:
             section_type="document_header",
         )
 
-        header_content = dedent(
-            f"""
-        This document contains curated knowledge from the Kaspa ecosystem for {date}.
-        The content is semantically structured and optimized for RAG systems.
-        """
-        ).strip()
+        # Create header content based on processing mode
+        if self.period_summary and self.period_metadata:
+            period_label = self.period_metadata.get("period_label", "Unknown Period")
+            date_range = self.period_metadata.get("date_range", "Unknown Range")
+            total_items = self.period_metadata.get("total_items", 0)
+            sources_processed = self.period_metadata.get("sources_processed", "")
+
+            header_content = dedent(
+                f"""
+            This document contains curated knowledge from the Kaspa ecosystem
+            for {period_label}.
+
+            **Period Coverage:** {date_range}
+            **Total Items Processed:** {total_items:,}
+            **Data Sources:** {sources_processed}
+
+            The content is semantically structured and optimized for RAG systems,
+            aggregating insights across multiple timeframes and sources for
+            comprehensive analysis.
+            """
+            ).strip()
+        else:
+            header_content = dedent(
+                f"""
+            This document contains curated knowledge from the Kaspa ecosystem
+            for {date}. The content is semantically structured and optimized
+            for RAG systems.
+            """
+            ).strip()
 
         header_chunk = SemanticChunk(header_content, header_metadata)
         header_section.add_chunk(header_chunk)
@@ -364,8 +404,12 @@ class MarkdownTemplateGenerator:
     def _create_briefing_section(
         self, briefings_data: Dict[str, Any], date: str
     ) -> DocumentSection:
-        """Create the daily briefing section."""
-        briefing_section = DocumentSection("Daily Briefing", 2)
+        """Create the briefing section (daily or period-based)."""
+        if self.period_summary and self.period_metadata:
+            period_label = self.period_metadata.get("period_label", "Period")
+            briefing_section = DocumentSection(f"{period_label} Briefing", 2)
+        else:
+            briefing_section = DocumentSection("Daily Briefing", 2)
 
         # Process each source's briefing
         for source_type, source_data in briefings_data.get("sources", {}).items():
