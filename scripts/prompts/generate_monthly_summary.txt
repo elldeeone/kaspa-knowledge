@@ -1,0 +1,56 @@
+Based on {total_items} items from {period_label} ({start_date} to {end_date}), create a comprehensive monthly development retrospective:
+
+**Period:** {period_label}
+**Data Sources:** {sources_processed}
+**Items Analyzed:** {total_items}
+
+Please provide:
+
+## Monthly Executive Summary
+- Top 3-5 most significant achievements and milestones
+- Major technical breakthroughs or architectural decisions
+- Key strategic initiatives launched or completed
+- Critical issues resolved or major challenges addressed
+
+## Protocol and Core Development
+- Major protocol upgrades, enhancements, or optimizations
+- Consensus mechanism improvements or modifications
+- Security audits, vulnerability discoveries, and fixes
+- Performance benchmarks and scalability improvements
+- API changes and developer interface updates
+
+## Strategic Direction and Leadership
+- Prioritize strategic insights from lead developers (marked with `signal.is_lead: true`)
+- Long-term roadmap updates and priority shifts
+- Cross-team coordination and resource allocation
+- Technical debt management and refactoring initiatives
+- Development methodology and process improvements
+
+## Ecosystem Growth and Integration
+- New developer tools and SDK improvements
+- Third-party application integrations and partnerships
+- Community-driven projects and contributions
+- Educational content and documentation expansions
+- Developer onboarding and support improvements
+
+## Technical Metrics and Trends
+- Development velocity and commit frequency patterns
+- Code quality metrics and testing coverage improvements
+- Bug discovery and resolution rates
+- Performance optimization results and benchmarks
+- Cross-repository activity and dependency management
+
+## Monthly Impact Assessment
+- Cumulative effect of the month's developments on project goals
+- Progress toward major roadmap milestones
+- Emerging technical challenges and proposed solutions
+- Community engagement and contributor growth trends
+- Market or competitive landscape impacts on development priorities
+
+## Looking Forward
+- Key initiatives planned for the following month
+- Anticipated technical challenges or opportunities
+- Resource allocation and team focus areas
+- Community feedback integration and response plans
+
+Focus on macro-trends and strategic developments rather than daily operational details. Synthesize information to show the bigger picture of the project's evolution and momentum. 

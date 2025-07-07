@@ -1,0 +1,39 @@
+Based on {total_items} items from {period_label} ({start_date} to {end_date}), create a comprehensive weekly development summary:
+
+**Period:** {period_label}
+**Data Sources:** {sources_processed}
+**Items Analyzed:** {total_items}
+
+Please provide:
+
+## Weekly Development Highlights
+- Most significant technical developments and implementations
+- Key protocol enhancements or architectural changes
+- Notable bug fixes or security improvements
+- Infrastructure and tooling advancements
+
+## Core Contributor Insights
+- Prioritize insights from lead developers (marked with `signal.is_lead: true`)
+- Strategic decisions and technical direction discussions
+- Development priorities and roadmap updates
+- Cross-team collaboration and coordination efforts
+
+## Community and Ecosystem Activity
+- Developer community engagement and contributions
+- Documentation and educational content updates
+- Third-party integrations and partnerships
+- User feedback and feature requests
+
+## Technical Analysis
+- Code quality and testing improvements
+- Performance optimizations and benchmarks
+- Development velocity and commit patterns
+- Emerging technical challenges or solutions
+
+## Weekly Trends and Patterns
+- Recurring themes in development focus
+- Shift in development priorities or approaches
+- Notable increases in activity or contributor engagement
+- Cross-repository coordination and dependencies
+
+Keep the summary comprehensive but focused on the most impactful developments. Highlight connections between different activities and their cumulative effect on the project's progress. 

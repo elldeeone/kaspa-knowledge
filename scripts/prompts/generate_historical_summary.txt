@@ -1,0 +1,57 @@
+Based on {total_items} items from {period_label} ({start_date} to {end_date}), create a comprehensive historical development summary:
+
+**Period:** {period_label}
+**Data Sources:** {sources_processed}
+**Items Analyzed:** {total_items}
+**Duration:** {duration_days} days
+
+Please provide:
+
+## Period Overview
+- Most significant developments and achievements
+- Key technical milestones and implementations
+- Major strategic decisions and direction changes
+- Critical issues resolved or challenges addressed
+
+## Technical Development Highlights
+- Protocol enhancements and architectural improvements
+- Core functionality additions and optimizations
+- Security improvements and vulnerability fixes
+- Performance optimizations and scalability work
+- API changes and developer interface updates
+
+## Leadership and Strategic Insights
+- Prioritize insights from lead developers (marked with `signal.is_lead: true`)
+- Strategic planning and roadmap discussions
+- Development priority decisions and resource allocation
+- Cross-team coordination and collaboration efforts
+- Technical debt management and refactoring initiatives
+
+## Community and Ecosystem Activity
+- Developer community engagement and contributions
+- Documentation and educational content updates
+- Third-party integrations and partnership developments
+- User feedback integration and feature requests
+- Community-driven projects and innovations
+
+## Development Patterns and Trends
+- Code quality and testing improvements
+- Development velocity and commit patterns
+- Bug discovery and resolution trends
+- Performance benchmarks and optimization results
+- Cross-repository coordination and dependencies
+
+## Impact and Progress Assessment
+- Progress toward major project goals and milestones
+- Cumulative effect of developments on project direction
+- Emerging technical challenges and proposed solutions
+- Community growth and engagement trends
+- Competitive landscape impacts on development focus
+
+## Period-Specific Analysis
+- Adapt analysis depth based on period length:
+  - Short periods (1-7 days): Focus on immediate developments and daily progress
+  - Medium periods (1-4 weeks): Emphasize weekly patterns and tactical progress
+  - Long periods (1+ months): Highlight strategic trends and macro-developments
+
+Tailor the summary comprehensiveness to match the period scope while maintaining focus on the most impactful developments and their broader implications for the project. 
