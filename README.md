@@ -8,7 +8,7 @@ An intelligent system that automatically collects, processes, and synthesizes in
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/your-username/kaspa-knowledge.git
+git clone https://github.com/elldeeone/kaspa-knowledge.git
 cd kaspa-knowledge
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
@@ -116,7 +116,7 @@ Multiple configuration methods available:
 **Need help?** 
 - Check the [Setup Guide](docs/SETUP.md) for installation issues
 - Review the [Usage Guide](docs/USAGE.md) for command help
-- [Open an issue](https://github.com/your-username/kaspa-knowledge/issues) for bugs or feature requests
+- [Open an issue](https://github.com/elldeeone/kaspa-knowledge/issues) for bugs or feature requests
 
 ---
 

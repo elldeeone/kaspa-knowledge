@@ -18,6 +18,7 @@ kaspa-knowledge/
 │   ├── aggregated/           # Raw combined daily data (no AI)
 │   ├── briefings/            # AI-generated executive briefings
 │   └── facts/                # AI-extracted technical facts
+├── knowledge_base/           # RAG-optimized documents for vector databases
 ├── scripts/                  # Pipeline processing scripts
 │   ├── medium_ingest.py      # Multi-feed Medium RSS ingestion
 │   ├── github_ingest.py      # GitHub repository activity ingestion
@@ -27,11 +28,11 @@ kaspa-knowledge/
 │   ├── aggregate_sources.py  # Raw data aggregation
 │   ├── generate_briefing.py  # AI briefing generation
 │   ├── extract_facts.py      # AI fact extraction with deduplication
+│   ├── generate_rag_document.py # RAG document generation
 │   ├── run_pipeline.py       # Complete pipeline runner
 │   └── llm_interface.py      # OpenRouter LLM integration
 ├── docs/                     # Static documentation
 ├── config/                   # Configuration files
-├── .taskmaster/              # Taskmaster project management
 ├── .github/workflows/        # GitHub Actions automation
 └── README.md
 ```
@@ -84,10 +85,16 @@ kaspa-knowledge/
 
 - Transforms processed data into RAG-optimized documents
 - Creates semantically chunked content with metadata
-- Generates final knowledge base files
+- Generates final knowledge base files in `knowledge_base/`
+- Produces structured documents suitable for vector databases and semantic search
 
 **Key Scripts:**
 - `generate_rag_document.py` - RAG document generation
+
+**Output Structure:**
+- `knowledge_base/daily/` - Daily knowledge documents with semantic chunking
+- `knowledge_base/enhanced/` - High-signal filtered documents for priority content
+- `knowledge_base/metadata/` - Document metadata and indexing information
 
 ## Data Sources
 
