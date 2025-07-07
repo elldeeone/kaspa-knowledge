@@ -4,10 +4,11 @@ Kaspa Knowledge Hub Data Pipeline Runner
 
 This script orchestrates the full data pipeline with comprehensive monitoring:
 1. Ingests data from various sources into sources/ folders (raw data)
-2. Aggregates all sources into daily raw aggregated data (no AI processing)
+2. Aggregates all sources into period-based aggregated data (no AI processing)
 3. Generates AI-processed outputs: briefings and facts (separate files)
 
 Features:
+- Period-based historical processing (monthly/weekly chunks)
 - Comprehensive error handling and logging
 - Performance monitoring and health tracking
 - Retry mechanisms for failed operations
@@ -18,7 +19,7 @@ Features:
 import subprocess
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -43,6 +44,118 @@ def initialize_monitoring():
     # Log pipeline startup
     LOGGER.logger.info("Kaspa Knowledge Pipeline initialized with monitoring system")
     return LOGGER, ERROR_HANDLER
+
+
+def get_available_source_date_range() -> Tuple[str, str]:
+    """
+    Determine the available date range from source files.
+    Returns tuple of (earliest_date, latest_date) in YYYY-MM-DD format.
+    """
+    sources_dir = Path("sources")
+    all_dates = set()
+
+    # Check all source subdirectories for date files
+    source_subdirs = ["medium", "telegram", "github", "forum"]
+
+    for subdir in source_subdirs:
+        source_path = sources_dir / subdir
+        if source_path.exists():
+            for file_path in source_path.glob("*.json"):
+                # Extract date from filename (YYYY-MM-DD.json)
+                if file_path.stem.count("-") == 2:  # Valid date format
+                    try:
+                        # Validate it's a proper date
+                        datetime.strptime(file_path.stem, "%Y-%m-%d")
+                        all_dates.add(file_path.stem)
+                    except ValueError:
+                        continue  # Skip non-date files
+
+    if not all_dates:
+        # Default to last 30 days if no source files found
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=30)
+        return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
+
+    sorted_dates = sorted(all_dates)
+    return sorted_dates[0], sorted_dates[-1]
+
+
+def get_backfill_date_range(days_back: int = None) -> Tuple[str, str]:
+    """
+    Calculate date range for backfill or days-back processing.
+
+    Args:
+        days_back: Number of days back from today. If None, uses all available data.
+
+    Returns:
+        Tuple of (start_date, end_date) in YYYY-MM-DD format.
+    """
+    if days_back is not None:
+        # Use specified days back from today
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days_back)
+        return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
+    else:
+        # Use all available source data for backfill
+        return get_available_source_date_range()
+
+
+def get_period_chunks(
+    start_date: str, end_date: str, period: str = "monthly"
+) -> List[Tuple[str, str, str]]:
+    """
+    Generate period chunks between start_date and end_date.
+    Returns list of tuples: (period_start, period_end, period_label)
+    """
+    from calendar import monthrange
+
+    chunks = []
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+
+    if period == "weekly":
+        # Start from the Monday of the week containing start_date
+        current = start - timedelta(days=start.weekday())
+
+        while current <= end:
+            week_end = current + timedelta(days=6)
+            # Don't go beyond the requested end date
+            actual_end = min(week_end, end)
+
+            # Only include if the week overlaps with our date range
+            if current <= end and actual_end >= start:
+                period_start = max(current, start).strftime("%Y-%m-%d")
+                period_end = actual_end.strftime("%Y-%m-%d")
+                week_label = f"{current.strftime('%Y-W%U')}"
+                chunks.append((period_start, period_end, week_label))
+
+            current = week_end + timedelta(days=1)
+
+    elif period == "monthly":
+        current = start.replace(day=1)  # Start of the month
+
+        while current <= end:
+            # Last day of the current month
+            last_day = monthrange(current.year, current.month)[1]
+            month_end = current.replace(day=last_day)
+
+            # Don't go beyond the requested end date
+            actual_end = min(month_end, end)
+
+            # Only include if the month overlaps with our date range
+            if current <= end and actual_end >= start:
+                period_start = max(current, start).strftime("%Y-%m-%d")
+                period_end = actual_end.strftime("%Y-%m-%d")
+                month_label = current.strftime("%Y-%m")
+                chunks.append((period_start, period_end, month_label))
+
+            # Move to next month
+            if current.month == 12:
+                current = current.replace(year=current.year + 1, month=1)
+            else:
+                current = current.replace(month=current.month + 1)
+
+    return chunks
 
 
 def run_command(
@@ -216,27 +329,40 @@ def run_command(
         return False, "error"
 
 
-def run_full_pipeline(force=False, backfill=False, days_back=None):
-    """Run the complete data pipeline with comprehensive monitoring."""
+def run_full_pipeline(force=False, backfill=False, days_back=None, period="monthly"):
+    """Run the complete data pipeline with period-based processing and monitoring."""
     # Initialize monitoring system
     if not LOGGER or not ERROR_HANDLER:
         initialize_monitoring()
 
     pipeline_start_time = time.time()
 
-    # Define pipeline date for consistent file naming
-    if backfill:
-        pipeline_date = "full_history"
-        print("\n🚀 Starting Kaspa Knowledge Hub Pipeline - BACKFILL MODE")
-        print("📚 Backfill Mode: Processing comprehensive historical data")
-        LOGGER.logger.info("Pipeline started in backfill mode")
-    else:
-        pipeline_date = datetime.now().strftime("%Y-%m-%d")
-        print("\n🚀 Starting Kaspa Knowledge Hub Pipeline")
-        print(
-            f"📅 Pipeline Date: {pipeline_date} ({datetime.now().strftime('%H:%M:%S')})"
+    # Determine processing mode and date range
+    if days_back is not None:
+        processing_mode = f"days_back_{days_back}"
+        start_date, end_date = get_backfill_date_range(days_back)
+        mode_description = (
+            f"Processing last {days_back} days ({start_date} to {end_date})"
         )
-        LOGGER.logger.info(f"Pipeline started for date: {pipeline_date}")
+    elif backfill:
+        processing_mode = "backfill"
+        start_date, end_date = get_backfill_date_range()
+        mode_description = (
+            f"Processing all historical data ({start_date} to {end_date})"
+        )
+    else:
+        processing_mode = "daily"
+        today = datetime.now().strftime("%Y-%m-%d")
+        start_date, end_date = today, today
+        mode_description = f"Processing daily data for {today}"
+
+    # Header with processing mode information
+    print(f"\n🚀 Starting Kaspa Knowledge Hub Pipeline - {processing_mode.upper()}")
+    print(f"📅 {mode_description}")
+    print(f"🔄 Period-based processing: {period}")
+    LOGGER.logger.info(
+        f"Pipeline started in {processing_mode} mode: {start_date} to {end_date}"
+    )
 
     print("🏗️  Pipeline Version: 2.0.0 (with Enhanced Monitoring)")
     if force:
@@ -277,7 +403,7 @@ def run_full_pipeline(force=False, backfill=False, days_back=None):
         },
         {
             "command": (
-                f"python -m scripts.github_ingest --date {pipeline_date}"
+                f"python -m scripts.github_ingest --date {start_date}"
                 f"{backfill_flag}{force_flag}{days_back_flag}"
             ),
             "description": "GitHub Repository Ingestion",
@@ -399,7 +525,7 @@ def run_full_pipeline(force=False, backfill=False, days_back=None):
 
     preprocessing_steps = [
         {
-            "command": f"python -m scripts.summarize_github --date {pipeline_date}",
+            "command": f"python -m scripts.summarize_github --date {start_date}",
             "description": "GitHub Activity Summarization",
             "required": False,
         },
@@ -416,41 +542,93 @@ def run_full_pipeline(force=False, backfill=False, days_back=None):
             print("🛑 Stopping pipeline due to critical failure")
             return False
 
-    # Step 2: Aggregate raw sources (no AI processing)
-    print("\n📋 STAGE 2: RAW DATA AGGREGATION")
+    # Step 2: Period-based Raw Sources Aggregation
+    print("\n📋 STAGE 2: PERIOD-BASED RAW SOURCES AGGREGATION")
     print("=" * 60)
 
-    total_steps += 1
     force_flag = " --force" if force else ""
-    aggregation_date = pipeline_date if not backfill else "full_history"
-    success, status = run_command(
-        f"python -m scripts.aggregate_sources --date {aggregation_date}{force_flag}",
-        "Raw Sources Aggregation",
-    )
-    if success:
-        success_count += 1
+
+    if processing_mode == "daily":
+        # For daily mode, use regular single-date aggregation
+        total_steps += 1
+        success, status = run_command(
+            f"python -m scripts.aggregate_sources --date {start_date}{force_flag}",
+            f"Raw Sources Aggregation for {start_date}",
+        )
+        if success:
+            success_count += 1
+        else:
+            print("\n❌ Raw aggregation failed")
+            print("🛑 Stopping pipeline - cannot proceed without aggregated data")
+            return False
     else:
-        print("\n❌ Raw aggregation failed")
-        print("🛑 Stopping pipeline - cannot proceed without aggregated data")
-        return False
+        # For backfill or days_back mode, use period-based aggregation
+        total_steps += 1
+        command = (
+            f"python -m scripts.aggregate_sources --start-date {start_date} "
+            f"--end-date {end_date} --period {period}{force_flag}"
+        )
+        success, status = run_command(
+            command,
+            f"Period-based Raw Sources Aggregation ({period})",
+        )
+        if success:
+            success_count += 1
+        else:
+            print("\n❌ Period-based aggregation failed")
+            print("🛑 Stopping pipeline - cannot proceed without aggregated data")
+            return False
 
-    # Step 3: AI Processing (separate outputs)
-    ai_date_flag = f" --date {aggregation_date}" if backfill else ""
-    ai_steps = [
-        {
-            "command": f"python -m scripts.generate_briefing{ai_date_flag}{force_flag}",
-            "description": "Daily Briefing Generation",
-            "required": False,
-        },
-        {
-            "command": f"python -m scripts.extract_facts{ai_date_flag}{force_flag}",
-            "description": "Daily Facts Extraction",
-            "required": False,
-        },
-    ]
-
-    print("\n📋 STAGE 3: AI PROCESSING")
+    # Step 3: Period-based AI Processing
+    print("\n📋 STAGE 3: PERIOD-BASED AI PROCESSING")
     print("=" * 60)
+
+    if processing_mode == "daily":
+        # For daily mode, use regular AI processing
+        ai_steps = [
+            {
+                "command": (
+                    f"python -m scripts.generate_briefing --date {start_date}"
+                    f"{force_flag}"
+                ),
+                "description": f"Daily Briefing Generation for {start_date}",
+                "required": False,
+            },
+            {
+                "command": (
+                    f"python -m scripts.extract_facts --date {start_date}"
+                    f"{force_flag}"
+                ),
+                "description": f"Daily Facts Extraction for {start_date}",
+                "required": False,
+            },
+        ]
+    else:
+        # For period-based processing, generate AI outputs for each period
+        period_chunks = get_period_chunks(start_date, end_date, period)
+        ai_steps = []
+
+        for period_start, period_end, period_label in period_chunks:
+            ai_steps.extend(
+                [
+                    {
+                        "command": (
+                            f"python -m scripts.generate_briefing "
+                            f"--date {period_label} --period-summary{force_flag}"
+                        ),
+                        "description": f"Period Briefing Generation for {period_label}",
+                        "required": False,
+                    },
+                    {
+                        "command": (
+                            f"python -m scripts.extract_facts "
+                            f"--date {period_label} --period-summary{force_flag}"
+                        ),
+                        "description": f"Period Facts Extraction for {period_label}",
+                        "required": False,
+                    },
+                ]
+            )
 
     for step in ai_steps:
         total_steps += 1
@@ -461,24 +639,45 @@ def run_full_pipeline(force=False, backfill=False, days_back=None):
             print(f"\n❌ Required AI step failed: {step['description']}")
             return False
 
-    # Step 4: RAG Document Generation
-    print("\n📋 STAGE 4: RAG DOCUMENT GENERATION")
+    # Step 4: Period-based RAG Document Generation
+    print("\n📋 STAGE 4: PERIOD-BASED RAG DOCUMENT GENERATION")
     print("=" * 60)
 
-    # Add split-output flag for backfill mode
-    split_flag = " --split-output" if backfill else ""
+    if processing_mode == "daily":
+        # For daily mode, use regular RAG generation
+        rag_steps = [
+            {
+                "command": (
+                    f"python -m scripts.generate_rag_document --date {start_date} "
+                    f"--organization prioritized{force_flag}"
+                ),
+                "description": (
+                    f"Prioritized RAG Document Generation for {start_date}"
+                ),
+                "required": False,
+            },
+        ]
+    else:
+        # For period-based processing, generate RAG documents for each period
+        # with split output
+        period_chunks = get_period_chunks(start_date, end_date, period)
+        rag_steps = []
 
-    rag_steps = [
-        {
-            "command": (
-                f"python -m scripts.generate_rag_document --date {aggregation_date} "
-                f"--organization prioritized{force_flag}{split_flag}"
-            ),
-            "description": "Prioritized RAG Document Generation"
-            + (" (Split Output)" if backfill else ""),
-            "required": False,
-        },
-    ]
+        for period_start, period_end, period_label in period_chunks:
+            rag_steps.append(
+                {
+                    "command": (
+                        f"python -m scripts.generate_rag_document "
+                        f"--date {period_label} --organization prioritized"
+                        f"{force_flag} --split-output"
+                    ),
+                    "description": (
+                        f"Prioritized RAG Document Generation for {period_label} "
+                        "(Split Output)"
+                    ),
+                    "required": False,
+                }
+            )
 
     for step in rag_steps:
         total_steps += 1
@@ -549,29 +748,55 @@ def run_full_pipeline(force=False, backfill=False, days_back=None):
     print("  ├─ github_summaries/  - AI-processed GitHub summaries")
     print("  ├─ medium/            - Raw Medium articles")
     print("  └─ telegram/          - Raw Telegram messages")
-    if backfill:
-        print("data/aggregated/        - Aggregated data files")
-        print(
-            "  └─ full_history_aggregated.json - Comprehensive historical aggregation"
-        )
-        print("data/briefings/         - AI-generated briefings")
-        print("  └─ full_history.json  - Comprehensive historical briefing")
-        print("data/facts/             - AI-extracted facts")
-        print("  └─ full_history.json  - Comprehensive historical facts")
-        print("knowledge_base/         - RAG-optimized documents (SPLIT OUTPUT)")
-        print("  ├─ full_history_01_briefing.md     - Daily briefing section")
-        print("  ├─ full_history_02_facts.md        - Key facts section")
-        print("  ├─ full_history_03_high_signal.md  - High-signal content")
-        print("  └─ full_history_04_general_activity.md - General activity")
-    else:
+
+    if processing_mode == "daily":
         print("data/aggregated/        - Raw daily aggregated data")
+        print(f"  └─ {start_date}.json  - Aggregated data for {start_date}")
         print("data/briefings/         - AI-generated daily briefings")
+        print(f"  └─ {start_date}.json  - Daily briefing for {start_date}")
         print("data/facts/             - AI-extracted daily facts")
+        print(f"  └─ {start_date}.json  - Daily facts for {start_date}")
         print("knowledge_base/         - RAG-optimized documents")
-        print(
-            "  └─ YYYY-MM-DD.md      - Prioritized RAG documents "
-            "(high-signal first, comprehensive)"
-        )
+        print(f"  └─ {start_date}.md    - Prioritized RAG document for {start_date}")
+    else:
+        print("data/aggregated/        - Period-based aggregated data files")
+        period_chunks = get_period_chunks(start_date, end_date, period)
+        for _, _, period_label in period_chunks[:3]:  # Show first 3 examples
+            print(
+                f"  ├─ {period_label}-{period}.json - "
+                f"Aggregated data for {period_label}"
+            )
+        if len(period_chunks) > 3:
+            print(f"  └─ ... ({len(period_chunks) - 3} more {period} files)")
+
+        print("data/briefings/         - AI-generated period briefings")
+        for _, _, period_label in period_chunks[:3]:  # Show first 3 examples
+            print(f"  ├─ {period_label}.json - Period briefing for {period_label}")
+        if len(period_chunks) > 3:
+            print(f"  └─ ... ({len(period_chunks) - 3} more {period} briefing files)")
+
+        print("data/facts/             - AI-extracted period facts")
+        for _, _, period_label in period_chunks[:3]:  # Show first 3 examples
+            print(f"  ├─ {period_label}.json - Period facts for {period_label}")
+        if len(period_chunks) > 3:
+            print(f"  └─ ... ({len(period_chunks) - 3} more {period} facts files)")
+
+        print("knowledge_base/         - RAG-optimized documents (SPLIT OUTPUT)")
+        for _, _, period_label in period_chunks[:2]:  # Show first 2 examples
+            print(f"  ├─ {period_label}_01_briefing.md     - Period briefing section")
+            print(f"  ├─ {period_label}_02_facts.md        - Key facts section")
+            print(f"  ├─ {period_label}_03_high_signal.md  - High-signal content")
+            print(f"  ├─ {period_label}_04_general_activity.md - General activity")
+        if len(period_chunks) > 2:
+            print(f"  └─ ... ({len(period_chunks) - 2} more {period} document sets)")
+
+    chunks_count = (
+        len(get_period_chunks(start_date, end_date, period))
+        if processing_mode != "daily"
+        else 1
+    )
+    period_type = period if processing_mode != "daily" else "daily"
+    print(f"\n🗓️  Processing Summary: {chunks_count} {period_type} period(s) processed")
 
     print("\n📋 Detailed reports available at: monitoring/reports/")
     print("📝 Logs available at: monitoring/logs/")
@@ -681,43 +906,102 @@ def run_ingestion_only(backfill=False, force=False, days_back=None):
     return success_count > 0
 
 
-def run_aggregation_only(force=False, backfill=False):
-    """Run only the raw aggregation step."""
-    if backfill:
+def run_aggregation_only(force=False, backfill=False, days_back=None, period="monthly"):
+    """Run only the period-based aggregation step."""
+    # Determine processing mode and date range
+    if days_back is not None:
+        start_date, end_date = get_backfill_date_range(days_back)
+        print(f"\n🔄 Running aggregation-only pipeline - DAYS BACK ({days_back})")
+    elif backfill:
+        start_date, end_date = get_backfill_date_range()
         print("\n🔄 Running aggregation-only pipeline - BACKFILL MODE")
-        aggregation_date = "full_history"
     else:
-        print("\n🔄 Running aggregation-only pipeline")
-        aggregation_date = datetime.now().strftime("%Y-%m-%d")
+        today = datetime.now().strftime("%Y-%m-%d")
+        start_date, end_date = today, today
+        print("\n🔄 Running aggregation-only pipeline - DAILY MODE")
 
     force_flag = " --force" if force else ""
-    success, status = run_command(
-        f"python -m scripts.aggregate_sources --date {aggregation_date}{force_flag}",
-        "Raw Sources Aggregation",
-    )
+
+    if start_date == end_date:
+        # Daily mode
+        success, status = run_command(
+            f"python -m scripts.aggregate_sources --date {start_date}{force_flag}",
+            f"Raw Sources Aggregation for {start_date}",
+        )
+    else:
+        # Period-based mode
+        command = (
+            f"python -m scripts.aggregate_sources --start-date {start_date} "
+            f"--end-date {end_date} --period {period}{force_flag}"
+        )
+        success, status = run_command(
+            command,
+            f"Period-based Raw Sources Aggregation ({period})",
+        )
+
     return success
 
 
-def run_ai_processing_only(force=False, backfill=False):
-    """Run only the AI processing steps."""
-    if backfill:
+def run_ai_processing_only(
+    force=False, backfill=False, days_back=None, period="monthly"
+):
+    """Run only the period-based AI processing steps."""
+    # Determine processing mode and date range
+    if days_back is not None:
+        start_date, end_date = get_backfill_date_range(days_back)
+        print(f"\n🔄 Running AI processing pipeline - DAYS BACK ({days_back})")
+    elif backfill:
+        start_date, end_date = get_backfill_date_range()
         print("\n🔄 Running AI processing pipeline - BACKFILL MODE")
-        ai_date_flag = " --date full_history"
     else:
-        print("\n🔄 Running AI processing pipeline")
-        ai_date_flag = ""
+        today = datetime.now().strftime("%Y-%m-%d")
+        start_date, end_date = today, today
+        print("\n🔄 Running AI processing pipeline - DAILY MODE")
 
     force_flag = " --force" if force else ""
-    steps = [
-        (
-            f"python -m scripts.generate_briefing{ai_date_flag}{force_flag}",
-            "Daily Briefing Generation",
-        ),
-        (
-            f"python -m scripts.extract_facts{ai_date_flag}{force_flag}",
-            "Daily Facts Extraction",
-        ),
-    ]
+
+    if start_date == end_date:
+        # Daily mode
+        steps = [
+            (
+                (
+                    f"python -m scripts.generate_briefing --date {start_date}"
+                    f"{force_flag}"
+                ),
+                f"Daily Briefing Generation for {start_date}",
+            ),
+            (
+                (
+                    f"python -m scripts.extract_facts --date {start_date}"
+                    f"{force_flag}"
+                ),
+                f"Daily Facts Extraction for {start_date}",
+            ),
+        ]
+    else:
+        # Period-based mode
+        period_chunks = get_period_chunks(start_date, end_date, period)
+        steps = []
+
+        for period_start, period_end, period_label in period_chunks:
+            steps.extend(
+                [
+                    (
+                        (
+                            f"python -m scripts.generate_briefing "
+                            f"--date {period_label} --period-summary{force_flag}"
+                        ),
+                        f"Period Briefing Generation for {period_label}",
+                    ),
+                    (
+                        (
+                            f"python -m scripts.extract_facts "
+                            f"--date {period_label} --period-summary{force_flag}"
+                        ),
+                        f"Period Facts Extraction for {period_label}",
+                    ),
+                ]
+            )
 
     success_count = 0
     for command, description in steps:
@@ -728,26 +1012,58 @@ def run_ai_processing_only(force=False, backfill=False):
     return success_count > 0
 
 
-def run_rag_generation_only(force=False, date=None, backfill=False):
-    """Run only the RAG document generation steps."""
-    if backfill or date == "full_history":
+def run_rag_generation_only(
+    force=False, date=None, backfill=False, days_back=None, period="monthly"
+):
+    """Run only the period-based RAG document generation steps."""
+    # Determine processing mode and date range
+    if date:
+        # Use provided date
+        start_date, end_date = date, date
+        print(f"\n🔄 Running RAG document generation pipeline - DATE ({date})")
+    elif days_back is not None:
+        start_date, end_date = get_backfill_date_range(days_back)
+        print(
+            f"\n🔄 Running RAG document generation pipeline - DAYS BACK ({days_back})"
+        )
+    elif backfill:
+        start_date, end_date = get_backfill_date_range()
         print("\n🔄 Running RAG document generation pipeline - BACKFILL MODE")
-        rag_date = "full_history"
     else:
-        print("\n🔄 Running RAG document generation pipeline")
-        rag_date = date if date else datetime.now().strftime("%Y-%m-%d")
+        today = datetime.now().strftime("%Y-%m-%d")
+        start_date, end_date = today, today
+        print("\n🔄 Running RAG document generation pipeline - DAILY MODE")
 
     force_flag = " --force" if force else ""
-    split_flag = " --split-output" if backfill or rag_date == "full_history" else ""
 
-    steps = [
-        (
-            f"python -m scripts.generate_rag_document --date {rag_date} "
-            f"--organization prioritized{force_flag}{split_flag}",
-            "Prioritized RAG Document Generation"
-            + (" (Split Output)" if split_flag else ""),
-        ),
-    ]
+    if start_date == end_date:
+        # Daily/single date mode
+        steps = [
+            (
+                f"python -m scripts.generate_rag_document --date {start_date} "
+                f"--organization prioritized{force_flag}",
+                f"Prioritized RAG Document Generation for {start_date}",
+            ),
+        ]
+    else:
+        # Period-based mode with split output
+        period_chunks = get_period_chunks(start_date, end_date, period)
+        steps = []
+
+        for period_start, period_end, period_label in period_chunks:
+            steps.append(
+                (
+                    (
+                        f"python -m scripts.generate_rag_document "
+                        f"--date {period_label} --organization prioritized"
+                        f"{force_flag} --split-output"
+                    ),
+                    (
+                        f"Prioritized RAG Document Generation for {period_label} "
+                        "(Split Output)"
+                    ),
+                )
+            )
 
     success_count = 0
     for command, description in steps:
@@ -763,7 +1079,9 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Kaspa Knowledge Hub Data Pipeline Runner"
+        description=(
+            "Kaspa Knowledge Hub Data Pipeline Runner with Period-based Processing"
+        )
     )
     parser.add_argument(
         "mode",
@@ -789,17 +1107,19 @@ def main():
         "--backfill",
         action="store_true",
         help=(
-            "Run in backfill mode (process comprehensive historical data, "
-            "saves to full_history files)"
+            "Run in backfill mode (process all historical data in period-based chunks)"
         ),
     )
     parser.add_argument(
         "--days-back",
         type=int,
-        help=(
-            "Number of days back to fetch data for Medium, GitHub, and Discourse "
-            "ingestion (filters by publication/update/creation date)"
-        ),
+        help=("Number of days back to process data (processes in period-based chunks)"),
+    )
+    parser.add_argument(
+        "--period",
+        choices=["daily", "weekly", "monthly"],
+        default="monthly",
+        help="Period type for aggregation and processing (default: monthly)",
     )
 
     args = parser.parse_args()
@@ -811,18 +1131,33 @@ def main():
             days_back=getattr(args, "days_back", None),
         )
     elif args.mode == "aggregate":
-        success = run_aggregation_only(force=args.force, backfill=args.backfill)
+        success = run_aggregation_only(
+            force=args.force,
+            backfill=args.backfill,
+            days_back=getattr(args, "days_back", None),
+            period=args.period,
+        )
     elif args.mode == "ai":
-        success = run_ai_processing_only(force=args.force, backfill=args.backfill)
+        success = run_ai_processing_only(
+            force=args.force,
+            backfill=args.backfill,
+            days_back=getattr(args, "days_back", None),
+            period=args.period,
+        )
     elif args.mode == "rag":
         success = run_rag_generation_only(
-            force=args.force, date=args.date, backfill=args.backfill
+            force=args.force,
+            date=args.date,
+            backfill=args.backfill,
+            days_back=getattr(args, "days_back", None),
+            period=args.period,
         )
     elif args.mode == "full":
         success = run_full_pipeline(
             force=args.force,
             backfill=args.backfill,
             days_back=getattr(args, "days_back", None),
+            period=args.period,
         )
 
     if success:
