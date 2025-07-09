@@ -1,1 +1,27 @@
-{}
+{
+  "kaspanet/rusty-kaspa": {
+    "commits": [],
+    "pull_requests": [
+      {
+        "number": 704,
+        "title": "Wasm utxo return address",
+        "body": "",
+        "state": "open",
+        "author": "biryukovmaxim",
+        "created_at": "2025-07-08T16:26:29+00:00",
+        "updated_at": "2025-07-08T16:26:29+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/704",
+        "draft": false,
+        "mergeable": true,
+        "additions": 57,
+        "deletions": 4,
+        "changed_files": 6,
+        "commits": 2,
+        "labels": [],
+        "all_comments": []
+      }
+    ],
+    "issues": []
+  }
+}
