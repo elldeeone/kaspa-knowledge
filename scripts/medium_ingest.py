@@ -627,7 +627,41 @@ regular operations, full-history for comprehensive backfill operations.
             print("⚠️ No articles found from RSS feeds or manual URLs.")
         else:
             print("⚠️ No articles found across all RSS feeds.")
-        return
+
+        # Create metadata file for no content scenario (consistent with other sources)
+        import sys
+        import json
+        from datetime import datetime, timezone
+        from pathlib import Path
+
+        empty_data_with_metadata = {
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "source": "medium",
+            "status": "no_new_content",
+            "articles": [],
+            "metadata": {
+                "total_articles_fetched": 0,
+                "feeds_processed": len(RSS_URLS),
+                "successful_feeds": successful_feeds,
+                "processing_mode": (
+                    "full_history" if args.full_history else "daily_sync"
+                ),
+                "credential_status": "rss_feeds",
+            },
+        }
+
+        # Save the empty data file directly
+        sources_dir = Path("sources/medium")
+        sources_dir.mkdir(parents=True, exist_ok=True)
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        output_path = sources_dir / f"{date_str}.json"
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(empty_data_with_metadata, f, indent=2, ensure_ascii=False)
+
+        print(f"📁 Saved no-content metadata file to: {output_path}")
+        sys.exit(2)  # Exit code 2 indicates "no new content"
 
     # Remove duplicates within this run based on the article link
     articles_by_link = {}

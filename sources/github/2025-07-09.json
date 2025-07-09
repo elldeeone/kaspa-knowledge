@@ -1,0 +1,146 @@
+{
+  "kaspanet/rusty-kaspa": {
+    "repository": {
+      "owner": "kaspanet",
+      "name": "rusty-kaspa",
+      "full_name": "kaspanet/rusty-kaspa",
+      "description": "Kaspa full-node reference implementation and related libraries in the Rust programming language",
+      "url": "https://github.com/kaspanet/rusty-kaspa",
+      "stars": 651,
+      "forks": 209,
+      "language": "Rust",
+      "updated_at": "2025-07-06T13:56:39+00:00",
+      "created_at": "2022-07-17T23:32:26+00:00"
+    },
+    "commits": [],
+    "pull_requests": [
+      {
+        "number": 704,
+        "title": "Wasm utxo return address",
+        "body": "",
+        "state": "open",
+        "author": "biryukovmaxim",
+        "created_at": "2025-07-08T16:26:29+00:00",
+        "updated_at": "2025-07-08T16:26:29+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/704",
+        "draft": false,
+        "mergeable": true,
+        "additions": 57,
+        "deletions": 4,
+        "changed_files": 6,
+        "commits": 2,
+        "labels": [],
+        "all_comments": []
+      },
+      {
+        "number": 703,
+        "title": "Adds payload support in PSKT",
+        "body": "Closes https://github.com/kaspanet/rusty-kaspa/issues/700",
+        "state": "open",
+        "author": "danwt",
+        "created_at": "2025-07-04T14:58:35+00:00",
+        "updated_at": "2025-07-07T09:52:17+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/703",
+        "draft": false,
+        "mergeable": true,
+        "additions": 8,
+        "deletions": 1,
+        "changed_files": 2,
+        "commits": 5,
+        "labels": [],
+        "all_comments": [
+          {
+            "id": 2185797726,
+            "body": "Could be wise to keep the underlying signature (`Option<Vec<u8>>`), some might want to reset payload by setting a None value to it.",
+            "author": "IzioDev",
+            "created_at": "2025-07-04T17:04:06+00:00",
+            "updated_at": "2025-07-04T17:04:06+00:00",
+            "url": "https://github.com/kaspanet/rusty-kaspa/pull/703#discussion_r2185797726"
+          },
+          {
+            "id": 2189542362,
+            "body": "I will update",
+            "author": "danwt",
+            "created_at": "2025-07-07T09:52:17+00:00",
+            "updated_at": "2025-07-07T09:52:17+00:00",
+            "url": "https://github.com/kaspanet/rusty-kaspa/pull/703#discussion_r2189542362"
+          }
+        ]
+      }
+    ],
+    "issues": [],
+    "metadata": {
+      "fetched_at": "2025-07-09T01:04:49.735423+00:00",
+      "days_back": 7,
+      "total_items": 2
+    }
+  },
+  "kaspanet/kaspad": {
+    "repository": {
+      "owner": "kaspanet",
+      "name": "kaspad",
+      "full_name": "kaspanet/kaspad",
+      "description": "Kaspad was the reference full node Kaspa implementation written in Go (golang), now rewritten in Rust: https://github.com/kaspanet/rusty-kaspa",
+      "url": "https://github.com/kaspanet/kaspad",
+      "stars": 493,
+      "forks": 241,
+      "language": "Go",
+      "updated_at": "2025-06-28T19:26:41+00:00",
+      "created_at": "2018-06-04T06:13:52+00:00"
+    },
+    "commits": [],
+    "pull_requests": [],
+    "issues": [],
+    "metadata": {
+      "fetched_at": "2025-07-09T01:04:54.445744+00:00",
+      "days_back": 7,
+      "total_items": 0
+    }
+  },
+  "kaspanet/kips": {
+    "repository": {
+      "owner": "kaspanet",
+      "name": "kips",
+      "full_name": "kaspanet/kips",
+      "description": "Kaspa Improvement Proposals",
+      "url": "https://github.com/kaspanet/kips",
+      "stars": 38,
+      "forks": 17,
+      "language": "Python",
+      "updated_at": "2025-05-11T07:15:05+00:00",
+      "created_at": "2022-11-27T13:25:30+00:00"
+    },
+    "commits": [],
+    "pull_requests": [],
+    "issues": [],
+    "metadata": {
+      "fetched_at": "2025-07-09T01:04:59.091056+00:00",
+      "days_back": 7,
+      "total_items": 0
+    }
+  },
+  "kaspanet/docs": {
+    "repository": {
+      "owner": "kaspanet",
+      "name": "docs",
+      "full_name": "kaspanet/docs",
+      "description": "Kaspa documentation",
+      "url": "https://github.com/kaspanet/docs",
+      "stars": 57,
+      "forks": 25,
+      "language": "TeX",
+      "updated_at": "2025-07-03T22:42:48+00:00",
+      "created_at": "2020-12-06T06:56:01+00:00"
+    },
+    "commits": [],
+    "pull_requests": [],
+    "issues": [],
+    "metadata": {
+      "fetched_at": "2025-07-09T01:05:03.759183+00:00",
+      "days_back": 7,
+      "total_items": 0
+    }
+  }
+}
