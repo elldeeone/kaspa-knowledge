@@ -538,7 +538,43 @@ def save_github_data(all_repo_data, date=None, full_history=False):
 
         output_file = OUTPUT_DIR / f"{date_str}.json"
 
-        # Create final data structure
+        # Check if this is a "no content" scenario
+        has_content = bool(
+            all_repo_data and any(repo_data for repo_data in all_repo_data.values())
+        )
+
+        if not has_content:
+            # Create metadata structure for no content scenario
+            # (consistent with other sources)
+            from datetime import datetime, timezone
+
+            no_content_data = {
+                "date": date_str,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "source": "github",
+                "status": "no_new_content",
+                "repositories": {},
+                "metadata": {
+                    "repos_processed": 0,
+                    "total_items_fetched": 0,
+                    "credential_status": "configured" if GITHUB_TOKEN else "missing",
+                    "processing_mode": "full_history" if full_history else "daily_sync",
+                },
+            }
+
+            try:
+                with open(output_file, "w", encoding="utf-8") as f:
+                    json.dump(no_content_data, f, indent=2, ensure_ascii=False)
+
+                print(f"\n✅ Saved GitHub no-content metadata to: {output_file}")
+                print("   📊 Status: no_new_content")
+                return
+
+            except IOError as e:
+                print(f"❌ Error saving GitHub no-content data: {e}")
+                return
+
+        # Create final data structure for content scenario
         final_data = {}
         for repo_name, repo_data in all_repo_data.items():
             if repo_data:  # Only include successful fetches
