@@ -97,3 +97,5 @@ sources/medium/*.backup
 # Task files
 # tasks.json
 # tasks/ 
+CLAUDE.md
+.claude/settings.local.json

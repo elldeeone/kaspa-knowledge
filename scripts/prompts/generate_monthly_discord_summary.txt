@@ -1,0 +1,70 @@
+Based on the Discord messages and server activity data below for {period_label} ({start_date} to {end_date}), create a comprehensive monthly community server analysis using the signal prioritization system:
+
+**Period:** {period_label}
+**Duration:** {duration_days} days
+**Total Messages:** {total_items}
+**Channels:** {channel_count} | **Active Members:** {member_count} | **Key Discussions:** {discussion_count}
+
+**SIGNAL PRIORITIZATION GUIDE:**
+Use the `signal` metadata in each message to prioritize analysis:
+- **Top Insights** (final_score > 0.85): Most important server activity requiring immediate attention
+- **Recent Developments** (final_score 0.70-0.85): Significant discussions and valuable community interactions
+- **Standard Contributions** (final_score 0.40-0.70): Regular server activity and conversations
+- **Archive Material** (final_score < 0.40): Historical context and background conversations
+
+**CONTRIBUTOR SIGNAL WEIGHTING:**
+- **Founders** (is_founder: true): Strategic server announcements and community direction
+- **Lead Developers** (is_lead: true): Technical guidance and expert responses
+- **Core Developers** (contributor_role: "core_developer"): Technical support and implementation insights
+- **High Signal Strength** (strength: "high"): Prioritize these contributions regardless of role
+
+**Discord Activity Data:**
+{activity_data}
+
+Please provide:
+
+## Monthly Discord Community Executive Summary
+- Top 3-5 most significant server activities or community developments this month (prioritize final_score > 0.85)
+- **ALWAYS include author names and their roles** for each activity (e.g., "by @author (core_developer)")
+- Strategic server announcements or major community updates (focus on is_founder/is_lead contributions)
+- Key community building milestones and engagement achievements (weight by signal strength)
+- **Prominently feature contributor attributions** throughout the summary
+
+## Core Server Communication Themes
+- Primary topics and channel activities, ranked by signal scores and member engagement
+- Cross-cutting discussions that spanned multiple channels and weeks (identify by contributor patterns)
+- Technical support and community collaboration (prioritize core_developer contributions)
+
+## Key Contributors & Server Leadership Analysis
+- **Founders & Leads**: Highlight is_founder=true and is_lead=true messages with their community impact, **always name the contributors**
+- **Core Developers**: Detail contributor_role="core_developer" involvement in technical channels, **always name the contributors**
+- **High-Signal Contributors**: Emphasize strength="high" contributions regardless of formal role, **always name the contributors**
+- **Signal Score Distribution**: Analyze server activity quality using final_score ranges
+- **Author Attribution**: Ensure every significant message mentions the author's name and role
+
+## Server Community Trends & Patterns
+- Emerging discussion themes or channel activity patterns
+- Areas of intensive member engagement or rapid community response
+- Community health indicators (member retention, channel activity, collaboration quality)
+
+## Notable Server Activities & Community Building
+- Major technical discussions and collaborative problem-solving
+- Community events and their participation levels
+- Server governance and moderation effectiveness
+
+## Technical & Collaborative Impact
+- Discord discussions that influenced development priorities
+- Community collaboration patterns and project contributions
+- Real-time technical support and knowledge sharing
+
+## Forward-Looking Server Analysis
+- Server activities that set foundation for future community collaboration
+- Unresolved community needs requiring ongoing attention
+- Areas requiring server management focus in upcoming cycles
+
+## Actionable Server Community Insights
+- Priority items for server management and community building
+- Channel organization and engagement strategy recommendations
+- Technical areas requiring more focused discussion channels or support
+
+Focus on strategic server context and monthly themes rather than daily details. Emphasize server activities that shaped the month's community collaboration and will influence future server management and community building strategies.

@@ -22,6 +22,7 @@ Features:
 """
 
 import argparse
+import logging
 import subprocess
 import sys
 import time
@@ -29,22 +30,22 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Tuple
 
-# Import the new monitoring system
-from monitoring import (
+# Add the project root to Python path - must be done before importing local modules
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Local imports after path modification
+from monitoring import (  # noqa: E402
     setup_monitoring_from_env,
     ErrorSeverity,
     ErrorCategory,
 )
-
-# Import resource management
-from scripts.resource_manager import (
+from scripts.resource_manager import (  # noqa: E402
     ResourceMonitor,
     check_resources,
     retry_operation,
 )
 
 # Configure basic logging for pipeline operations
-import logging
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -377,7 +378,7 @@ def run_full_pipeline(
     days_back=None,
     period=None,
     force=False,
-    processing_mode="daily",
+    processing_mode=None,
     start_date=None,
     end_date=None,
 ):
@@ -387,6 +388,17 @@ def run_full_pipeline(
     This function orchestrates all pipeline stages with monitoring, error handling,
     and resource management for large temporal chunks.
     """
+
+    # Determine processing mode based on arguments
+    if processing_mode is None:
+        if backfill or (days_back is not None and days_back > 1):
+            processing_mode = "period"
+        else:
+            processing_mode = "daily"
+
+    # Set default period if not provided
+    if period is None:
+        period = "monthly"
 
     # Initialize resource management
     # resource_manager = LargeDatasetManager(".")  # For future large dataset operations
@@ -417,11 +429,17 @@ def run_full_pipeline(
                     "%Y-%m-%d"
                 )
         elif processing_mode == "period":
-            # start_date and end_date should already be set
-            pass
+            # For period mode, get the full date range for processing
+            if days_back is not None:
+                start_date, end_date = get_backfill_date_range(days_back)
+            elif backfill:
+                start_date, end_date = get_backfill_date_range()
+            # start_date and end_date should already be set for custom ranges
 
         logger.info(f"Pipeline processing range: {start_date} to {end_date}")
         logger.info(f"Processing mode: {processing_mode}")
+        if processing_mode == "period":
+            logger.info(f"Period type: {period}")
 
         # Step 1: Ingest raw data from sources with resource management
         logger.info("=== STEP 1: Data Ingestion with Resource Management ===")
@@ -441,12 +459,19 @@ def run_full_pipeline(
         force_flag = " --force" if force else ""
         days_back_flag = f" --days-back {ingestion_days_back}"
 
+        # Build telegram command separately since it doesn't accept --days-back
+        telegram_cmd = f"python -m scripts.telegram_ingest{force_flag}"
+        if backfill or processing_mode == "period":
+            telegram_cmd = (
+                f"python -m scripts.telegram_ingest --full-history{force_flag}"
+            )
+
         # Run ingestion with resource monitoring
         ingestion_commands = [
             f"python -m scripts.medium_ingest{days_back_flag}{force_flag}",
-            f"python -m scripts.telegram_ingest{days_back_flag}{force_flag}",
+            telegram_cmd,
             f"python -m scripts.github_ingest{days_back_flag}{force_flag}",
-            f"python -m scripts.forum_ingest{days_back_flag}{force_flag}",
+            f"python -m scripts.discourse_ingest{days_back_flag}{force_flag}",
         ]
 
         for cmd in ingestion_commands:
@@ -593,84 +618,162 @@ def run_full_pipeline(
         # Step 3: AI Processing with resource management
         logger.info("=== STEP 3: AI Processing with Resource Management ===")
 
-        # Generate briefings with memory monitoring
         if processing_mode == "daily":
+            # Daily mode - process single date
             briefing_cmd = f"python -m scripts.generate_briefing --date {end_date}"
-        else:
-            briefing_cmd = (
-                f"python -m scripts.generate_briefing --start-date {start_date} "
-                f"--end-date {end_date} --period-summary"
-            )
-
-        if force:
-            briefing_cmd += " --force"
-
-        try:
-            # Check resources before AI processing
-            resource_report = resource_monitor.get_resource_report(".")
-            if not resource_report["memory"]["is_safe"]:
-                logger.warning(
-                    f"Memory warning before AI processing: "
-                    f"{resource_report['memory']['message']}"
-                )
-
-                # Free memory before AI processing
-                freed = resource_monitor.trigger_gc()
-                if freed > 0:
-                    logger.info(f"Freed {freed / (1024**3):.2f}GB before AI processing")
-
-            retry_operation(_run_command_safely, briefing_cmd, timeout=3600)
-            logger.info("Briefing generation completed")
-        except Exception as e:
-            logger.error(f"Briefing generation failed: {e}")
-            # Continue with other steps
-
-        # Generate facts with memory monitoring
-        if processing_mode == "daily":
             facts_cmd = f"python -m scripts.extract_facts --date {end_date}"
+
+            if force:
+                briefing_cmd += " --force"
+                facts_cmd += " --force"
+
+            # Generate briefings with memory monitoring
+            try:
+                # Check resources before AI processing
+                resource_report = resource_monitor.get_resource_report(".")
+                if not resource_report["memory"]["is_safe"]:
+                    logger.warning(
+                        f"Memory warning before AI processing: "
+                        f"{resource_report['memory']['message']}"
+                    )
+
+                    # Free memory before AI processing
+                    freed = resource_monitor.trigger_gc()
+                    if freed > 0:
+                        logger.info(
+                            f"Freed {freed / (1024**3):.2f}GB before AI processing"
+                        )
+
+                retry_operation(_run_command_safely, briefing_cmd, timeout=3600)
+                logger.info("Briefing generation completed")
+            except Exception as e:
+                logger.error(f"Briefing generation failed: {e}")
+                # Continue with other steps
+
+            # Generate facts with memory monitoring
+            try:
+                retry_operation(_run_command_safely, facts_cmd, timeout=3600)
+                logger.info("Facts extraction completed")
+            except Exception as e:
+                logger.error(f"Facts extraction failed: {e}")
+                # Continue with other steps
+
         else:
-            facts_cmd = (
-                f"python -m scripts.extract_facts --start-date {start_date} "
-                f"--end-date {end_date} --period-summary"
+            # Period mode - process each monthly period individually
+            period_chunks = get_period_chunks(start_date, end_date, period)
+
+            successful_ai_chunks = 0
+            failed_ai_chunks = []
+
+            for chunk_start, chunk_end, period_label in period_chunks:
+                logger.info(f"Processing AI tasks for period: {period_label}")
+
+                # Generate briefing for this period
+                briefing_cmd = (
+                    f"python -m scripts.generate_briefing --date {period_label} "
+                    "--period-summary"
+                )
+                if force:
+                    briefing_cmd += " --force"
+
+                try:
+                    # Check resources before AI processing
+                    resource_report = resource_monitor.get_resource_report(".")
+                    if not resource_report["memory"]["is_safe"]:
+                        logger.warning(
+                            f"Memory warning before AI processing for {period_label}: "
+                            f"{resource_report['memory']['message']}"
+                        )
+
+                        # Free memory before AI processing
+                        freed = resource_monitor.trigger_gc()
+                        if freed > 0:
+                            logger.info(
+                                f"Freed {freed / (1024**3):.2f}GB before AI processing"
+                            )
+
+                    retry_operation(_run_command_safely, briefing_cmd, timeout=3600)
+                    logger.info(f"Briefing generation completed for {period_label}")
+                except Exception as e:
+                    logger.error(f"Briefing generation failed for {period_label}: {e}")
+                    failed_ai_chunks.append((period_label, f"briefing: {str(e)}"))
+                    # Continue with facts extraction for this period
+
+                # Generate facts for this period
+                facts_cmd = (
+                    f"python -m scripts.extract_facts --date {period_label} "
+                    "--period-summary"
+                )
+                if force:
+                    facts_cmd += " --force"
+
+                try:
+                    retry_operation(_run_command_safely, facts_cmd, timeout=3600)
+                    logger.info(f"Facts extraction completed for {period_label}")
+                    successful_ai_chunks += 1
+                except Exception as e:
+                    logger.error(f"Facts extraction failed for {period_label}: {e}")
+                    failed_ai_chunks.append((period_label, f"facts: {str(e)}"))
+                    # Continue with next period
+
+            logger.info(
+                f"Period AI processing completed: "
+                f"{successful_ai_chunks}/{len(period_chunks)} chunks successful"
             )
-
-        if force:
-            facts_cmd += " --force"
-
-        try:
-            retry_operation(_run_command_safely, facts_cmd, timeout=3600)
-            logger.info("Facts extraction completed")
-        except Exception as e:
-            logger.error(f"Facts extraction failed: {e}")
-            # Continue with other steps
+            if failed_ai_chunks:
+                logger.warning(f"Failed AI chunks: {failed_ai_chunks}")
 
         # Step 4: RAG Document Generation with resource management
         logger.info("=== STEP 4: RAG Document Generation with Resource Management ===")
 
         if processing_mode == "daily":
+            # Daily mode
             rag_cmd = f"python -m scripts.generate_rag_document --date {end_date}"
+            if force:
+                rag_cmd += " --force"
+
+            try:
+                retry_operation(_run_command_safely, rag_cmd, timeout=3600)
+                logger.info("RAG document generation completed")
+            except Exception as e:
+                logger.error(f"RAG document generation failed: {e}")
+                # Continue to completion report
+
         else:
-            rag_cmd = (
-                f"python -m scripts.generate_rag_document --start-date {start_date} "
-                f"--end-date {end_date} --split-output"
-            )
+            # Period mode - process each monthly period individually
+            period_chunks = get_period_chunks(start_date, end_date, period)
 
-        if force:
-            rag_cmd += " --force"
+            successful_rag_chunks = 0
+            failed_rag_chunks = []
 
-        try:
-            # Final resource check before RAG generation
-            resource_report = resource_monitor.get_resource_report(".")
-            if not resource_report["overall_safe"]:
-                logger.warning(
-                    f"Resource warning before RAG generation: "
-                    f"{resource_report['memory']['message']}"
+            for chunk_start, chunk_end, period_label in period_chunks:
+                logger.info(f"Generating RAG document for period: {period_label}")
+
+                # Generate RAG document for this period
+                rag_cmd = (
+                    f"python -m scripts.generate_rag_document --date {period_label} "
+                    "--split-output --period-summary"
                 )
+                if force:
+                    rag_cmd += " --force"
 
-            retry_operation(_run_command_safely, rag_cmd, timeout=2400)
-            logger.info("RAG document generation completed")
-        except Exception as e:
-            logger.error(f"RAG document generation failed: {e}")
+                try:
+                    retry_operation(_run_command_safely, rag_cmd, timeout=3600)
+                    logger.info(f"RAG document generation completed for {period_label}")
+                    successful_rag_chunks += 1
+                except Exception as e:
+                    logger.error(
+                        f"RAG document generation failed for {period_label}: {e}"
+                    )
+                    failed_rag_chunks.append((period_label, str(e)))
+                    # Continue with next period
+
+            logger.info(
+                f"Period RAG generation completed: "
+                f"{successful_rag_chunks}/{len(period_chunks)} chunks successful"
+            )
+            if failed_rag_chunks:
+                logger.warning(f"Failed RAG chunks: {failed_rag_chunks}")
 
         # Pipeline completion report with resource usage
         pipeline_end_time = time.time()
@@ -738,23 +841,42 @@ def _run_command_safely(command, timeout=300):
 
     try:
         result = subprocess.run(
-            command.split(), capture_output=True, text=True, timeout=timeout, check=True
+            command.split(), capture_output=True, text=True, timeout=timeout
         )
 
         if result.stdout:
             logger.debug(f"Command output: {result.stdout}")
 
-        return result
+        # Handle success cases
+        if result.returncode == 0:
+            return result
+        elif result.returncode == 2 and any(
+            ingest_cmd in command
+            for ingest_cmd in [
+                "medium_ingest",
+                "telegram_ingest",
+                "github_ingest",
+                "discourse_ingest",
+            ]
+        ):
+            # Exit code 2 means "no new content" for ingestion scripts
+            # - this is acceptable
+            logger.info(f"Command completed with no new content: {command}")
+            return result
+        else:
+            # Command failed with unexpected exit code
+            logger.error(
+                f"Command failed with exit code {result.returncode}: {command}"
+            )
+            if result.stderr:
+                logger.error(f"Error output: {result.stderr}")
+            raise Exception(
+                f"Command failed: {command} " f"(exit code {result.returncode})"
+            )
 
     except subprocess.TimeoutExpired:
         logger.error(f"Command timed out after {timeout}s: {command}")
         raise Exception(f"Command timeout: {command}")
-
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed with exit code {e.returncode}: {command}")
-        if e.stderr:
-            logger.error(f"Error output: {e.stderr}")
-        raise Exception(f"Command failed: {command} (exit code {e.returncode})")
 
     except Exception as e:
         logger.error(f"Unexpected error running command: {command} - {e}")

@@ -10,6 +10,7 @@ Content: {content}
 
 Please extract and list technical facts, announcements, or insights related to Kaspa. Format each as:
 - FACT: [specific technical fact or announcement]
+- AUTHOR: [contributor name and role, e.g., "@author (core_developer)"]
 - CATEGORY: [technical|governance|development|security|mining|consensus|community|performance|other]
 - IMPACT: [high|medium|low]
 - CONTEXT: [brief explanation of why this matters to Kaspa]

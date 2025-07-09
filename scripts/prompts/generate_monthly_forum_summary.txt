@@ -1,0 +1,70 @@
+Based on the Discourse forum activity data below for {period_label} ({start_date} to {end_date}), create a comprehensive monthly forum community analysis using the signal prioritization system:
+
+**Period:** {period_label}
+**Duration:** {duration_days} days
+**Total Posts:** {total_items}
+**Topics:** {topic_count} | **Authors:** {author_count} | **Active Discussions:** {active_discussions}
+
+**SIGNAL PRIORITIZATION GUIDE:**
+Use the `signal` metadata in each post to prioritize analysis:
+- **Top Insights** (final_score > 0.85): Most important community discussions requiring immediate attention
+- **Recent Developments** (final_score 0.70-0.85): Significant ongoing conversations and valuable contributions
+- **Standard Contributions** (final_score 0.40-0.70): Regular community activity and discussions
+- **Archive Material** (final_score < 0.40): Historical context and background discussions
+
+**CONTRIBUTOR SIGNAL WEIGHTING:**
+- **Founders** (is_founder: true): Strategic vision and community direction
+- **Lead Developers** (is_lead: true): Technical guidance and expert opinions
+- **Core Developers** (contributor_role: "core_developer"): Technical explanations and implementation insights
+- **High Signal Strength** (strength: "high"): Prioritize these contributions regardless of role
+
+**Forum Activity Data:**
+{activity_data}
+
+Please provide:
+
+## Monthly Forum Community Executive Summary
+- Top 3-5 most significant discussions or community developments this month (prioritize final_score > 0.85)
+- **ALWAYS include author names and their roles** for each discussion (e.g., "by @author (core_developer)")
+- Strategic community direction changes or major decisions (focus on is_founder/is_lead contributions)
+- Key consensus reached and community milestones (weight by signal strength)
+- **Prominently feature contributor attributions** throughout the summary
+
+## Core Discussion Themes
+- Primary topics and areas of focus, ranked by signal scores and contributor engagement
+- Cross-cutting discussions that spanned multiple weeks (identify by contributor patterns)
+- Technical debates and community problem-solving (prioritize core_developer contributions)
+
+## Key Contributors & Community Leadership Analysis
+- **Founders & Leads**: Highlight is_founder=true and is_lead=true contributions with their community impact, **always name the contributors**
+- **Core Developers**: Detail contributor_role="core_developer" involvement in technical discussions, **always name the contributors**
+- **High-Signal Contributors**: Emphasize strength="high" contributions regardless of formal role, **always name the contributors**
+- **Signal Score Distribution**: Analyze discussion quality using final_score ranges
+- **Author Attribution**: Ensure every significant contribution mentions the author's name and role
+
+## Community Trends & Patterns
+- Emerging discussion patterns or hot topics
+- Areas of intensive debate or rapid consensus building
+- Community health indicators (participation, diversity, engagement quality)
+
+## Notable Issues & Solutions
+- Major technical questions raised and resolved
+- Community governance discussions
+- Process improvements or community guidelines evolution
+
+## Technical & Protocol Impact
+- Forum discussions that influenced development priorities
+- Community feedback on technical proposals
+- Research discussions and theoretical explorations
+
+## Forward-Looking Community Analysis
+- Discussions that set foundation for future community direction
+- Unresolved debates requiring ongoing attention
+- Areas requiring community leadership focus in upcoming cycles
+
+## Actionable Community Insights
+- Priority items for community leadership
+- Community management recommendations
+- Technical areas requiring more community education or discussion
+
+Focus on strategic community context and monthly themes rather than daily details. Emphasize discussions that shaped the month's community direction and will influence future development and governance decisions.

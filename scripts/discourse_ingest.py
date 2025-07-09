@@ -1148,61 +1148,227 @@ def process_forum(forum_config, state, full_history=False, days_back=None):
 
 
 def save_forum_data(all_posts, date=None, full_history=False):
-    """Save forum posts data to dated JSON file"""
+    """Save forum posts data to dated JSON files grouped by creation date"""
     if full_history:
         date_str = "full_history"
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        output_file = OUTPUT_DIR / f"{date_str}.json"
+
+        # Determine status based on data
+        if all_posts:
+            status = "success"
+        else:
+            status = "no_new_content"
+
+        # Check credential status
+        credential_status = (
+            "configured"
+            if (DISCOURSE_API_USERNAME and DISCOURSE_API_KEY)
+            else "missing"
+        )
+        if credential_status == "configured" and (
+            DISCOURSE_API_USERNAME.startswith("your_")
+            or DISCOURSE_API_KEY.startswith("your_")
+        ):
+            credential_status = "placeholder_values"
+
+        # Set processing mode based on full_history flag
+        processing_mode = "full_history" if full_history else "topic_centric"
+
+        output_data = {
+            "date": date_str,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "source": "discourse_forum",
+            "status": status,
+            "forum_posts": all_posts,
+            "metadata": {
+                "forums_processed": len(load_discourse_config()),
+                "total_posts_fetched": len(all_posts),
+                "credential_status": credential_status,
+                "processing_mode": processing_mode,
+            },
+        }
+
+        try:
+            with open(output_file, "w") as f:
+                json.dump(output_data, f, indent=2)
+
+            print(f"💾 Forum data saved to {output_file}")
+            print(f"📊 Summary: {len(all_posts)} posts from Discourse forums")
+            return True
+
+        except IOError as e:
+            print(f"❌ Error saving forum data: {e}")
+            return False
     elif date is not None:
+        # Save to specific date file
         date_str = date
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        output_file = OUTPUT_DIR / f"{date_str}.json"
+
+        # Determine status based on data
+        if all_posts:
+            status = "success"
+        else:
+            status = "no_new_content"
+
+        # Check credential status
+        credential_status = (
+            "configured"
+            if (DISCOURSE_API_USERNAME and DISCOURSE_API_KEY)
+            else "missing"
+        )
+        if credential_status == "configured" and (
+            DISCOURSE_API_USERNAME.startswith("your_")
+            or DISCOURSE_API_KEY.startswith("your_")
+        ):
+            credential_status = "placeholder_values"
+
+        processing_mode = "topic_centric"
+
+        output_data = {
+            "date": date_str,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "source": "discourse_forum",
+            "status": status,
+            "forum_posts": all_posts,
+            "metadata": {
+                "forums_processed": len(load_discourse_config()),
+                "total_posts_fetched": len(all_posts),
+                "credential_status": credential_status,
+                "processing_mode": processing_mode,
+            },
+        }
+
+        try:
+            with open(output_file, "w") as f:
+                json.dump(output_data, f, indent=2)
+
+            print(f"💾 Forum data saved to {output_file}")
+            print(f"📊 Summary: {len(all_posts)} posts from Discourse forums")
+            return True
+
+        except IOError as e:
+            print(f"❌ Error saving forum data: {e}")
+            return False
     else:
-        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        # Group posts by creation date
+        posts_by_date = {}
+        posts_with_unknown_date = []
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output_file = OUTPUT_DIR / f"{date_str}.json"
+        for post in all_posts:
+            created_at = post.get("created_at")
+            if created_at:
+                try:
+                    # Parse the ISO timestamp and extract date
+                    post_date = datetime.fromisoformat(
+                        created_at.replace("Z", "+00:00")
+                    )
+                    date_str = post_date.strftime("%Y-%m-%d")
 
-    # Determine status based on data
-    if all_posts:
-        status = "success"
-    else:
-        status = "no_new_content"
+                    if date_str not in posts_by_date:
+                        posts_by_date[date_str] = []
+                    posts_by_date[date_str].append(post)
+                except (ValueError, TypeError):
+                    # If date parsing fails, use today's date
+                    posts_with_unknown_date.append(post)
+            else:
+                posts_with_unknown_date.append(post)
 
-    # Check credential status
-    credential_status = (
-        "configured" if (DISCOURSE_API_USERNAME and DISCOURSE_API_KEY) else "missing"
-    )
-    if credential_status == "configured" and (
-        DISCOURSE_API_USERNAME.startswith("your_")
-        or DISCOURSE_API_KEY.startswith("your_")
-    ):
-        credential_status = "placeholder_values"
+        # Handle posts with unknown dates - save them to today's file
+        if posts_with_unknown_date:
+            today_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            if today_date not in posts_by_date:
+                posts_by_date[today_date] = []
+            posts_by_date[today_date].extend(posts_with_unknown_date)
 
-    # Set processing mode based on full_history flag
-    processing_mode = "full_history" if full_history else "topic_centric"
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    output_data = {
-        "date": date_str,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "source": "discourse_forum",
-        "status": status,
-        "forum_posts": all_posts,
-        "metadata": {
-            "forums_processed": len(load_discourse_config()),
-            "total_posts_fetched": len(all_posts),
-            "credential_status": credential_status,
-            "processing_mode": processing_mode,
-        },
-    }
+        saved_files = []
+        total_posts = 0
 
-    try:
-        with open(output_file, "w") as f:
-            json.dump(output_data, f, indent=2)
+        # Check credential status
+        credential_status = (
+            "configured"
+            if (DISCOURSE_API_USERNAME and DISCOURSE_API_KEY)
+            else "missing"
+        )
+        if credential_status == "configured" and (
+            DISCOURSE_API_USERNAME.startswith("your_")
+            or DISCOURSE_API_KEY.startswith("your_")
+        ):
+            credential_status = "placeholder_values"
 
-        print(f"💾 Forum data saved to {output_file}")
-        print(f"📊 Summary: {len(all_posts)} posts from Discourse forums")
+        processing_mode = "topic_centric"
+
+        for date_str, date_posts in posts_by_date.items():
+            output_file = OUTPUT_DIR / f"{date_str}.json"
+
+            # Load existing data if file exists
+            existing_posts = []
+            if output_file.exists():
+                try:
+                    with open(output_file, "r") as f:
+                        existing_data = json.load(f)
+                        existing_posts = existing_data.get("forum_posts", [])
+                except (json.JSONDecodeError, IOError):
+                    existing_posts = []
+
+            # Combine with new posts, avoiding duplicates based on post_id
+            existing_post_ids = {post.get("post_id") for post in existing_posts}
+            new_posts = [
+                post
+                for post in date_posts
+                if post.get("post_id") not in existing_post_ids
+            ]
+
+            # Merge all posts
+            all_date_posts = existing_posts + new_posts
+
+            # Determine status based on data
+            status = "success" if all_date_posts else "no_new_content"
+
+            output_data = {
+                "date": date_str,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "source": "discourse_forum",
+                "status": status,
+                "forum_posts": all_date_posts,
+                "metadata": {
+                    "forums_processed": len(load_discourse_config()),
+                    "total_posts_fetched": len(all_date_posts),
+                    "credential_status": credential_status,
+                    "processing_mode": processing_mode,
+                },
+            }
+
+            # Save to file
+            try:
+                with open(output_file, "w") as f:
+                    json.dump(output_data, f, indent=2)
+
+                if new_posts:
+                    print(
+                        f"💾 Saved {len(new_posts)} new posts to: {output_file} "
+                        f"(total: {len(all_date_posts)})"
+                    )
+                else:
+                    print(
+                        f"📄 No new posts for {date_str} "
+                        f"(existing: {len(all_date_posts)})"
+                    )
+
+                saved_files.append(output_file)
+                total_posts += len(new_posts)
+
+            except IOError as e:
+                print(f"❌ Error saving forum data to {output_file}: {e}")
+                return False
+
+        print(
+            f"📊 Total new posts saved: {total_posts} across {len(posts_by_date)} dates"
+        )
         return True
-
-    except IOError as e:
-        print(f"❌ Error saving forum data: {e}")
-        return False
 
 
 def main():

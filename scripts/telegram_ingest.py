@@ -307,7 +307,7 @@ async def fetch_group_messages(client, group, last_id):
 
 
 def save_raw_telegram_data(messages, force_save=False, full_history=False):
-    """Save raw Telegram messages to group-specific daily files.
+    """Save raw Telegram messages to group-specific daily files grouped by message date.
 
     Args:
         messages: List of messages to save
@@ -316,73 +316,209 @@ def save_raw_telegram_data(messages, force_save=False, full_history=False):
     """
     if full_history:
         date_str = "full_history"
+
+        if not messages and not force_save:
+            print("⚠️ No messages to save")
+            return
+
+        # Handle empty messages case - save metadata file
+        if not messages and force_save:
+            print("📁 No messages found - saving empty file with metadata")
+
+            # Create main telegram directory
+            sources_dir = Path("sources/telegram")
+            sources_dir.mkdir(parents=True, exist_ok=True)
+
+            # Set processing mode based on full_history flag
+            processing_mode = "full_history"
+
+            # Save empty file with metadata
+            empty_data_with_metadata = {
+                "date": date_str,
+                "generated_at": datetime.now().isoformat(),
+                "source": "telegram",
+                "status": "no_new_content",
+                "messages": [],
+                "metadata": {
+                    "groups_processed": 0,
+                    "total_messages_fetched": 0,
+                    "credential_status": "placeholder_values",
+                    "processing_mode": processing_mode,
+                },
+            }
+
+            output_path = sources_dir / f"{date_str}.json"
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(empty_data_with_metadata, f, indent=2, ensure_ascii=False)
+
+            print(f"📁 Saved empty data file to: {output_path}")
+            return [output_path]
+
+        # Group messages by group name
+        messages_by_group = {}
+        for message in messages:
+            group_name = message.get("group", "unknown_group")
+            if group_name not in messages_by_group:
+                messages_by_group[group_name] = []
+            messages_by_group[group_name].append(message)
+
+        saved_files = []
+        for group_name, group_messages in messages_by_group.items():
+            # Create group-specific directory
+            group_dir = Path("sources/telegram") / group_name
+            group_dir.mkdir(parents=True, exist_ok=True)
+
+            # Save file in group directory
+            output_path = group_dir / f"{date_str}.json"
+
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(group_messages, f, indent=2, ensure_ascii=False)
+
+            print(
+                f"✅ Saved {len(group_messages)} messages from {group_name} "
+                f"to: {output_path}"
+            )
+            saved_files.append(output_path)
+
+        return saved_files
     else:
-        date_str = datetime.now().strftime("%Y-%m-%d")
+        if not messages and not force_save:
+            print("⚠️ No messages to save")
+            return
 
-    if not messages and not force_save:
-        print("⚠️ No messages to save")
-        return
+        # Handle empty messages case - save metadata file
+        if not messages and force_save:
+            print("📁 No messages found - saving empty file with metadata")
 
-    # Handle empty messages case - save metadata file
-    if not messages and force_save:
-        print("📁 No messages found - saving empty file with metadata")
+            # Create main telegram directory
+            sources_dir = Path("sources/telegram")
+            sources_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create main telegram directory
-        sources_dir = Path("sources/telegram")
-        sources_dir.mkdir(parents=True, exist_ok=True)
+            # Set processing mode
+            processing_mode = "daily_sync"
 
-        # Set processing mode based on full_history flag
-        processing_mode = "full_history" if full_history else "daily_sync"
+            # Save empty file with metadata
+            empty_data_with_metadata = {
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "generated_at": datetime.now().isoformat(),
+                "source": "telegram",
+                "status": "no_new_content",
+                "messages": [],
+                "metadata": {
+                    "groups_processed": 0,
+                    "total_messages_fetched": 0,
+                    "credential_status": "placeholder_values",
+                    "processing_mode": processing_mode,
+                },
+            }
 
-        # Save empty file with metadata
-        empty_data_with_metadata = {
-            "date": date_str,
-            "generated_at": datetime.now().isoformat(),
-            "source": "telegram",
-            "status": "no_new_content",
-            "messages": [],
-            "metadata": {
-                "groups_processed": 0,
-                "total_messages_fetched": 0,
-                "credential_status": "placeholder_values",
-                "processing_mode": processing_mode,
-            },
-        }
+            output_path = sources_dir / f"{datetime.now().strftime('%Y-%m-%d')}.json"
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(empty_data_with_metadata, f, indent=2, ensure_ascii=False)
 
-        output_path = sources_dir / f"{date_str}.json"
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(empty_data_with_metadata, f, indent=2, ensure_ascii=False)
+            print(f"📁 Saved empty data file to: {output_path}")
+            return [output_path]
 
-        print(f"📁 Saved empty data file to: {output_path}")
-        return [output_path]
+        # Group messages by group name and date
+        messages_by_group_and_date = {}
+        messages_with_unknown_date = {}
 
-    # Group messages by group name
-    messages_by_group = {}
-    for message in messages:
-        group_name = message.get("group", "unknown_group")
-        if group_name not in messages_by_group:
-            messages_by_group[group_name] = []
-        messages_by_group[group_name].append(message)
+        for message in messages:
+            group_name = message.get("group", "unknown_group")
+            message_date = message.get("date")
 
-    saved_files = []
-    for group_name, group_messages in messages_by_group.items():
-        # Create group-specific directory
-        group_dir = Path("sources/telegram") / group_name
-        group_dir.mkdir(parents=True, exist_ok=True)
+            if message_date:
+                try:
+                    # Parse the ISO timestamp and extract date
+                    parsed_date = datetime.fromisoformat(
+                        message_date.replace("Z", "+00:00")
+                    )
+                    date_str = parsed_date.strftime("%Y-%m-%d")
 
-        # Save file in group directory
-        output_path = group_dir / f"{date_str}.json"
+                    if group_name not in messages_by_group_and_date:
+                        messages_by_group_and_date[group_name] = {}
+                    if date_str not in messages_by_group_and_date[group_name]:
+                        messages_by_group_and_date[group_name][date_str] = []
 
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(group_messages, f, indent=2, ensure_ascii=False)
+                    messages_by_group_and_date[group_name][date_str].append(message)
+                except (ValueError, TypeError):
+                    # If date parsing fails, use today's date
+                    if group_name not in messages_with_unknown_date:
+                        messages_with_unknown_date[group_name] = []
+                    messages_with_unknown_date[group_name].append(message)
+            else:
+                if group_name not in messages_with_unknown_date:
+                    messages_with_unknown_date[group_name] = []
+                messages_with_unknown_date[group_name].append(message)
+
+        # Handle messages with unknown dates - save them to today's file
+        if messages_with_unknown_date:
+            today_date = datetime.now().strftime("%Y-%m-%d")
+            for group_name, unknown_messages in messages_with_unknown_date.items():
+                if group_name not in messages_by_group_and_date:
+                    messages_by_group_and_date[group_name] = {}
+                if today_date not in messages_by_group_and_date[group_name]:
+                    messages_by_group_and_date[group_name][today_date] = []
+                messages_by_group_and_date[group_name][today_date].extend(
+                    unknown_messages
+                )
+
+        saved_files = []
+        total_messages = 0
+
+        for group_name, date_data in messages_by_group_and_date.items():
+            # Create group-specific directory
+            group_dir = Path("sources/telegram") / group_name
+            group_dir.mkdir(parents=True, exist_ok=True)
+
+            for date_str, date_messages in date_data.items():
+                # Save file in group directory
+                output_path = group_dir / f"{date_str}.json"
+
+                # Load existing data if file exists
+                existing_messages = []
+                if output_path.exists():
+                    try:
+                        with open(output_path, "r", encoding="utf-8") as f:
+                            existing_messages = json.load(f)
+                    except (json.JSONDecodeError, IOError):
+                        existing_messages = []
+
+                # Combine with new messages, avoiding duplicates based on message_id
+                existing_message_ids = {
+                    msg.get("message_id") for msg in existing_messages
+                }
+                new_messages = [
+                    msg
+                    for msg in date_messages
+                    if msg.get("message_id") not in existing_message_ids
+                ]
+
+                # Merge all messages
+                all_messages = existing_messages + new_messages
+
+                with open(output_path, "w", encoding="utf-8") as f:
+                    json.dump(all_messages, f, indent=2, ensure_ascii=False)
+
+                if new_messages:
+                    print(
+                        f"✅ Saved {len(new_messages)} new messages from {group_name} "
+                        f"to: {output_path} (total: {len(all_messages)})"
+                    )
+                else:
+                    print(
+                        f"📄 No new messages for {group_name} on {date_str} "
+                        f"(existing: {len(all_messages)})"
+                    )
+
+                saved_files.append(output_path)
+                total_messages += len(new_messages)
 
         print(
-            f"✅ Saved {len(group_messages)} messages from {group_name} "
-            f"to: {output_path}"
+            f"📊 Total new messages saved: {total_messages} "
+            f"across {len(saved_files)} files"
         )
-        saved_files.append(output_path)
-
-    return saved_files
+        return saved_files
 
 
 async def main():

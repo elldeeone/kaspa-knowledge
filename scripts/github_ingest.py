@@ -131,36 +131,33 @@ def fetch_recent_commits(repo, days_back=7, max_commits=DEFAULT_MAX_COMMITS):
 def fetch_recent_pull_requests(
     repo, days_back=30, max_pull_requests=DEFAULT_MAX_PULL_REQUESTS
 ):
-    """Fetch recent pull requests from a repository with optimal filtering"""
+    """Fetch recent pull requests from a repository using creation date filtering"""
     try:
         since_date = datetime.now(timezone.utc) - timedelta(days=days_back)
 
-        print(f"   🔀 Fetching PRs updated since {since_date.strftime('%Y-%m-%d')}...")
+        print(f"   🔀 Fetching PRs created since {since_date.strftime('%Y-%m-%d')}...")
 
-        # Get all PRs (open and closed) sorted by update date
-        # Note: GitHub API doesn't support 'since' parameter for PRs like it
-        # does for issues,
-        # but we can still optimize by getting them sorted and breaking early
-        all_prs = repo.get_pulls(state="all", sort="updated", direction="desc")
+        # Get PRs created in the timeframe, sorted by creation date
+        all_prs = repo.get_pulls(state="all", sort="created", direction="desc")
 
         pr_data = []
         pr_count = 0
         processed_count = 0
 
-        print("   🔀 Processing PRs (will stop when past date threshold)...")
+        print("   🔀 Processing PRs...")
         for pr in all_prs:
             processed_count += 1
 
             # Early termination: if we encounter a PR older than our date threshold,
-            # we can stop since they're sorted by updated date
-            if pr.updated_at < since_date:
+            # we can stop since they're sorted by creation date
+            if pr.created_at < since_date:
                 print(
                     f"   ⏭️  Reached date threshold after processing "
                     f"{processed_count} PRs"
                 )
                 break
 
-            if pr_count >= max_pull_requests:  # 🔧 FIX: Use configurable limit
+            if pr_count >= max_pull_requests:
                 break
 
             # Progress indicator for very active repos
@@ -169,6 +166,24 @@ def fetch_recent_pull_requests(
                     f"   📊 Processed {processed_count} PRs, found "
                     f"{pr_count} recent ones..."
                 )
+
+            # For creation-date filtering, we get all comments since the PR
+            # itself is recent
+            all_comments = []
+            try:
+                comments = pr.get_comments()
+                for comment in comments:
+                    comment_info = {
+                        "id": comment.id,
+                        "body": comment.body or "",
+                        "author": comment.user.login if comment.user else "Unknown",
+                        "created_at": comment.created_at.isoformat(),
+                        "updated_at": comment.updated_at.isoformat(),
+                        "url": comment.html_url,
+                    }
+                    all_comments.append(comment_info)
+            except GithubException as e:
+                print(f"   ⚠️ Error fetching comments for PR #{pr.number}: {e}")
 
             pr_info = {
                 "number": pr.number,
@@ -187,6 +202,7 @@ def fetch_recent_pull_requests(
                 "changed_files": pr.changed_files,
                 "commits": pr.commits,
                 "labels": ([label.name for label in pr.labels] if pr.labels else []),
+                "all_comments": all_comments,  # All comments for this recent PR
             }
             pr_data.append(pr_info)
             pr_count += 1
@@ -200,20 +216,20 @@ def fetch_recent_pull_requests(
 
 
 def fetch_recent_issues(repo, days_back=30, max_issues=DEFAULT_MAX_ISSUES):
-    """Fetch recent issues from a repository using API-side filtering"""
+    """Fetch recent issues from a repository using creation date filtering"""
     try:
         since_date = datetime.now(timezone.utc) - timedelta(days=days_back)
 
         print(
-            f"   📋 Fetching issues updated since {since_date.strftime('%Y-%m-%d')}..."
+            f"   📋 Fetching issues created since {since_date.strftime('%Y-%m-%d')}..."
         )
 
         # Use GitHub API's built-in filtering with 'since' parameter
-        # This filters server-side, dramatically reducing API calls and processing time
+        # This filters server-side by creation date
         all_recent_issues = repo.get_issues(
             state="all",  # Get both open and closed
-            since=since_date,  # Server-side date filtering!
-            sort="updated",
+            since=since_date,  # Server-side date filtering by creation date
+            sort="created",  # Sort by creation date instead of updated
             direction="desc",
         )
 
@@ -222,16 +238,42 @@ def fetch_recent_issues(repo, days_back=30, max_issues=DEFAULT_MAX_ISSUES):
 
         print("   📋 Processing filtered issues...")
         for issue in all_recent_issues:
-            if issue_count >= max_issues:  # 🔧 FIX: Use configurable limit
+            if issue_count >= max_issues:
                 break
 
             # Skip pull requests (they show up in issues API)
             if issue.pull_request:
                 continue
 
-            # Progress indicator (much less needed now!)
+            # Additional filter: only include issues created within our timeframe
+            if issue.created_at < since_date:
+                print(
+                    f"   ⏭️  Reached date threshold after processing "
+                    f"{issue_count} issues"
+                )
+                break
+
+            # Progress indicator
             if issue_count > 0 and issue_count % 10 == 0:
                 print(f"   📊 Processed {issue_count} recent issues so far...")
+
+            # For creation-date filtering, we get all comments (not just recent ones)
+            # since the issue itself is recent
+            all_comments = []
+            try:
+                comments = issue.get_comments()
+                for comment in comments:
+                    comment_info = {
+                        "id": comment.id,
+                        "body": comment.body or "",
+                        "author": comment.user.login if comment.user else "Unknown",
+                        "created_at": comment.created_at.isoformat(),
+                        "updated_at": comment.updated_at.isoformat(),
+                        "url": comment.html_url,
+                    }
+                    all_comments.append(comment_info)
+            except GithubException as e:
+                print(f"   ⚠️ Error fetching comments for issue #{issue.number}: {e}")
 
             issue_info = {
                 "number": issue.number,
@@ -252,6 +294,7 @@ def fetch_recent_issues(repo, days_back=30, max_issues=DEFAULT_MAX_ISSUES):
                     else []
                 ),
                 "comments": issue.comments,
+                "all_comments": all_comments,  # All comments for this recent issue
             }
             issue_data.append(issue_info)
             issue_count += 1
@@ -449,47 +492,357 @@ def check_existing_data(date=None):
 
 
 def save_github_data(all_repo_data, date=None, full_history=False):
-    """Save raw GitHub data to JSON file"""
+    """Save raw GitHub data to JSON files grouped by creation date"""
     if full_history:
         date_str = "full_history"
+        # Ensure output directory exists
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        output_file = OUTPUT_DIR / f"{date_str}.json"
+
+        # Create final data structure
+        final_data = {}
+        for repo_name, repo_data in all_repo_data.items():
+            if repo_data:  # Only include successful fetches
+                final_data[repo_name] = repo_data
+
+        try:
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(final_data, f, indent=2, ensure_ascii=False)
+
+            print(f"\n✅ Saved GitHub data to: {output_file}")
+            print(f"   📊 Repositories processed: {len(final_data)}")
+
+            # Summary stats
+            total_commits = sum(
+                len(data.get("commits", [])) for data in final_data.values()
+            )
+            total_prs = sum(
+                len(data.get("pull_requests", [])) for data in final_data.values()
+            )
+            total_issues = sum(
+                len(data.get("issues", [])) for data in final_data.values()
+            )
+            print(
+                f"   📝 Total items: {total_commits} commits, {total_prs} PRs, "
+                f"{total_issues} issues"
+            )
+
+        except IOError as e:
+            print(f"❌ Error saving GitHub data: {e}")
     elif date is not None:
+        # Save to specific date file
         date_str = date
+        # Ensure output directory exists
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        output_file = OUTPUT_DIR / f"{date_str}.json"
+
+        # Create final data structure
+        final_data = {}
+        for repo_name, repo_data in all_repo_data.items():
+            if repo_data:  # Only include successful fetches
+                final_data[repo_name] = repo_data
+
+        try:
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(final_data, f, indent=2, ensure_ascii=False)
+
+            print(f"\n✅ Saved GitHub data to: {output_file}")
+            print(f"   📊 Repositories processed: {len(final_data)}")
+
+            # Summary stats
+            total_commits = sum(
+                len(data.get("commits", [])) for data in final_data.values()
+            )
+            total_prs = sum(
+                len(data.get("pull_requests", [])) for data in final_data.values()
+            )
+            total_issues = sum(
+                len(data.get("issues", [])) for data in final_data.values()
+            )
+            print(
+                f"   📝 Total items: {total_commits} commits, {total_prs} PRs, "
+                f"{total_issues} issues"
+            )
+
+        except IOError as e:
+            print(f"❌ Error saving GitHub data: {e}")
     else:
-        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        # Group data by creation dates (simplified for creation-date filtering)
+        data_by_date = {}
+        data_with_unknown_date = {}
 
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        for repo_name, repo_data in all_repo_data.items():
+            if not repo_data:  # Skip empty repo data
+                continue
 
-    output_file = OUTPUT_DIR / f"{date_str}.json"
+            # Process commits
+            commits = repo_data.get("commits", [])
+            for commit in commits:
+                commit_date = commit.get("date")
+                if commit_date:
+                    try:
+                        # Parse the ISO timestamp and extract date
+                        parsed_date = datetime.fromisoformat(
+                            commit_date.replace("Z", "+00:00")
+                        )
+                        date_str = parsed_date.strftime("%Y-%m-%d")
 
-    # Create final data structure
-    final_data = {}
-    for repo_name, repo_data in all_repo_data.items():
-        if repo_data:  # Only include successful fetches
-            final_data[repo_name] = repo_data
+                        if date_str not in data_by_date:
+                            data_by_date[date_str] = {}
+                        if repo_name not in data_by_date[date_str]:
+                            data_by_date[date_str][repo_name] = {
+                                "commits": [],
+                                "pull_requests": [],
+                                "issues": [],
+                            }
 
-    try:
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(final_data, f, indent=2, ensure_ascii=False)
+                        data_by_date[date_str][repo_name]["commits"].append(commit)
+                    except (ValueError, TypeError):
+                        # If date parsing fails, use today's date
+                        if repo_name not in data_with_unknown_date:
+                            data_with_unknown_date[repo_name] = {
+                                "commits": [],
+                                "pull_requests": [],
+                                "issues": [],
+                            }
+                        data_with_unknown_date[repo_name]["commits"].append(commit)
+                else:
+                    if repo_name not in data_with_unknown_date:
+                        data_with_unknown_date[repo_name] = {
+                            "commits": [],
+                            "pull_requests": [],
+                            "issues": [],
+                        }
+                    data_with_unknown_date[repo_name]["commits"].append(commit)
 
-        print(f"\n✅ Saved GitHub data to: {output_file}")
-        print(f"   📊 Repositories processed: {len(final_data)}")
+            # Process pull requests (with all their comments included)
+            pull_requests = repo_data.get("pull_requests", [])
+            for pr in pull_requests:
+                pr_date = pr.get("created_at")
+                if pr_date:
+                    try:
+                        # Parse the ISO timestamp and extract date
+                        parsed_date = datetime.fromisoformat(
+                            pr_date.replace("Z", "+00:00")
+                        )
+                        date_str = parsed_date.strftime("%Y-%m-%d")
 
-        # Summary stats
-        total_commits = sum(
-            len(data.get("commits", [])) for data in final_data.values()
-        )
-        total_prs = sum(
-            len(data.get("pull_requests", [])) for data in final_data.values()
-        )
-        total_issues = sum(len(data.get("issues", [])) for data in final_data.values())
-        print(
-            f"   📝 Total items: {total_commits} commits, {total_prs} PRs, "
-            f"{total_issues} issues"
-        )
+                        if date_str not in data_by_date:
+                            data_by_date[date_str] = {}
+                        if repo_name not in data_by_date[date_str]:
+                            data_by_date[date_str][repo_name] = {
+                                "commits": [],
+                                "pull_requests": [],
+                                "issues": [],
+                            }
 
-    except IOError as e:
-        print(f"❌ Error saving GitHub data: {e}")
+                        data_by_date[date_str][repo_name]["pull_requests"].append(pr)
+                    except (ValueError, TypeError):
+                        # If date parsing fails, use today's date
+                        if repo_name not in data_with_unknown_date:
+                            data_with_unknown_date[repo_name] = {
+                                "commits": [],
+                                "pull_requests": [],
+                                "issues": [],
+                            }
+                        data_with_unknown_date[repo_name]["pull_requests"].append(pr)
+                else:
+                    if repo_name not in data_with_unknown_date:
+                        data_with_unknown_date[repo_name] = {
+                            "commits": [],
+                            "pull_requests": [],
+                            "issues": [],
+                        }
+                    data_with_unknown_date[repo_name]["pull_requests"].append(pr)
+
+            # Process issues (with all their comments included)
+            issues = repo_data.get("issues", [])
+            for issue in issues:
+                issue_date = issue.get("created_at")
+                if issue_date:
+                    try:
+                        # Parse the ISO timestamp and extract date
+                        parsed_date = datetime.fromisoformat(
+                            issue_date.replace("Z", "+00:00")
+                        )
+                        date_str = parsed_date.strftime("%Y-%m-%d")
+
+                        if date_str not in data_by_date:
+                            data_by_date[date_str] = {}
+                        if repo_name not in data_by_date[date_str]:
+                            data_by_date[date_str][repo_name] = {
+                                "commits": [],
+                                "pull_requests": [],
+                                "issues": [],
+                            }
+
+                        data_by_date[date_str][repo_name]["issues"].append(issue)
+                    except (ValueError, TypeError):
+                        # If date parsing fails, use today's date
+                        if repo_name not in data_with_unknown_date:
+                            data_with_unknown_date[repo_name] = {
+                                "commits": [],
+                                "pull_requests": [],
+                                "issues": [],
+                            }
+                        data_with_unknown_date[repo_name]["issues"].append(issue)
+                else:
+                    if repo_name not in data_with_unknown_date:
+                        data_with_unknown_date[repo_name] = {
+                            "commits": [],
+                            "pull_requests": [],
+                            "issues": [],
+                        }
+                    data_with_unknown_date[repo_name]["issues"].append(issue)
+
+        # Handle data with unknown dates - save them to today's file
+        if data_with_unknown_date:
+            today_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            if today_date not in data_by_date:
+                data_by_date[today_date] = {}
+
+            for repo_name, repo_data in data_with_unknown_date.items():
+                if repo_name not in data_by_date[today_date]:
+                    data_by_date[today_date][repo_name] = {
+                        "commits": [],
+                        "pull_requests": [],
+                        "issues": [],
+                    }
+
+                data_by_date[today_date][repo_name]["commits"].extend(
+                    repo_data["commits"]
+                )
+                data_by_date[today_date][repo_name]["pull_requests"].extend(
+                    repo_data["pull_requests"]
+                )
+                data_by_date[today_date][repo_name]["issues"].extend(
+                    repo_data["issues"]
+                )
+
+        # Ensure output directory exists
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        saved_files = []
+        total_items = 0
+
+        for date_str, date_data in data_by_date.items():
+            output_file = OUTPUT_DIR / f"{date_str}.json"
+
+            # Load existing data if file exists
+            existing_data = {}
+            if output_file.exists():
+                try:
+                    with open(output_file, "r", encoding="utf-8") as f:
+                        existing_data = json.load(f)
+                except (json.JSONDecodeError, IOError):
+                    existing_data = {}
+
+            # Merge with new data, avoiding duplicates
+            for repo_name, repo_data in date_data.items():
+                if repo_name not in existing_data:
+                    existing_data[repo_name] = {
+                        "commits": [],
+                        "pull_requests": [],
+                        "issues": [],
+                    }
+
+                # Merge commits, avoiding duplicates by SHA
+                existing_commit_shas = {
+                    commit.get("sha")
+                    for commit in existing_data[repo_name].get("commits", [])
+                }
+                new_commits = [
+                    commit
+                    for commit in repo_data["commits"]
+                    if commit.get("sha") not in existing_commit_shas
+                ]
+                existing_data[repo_name].setdefault("commits", []).extend(new_commits)
+
+                # Merge PRs, avoiding duplicates by number
+                existing_pr_numbers = {
+                    pr.get("number")
+                    for pr in existing_data[repo_name].get("pull_requests", [])
+                }
+                new_prs = [
+                    pr
+                    for pr in repo_data["pull_requests"]
+                    if pr.get("number") not in existing_pr_numbers
+                ]
+                existing_data[repo_name].setdefault("pull_requests", []).extend(new_prs)
+
+                # Merge issues, avoiding duplicates by number
+                existing_issue_numbers = {
+                    issue.get("number")
+                    for issue in existing_data[repo_name].get("issues", [])
+                }
+                new_issues = [
+                    issue
+                    for issue in repo_data["issues"]
+                    if issue.get("number") not in existing_issue_numbers
+                ]
+                existing_data[repo_name].setdefault("issues", []).extend(new_issues)
+
+                # Count new items
+                total_items += len(new_commits) + len(new_prs) + len(new_issues)
+
+            # Save to file
+            try:
+                with open(output_file, "w", encoding="utf-8") as f:
+                    json.dump(existing_data, f, indent=2, ensure_ascii=False)
+
+                # Summary stats for this date
+                date_commits = sum(
+                    len(data.get("commits", [])) for data in existing_data.values()
+                )
+                date_prs = sum(
+                    len(data.get("pull_requests", []))
+                    for data in existing_data.values()
+                )
+                date_issues = sum(
+                    len(data.get("issues", [])) for data in existing_data.values()
+                )
+
+                new_date_commits = sum(
+                    len(data["commits"]) for data in date_data.values()
+                )
+                new_date_prs = sum(
+                    len(data["pull_requests"]) for data in date_data.values()
+                )
+                new_date_issues = sum(
+                    len(data["issues"]) for data in date_data.values()
+                )
+
+                if new_date_commits > 0 or new_date_prs > 0 or new_date_issues > 0:
+                    print(f"✅ Saved GitHub data to: {output_file}")
+                    print(
+                        f"   📝 New items: {new_date_commits} commits, "
+                        f"{new_date_prs} PRs, {new_date_issues} issues"
+                    )
+                    print(
+                        f"   📊 Total items: {date_commits} commits, "
+                        f"{date_prs} PRs, {date_issues} issues"
+                    )
+                else:
+                    print(
+                        f"📄 No new GitHub data for {date_str} "
+                        f"(existing: {date_commits} commits, {date_prs} PRs, "
+                        f"{date_issues} issues)"
+                    )
+
+                saved_files.append(output_file)
+
+            except IOError as e:
+                print(f"❌ Error saving GitHub data to {output_file}: {e}")
+
+        if saved_files:
+            print(
+                f"\n📊 Total new GitHub items saved: {total_items} "
+                f"across {len(saved_files)} files"
+            )
+        else:
+            print("📄 No GitHub data files created")
 
 
 def main():

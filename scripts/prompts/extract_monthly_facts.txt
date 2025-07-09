@@ -1,0 +1,41 @@
+Extract key technical facts from this monthly Kaspa development data for {period_label} ({start_date} to {end_date}):
+
+**SIGNAL PRIORITIZATION GUIDE:**
+Use the `signal` metadata to prioritize fact extraction:
+- **Top Insights** (final_score > 0.85): Extract all facts - these are critical developments
+- **Recent Developments** (final_score 0.70-0.85): Extract major facts - important ongoing work
+- **Standard Contributions** (final_score 0.40-0.70): Extract notable facts - significant activity
+- **Archive Material** (final_score < 0.40): Extract only if historically significant
+
+**CONTRIBUTOR SIGNAL WEIGHTING:**
+- **Founders** (is_founder: true): Prioritize all strategic and architectural facts
+- **Lead Developers** (is_lead: true): Prioritize technical direction and design decisions
+- **Core Developers** (contributor_role: "core_developer"): Focus on implementation and system improvements
+- **High Signal Strength** (strength: "high"): Extract facts regardless of role
+
+**Source Data:**
+{sources_processed}
+
+**Total Items:** {total_items}
+
+**Content with Signal Metadata:**
+{content}
+
+Please extract technical facts using signal-driven prioritization. For each fact, format as:
+
+- **FACT:** [specific technical fact or development]
+- **AUTHOR:** [contributor name and role, e.g., "@author (core_developer)"]
+- **CATEGORY:** [protocol|consensus|security|performance|tooling|infrastructure|governance|mining|community|integration]
+- **IMPACT:** [high|medium|low] 
+- **SIGNAL_CONTEXT:** [final_score: X.XX, strength: X, role: X, significance explanation]
+- **CONTEXT:** [why this matters for Kaspa's development, focusing on monthly themes and strategic direction]
+
+Focus on:
+- **Strategic developments** that shaped the month's direction
+- **Technical breakthroughs** and architectural decisions
+- **Cross-cutting initiatives** that spanned multiple areas
+- **Foundation work** that enables future development
+- **Risk factors** and technical debt addressed
+- **Ecosystem impacts** affecting external integrations
+
+Prioritize facts from higher signal scores and emphasize monthly patterns over daily details.

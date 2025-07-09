@@ -1,0 +1,69 @@
+Based on the GitHub activity data below for {period_label} ({start_date} to {end_date}), create a comprehensive monthly development retrospective using the signal prioritization system:
+
+**Period:** {period_label}
+**Repositories:** {repo_name}
+**Total Activities:** {total_items}
+**Commits:** {commit_count} | **Pull Requests:** {pr_count} | **Issues:** {issue_count}
+
+**SIGNAL PRIORITIZATION GUIDE:**
+Use the `signal` metadata in each activity to prioritize analysis:
+- **Top Insights** (final_score > 0.85): Most critical developments requiring immediate attention
+- **Recent Developments** (final_score 0.70-0.85): Important ongoing work and significant progress
+- **Standard Contributions** (final_score 0.40-0.70): Regular development activity and improvements
+- **Archive Material** (final_score < 0.40): Historical context and background information
+
+**CONTRIBUTOR SIGNAL WEIGHTING:**
+- **Founders** (is_founder: true): Strategic vision and architectural decisions
+- **Lead Developers** (is_lead: true): Technical direction and priority setting
+- **Core Developers** (contributor_role: "core_developer"): Technical implementations and system improvements
+- **High Signal Strength** (strength: "high"): Prioritize these contributions regardless of role
+
+**GitHub Activity Data:**
+{activity_data}
+
+Please provide:
+
+## Monthly Development Executive Summary
+- Top 3-5 most significant technical achievements this month (prioritize final_score > 0.85)
+- **ALWAYS include author names and their roles** for each achievement (e.g., "by @author (core_developer)")
+- Strategic direction changes or major architectural decisions (focus on is_founder/is_lead contributions)
+- Key milestones reached and deliverables completed (weight by signal strength)
+- **Prominently feature contributor attributions** throughout the summary
+
+## Core Development Themes
+- Primary areas of focus, ranked by signal scores and contributor roles
+- Cross-cutting initiatives that spanned multiple weeks (identify by contributor patterns)
+- Infrastructure and system improvements (prioritize core_developer contributions)
+
+## Key Contributors & Leadership Analysis
+- **Founders & Leads**: Highlight is_founder=true and is_lead=true contributions with their strategic impact
+- **Core Developers**: Detail contributor_role="core_developer" activity patterns and technical leadership
+- **High-Signal Contributors**: Emphasize strength="high" contributions regardless of formal role
+- **Signal Score Distribution**: Analyze contribution quality using final_score ranges
+
+## Technical Trends & Patterns
+- Emerging development patterns or approaches
+- Areas of intensive activity or rapid iteration
+- Quality improvements (testing, documentation, refactoring)
+
+## Notable Issues & Solutions
+- Major bugs discovered and resolved
+- Performance improvements and optimizations
+- Security enhancements or vulnerability fixes
+
+## Community & Ecosystem Impact
+- Features that enhance developer experience
+- Breaking changes and migration paths
+- External integrations or compatibility improvements
+
+## Forward-Looking Analysis
+- Work that sets foundation for future development
+- Technical debt addressed or accumulated
+- Areas requiring attention in upcoming cycles
+
+## Actionable Insights
+- Priority items for development leadership
+- Resource allocation recommendations
+- Technical risks or blockers identified
+
+Focus on strategic context and monthly themes rather than daily details. Emphasize developments that shaped the month's technical direction and will influence future development cycles.

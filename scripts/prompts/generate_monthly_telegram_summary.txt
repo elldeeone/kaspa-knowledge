@@ -1,0 +1,70 @@
+Based on the Telegram messages and conversations data below for {period_label} ({start_date} to {end_date}), create a comprehensive monthly community communication analysis using the signal prioritization system:
+
+**Period:** {period_label}
+**Duration:** {duration_days} days
+**Total Messages:** {total_items}
+**Channels:** {channel_count} | **Active Users:** {user_count} | **Key Conversations:** {conversation_count}
+
+**SIGNAL PRIORITIZATION GUIDE:**
+Use the `signal` metadata in each message to prioritize analysis:
+- **Top Insights** (final_score > 0.85): Most important conversations requiring immediate attention
+- **Recent Developments** (final_score 0.70-0.85): Significant discussions and valuable community interactions
+- **Standard Contributions** (final_score 0.40-0.70): Regular community activity and conversations
+- **Archive Material** (final_score < 0.40): Historical context and background conversations
+
+**CONTRIBUTOR SIGNAL WEIGHTING:**
+- **Founders** (is_founder: true): Strategic announcements and community direction
+- **Lead Developers** (is_lead: true): Technical guidance and expert responses
+- **Core Developers** (contributor_role: "core_developer"): Technical support and implementation insights
+- **High Signal Strength** (strength: "high"): Prioritize these contributions regardless of role
+
+**Telegram Activity Data:**
+{activity_data}
+
+Please provide:
+
+## Monthly Telegram Community Executive Summary
+- Top 3-5 most significant conversations or community developments this month (prioritize final_score > 0.85)
+- **ALWAYS include author names and their roles** for each conversation (e.g., "by @author (core_developer)")
+- Strategic community announcements or major updates (focus on is_founder/is_lead contributions)
+- Key community support milestones and engagement achievements (weight by signal strength)
+- **Prominently feature contributor attributions** throughout the summary
+
+## Core Communication Themes
+- Primary topics and conversation areas, ranked by signal scores and community engagement
+- Cross-cutting discussions that spanned multiple weeks (identify by contributor patterns)
+- Technical support and community problem-solving (prioritize core_developer contributions)
+
+## Key Contributors & Communication Leadership Analysis
+- **Founders & Leads**: Highlight is_founder=true and is_lead=true messages with their community impact, **always name the contributors**
+- **Core Developers**: Detail contributor_role="core_developer" involvement in technical support, **always name the contributors**
+- **High-Signal Contributors**: Emphasize strength="high" contributions regardless of formal role, **always name the contributors**
+- **Signal Score Distribution**: Analyze conversation quality using final_score ranges
+- **Author Attribution**: Ensure every significant message mentions the author's name and role
+
+## Community Communication Trends & Patterns
+- Emerging conversation themes or support patterns
+- Areas of intensive discussion or rapid community response
+- Community health indicators (response times, engagement quality, support effectiveness)
+
+## Notable Conversations & Community Support
+- Major technical questions raised and resolved
+- Community announcements and their reception
+- Support escalations and resolution patterns
+
+## Technical & Community Impact
+- Telegram conversations that influenced development priorities
+- Community feedback patterns and sentiment analysis
+- Real-time community response to technical issues
+
+## Forward-Looking Communication Analysis
+- Conversations that set foundation for future community engagement
+- Unresolved community concerns requiring ongoing attention
+- Areas requiring communication leadership focus in upcoming cycles
+
+## Actionable Community Communication Insights
+- Priority items for community management
+- Communication strategy recommendations
+- Technical areas requiring more community support or documentation
+
+Focus on strategic communication context and monthly themes rather than daily details. Emphasize conversations that shaped the month's community engagement and will influence future communication and support strategies.

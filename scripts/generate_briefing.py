@@ -150,9 +150,7 @@ class BriefingGenerator:
 
         # If in period summary mode, use period-aware generation
         if self.period_summary:
-            # We'll need period metadata here, but for now use existing logic
-            # This will be enhanced when period metadata is available at this level
-            pass
+            return self._generate_period_medium_briefing(articles)
 
         print(f"🤖 Generating briefing for {len(articles)} Medium articles...")
 
@@ -263,13 +261,54 @@ class BriefingGenerator:
 
         # Extract content from GitHub summaries
         combined_content = ""
-        repo_count = 0
+        repositories = set()
 
         for item in github_activity:
+            # Handle both github_summary type and raw github activities
             if item.get("type") == "github_summary":
                 combined_content += item.get("content", "")
                 # Count repositories by looking for "Repository:" headers
-                repo_count += item.get("content", "").count("# Repository:")
+                repositories.add("github_summary_repo")  # Placeholder for summary type
+            elif item.get("activity_type") in ["commits", "pull_requests", "issues"]:
+                # Handle raw GitHub activities from aggregated data with signal metadata
+                title = item.get("title", "")
+                author = item.get("author", "")
+                activity_type = item.get("activity_type", "")
+                repo = item.get("repo", "")
+                signal = item.get("signal", {})
+
+                # Include signal metadata and additional context for AI analysis
+                signal_info = (
+                    f"[SIGNAL: score={signal.get('final_score', 'N/A')}, "
+                    f"strength={signal.get('strength', 'N/A')}, "
+                    f"role={signal.get('contributor_role', 'N/A')}, "
+                    f"is_lead={signal.get('is_lead', False)}, "
+                    f"is_founder={signal.get('is_founder', False)}]"
+                )
+
+                # Add additional context for better analysis
+                date_info = (
+                    f"Date: {item.get('created_at', item.get('date', 'Unknown'))}"
+                )
+                url_info = f"URL: {item.get('url', 'N/A')}"
+
+                combined_content += f"{activity_type}: {title} by {author} in {repo}\n"
+                combined_content += f"  {signal_info}\n"
+                combined_content += f"  {date_info}\n"
+                if item.get("body") and len(item.get("body", "").strip()) > 0:
+                    body_preview = (
+                        item.get("body", "")[:200] + "..."
+                        if len(item.get("body", "")) > 200
+                        else item.get("body", "")
+                    )
+                    combined_content += f"  Description: {body_preview}\n"
+                combined_content += f"  {url_info}\n\n"
+
+                # Track unique repositories
+                if repo:
+                    repositories.add(repo)
+
+        repo_count = len(repositories)
 
         if not combined_content:
             return {
@@ -280,17 +319,124 @@ class BriefingGenerator:
 
         # Generate AI briefing from GitHub summaries
         try:
-            github_summary = self.llm.call_llm(
-                prompt=(
-                    f"Summarize this GitHub activity data:\n\n"
-                    f"{combined_content[:4000]}"
-                ),
-                system_prompt=(
-                    "You are a technical project manager. Summarize GitHub "
-                    "development activity focusing on key changes, contributors, "
-                    "and trends. Keep it concise and actionable."
-                ),
-            )
+            # Use GitHub-specific prompts for both daily and period mode
+            try:
+                if self.period_summary:
+                    period_metadata = getattr(self, "_current_period_metadata", {})
+
+                    # Determine which period-specific GitHub prompt to use
+                    duration_days = period_metadata.get("duration_days", 0)
+                    if isinstance(duration_days, int) and duration_days >= 28:
+                        # Monthly or longer - use monthly GitHub prompt
+                        prompt_template = prompt_loader.load_prompt(
+                            "generate_monthly_github_summary"
+                        )
+                        system_prompt = prompt_loader.load_prompt(
+                            "generate_monthly_github_summary_system"
+                        )
+                    else:
+                        # Weekly or shorter - use standard GitHub prompt with period
+                        prompt_template = prompt_loader.load_prompt(
+                            "summarize_github_activity"
+                        )
+                        system_prompt = prompt_loader.load_prompt(
+                            "summarize_github_activity_system"
+                        )
+                        period_context = (
+                            f"PERIOD CONTEXT: "
+                            f"{period_metadata.get('period_label', 'Unknown')} "
+                            f"({period_metadata.get('start_date', 'Unknown')} to "
+                            f"{period_metadata.get('end_date', 'Unknown')})\n\n"
+                        )
+                        prompt_template = period_context + prompt_template
+
+                    github_summary = self.llm.call_llm(
+                        prompt=prompt_template.format(
+                            period_label=period_metadata.get("period_label", "Unknown"),
+                            start_date=period_metadata.get("start_date", "Unknown"),
+                            end_date=period_metadata.get("end_date", "Unknown"),
+                            repo_name="kaspanet repositories",
+                            total_items=len(github_activity),
+                            activity_data=combined_content[
+                                :12000
+                            ],  # More content for monthly analysis
+                            commit_count=len(
+                                [
+                                    i
+                                    for i in github_activity
+                                    if i.get("activity_type") == "commits"
+                                ]
+                            ),
+                            pr_count=len(
+                                [
+                                    i
+                                    for i in github_activity
+                                    if i.get("activity_type") == "pull_requests"
+                                ]
+                            ),
+                            issue_count=len(
+                                [
+                                    i
+                                    for i in github_activity
+                                    if i.get("activity_type") == "issues"
+                                ]
+                            ),
+                        ),
+                        system_prompt=system_prompt,
+                    )
+                else:
+                    # Daily mode - use standard GitHub prompts
+                    prompt_template = prompt_loader.load_prompt(
+                        "summarize_github_activity"
+                    )
+                    system_prompt = prompt_loader.load_prompt(
+                        "summarize_github_activity_system"
+                    )
+
+                    github_summary = self.llm.call_llm(
+                        prompt=prompt_template.format(
+                            repo_name="kaspanet repositories",
+                            days_back="1",
+                            fetched_at=datetime.now().strftime("%Y-%m-%d"),
+                            activity_data=combined_content[:8000],
+                            commit_count=len(
+                                [
+                                    i
+                                    for i in github_activity
+                                    if i.get("activity_type") == "commits"
+                                ]
+                            ),
+                            pr_count=len(
+                                [
+                                    i
+                                    for i in github_activity
+                                    if i.get("activity_type") == "pull_requests"
+                                ]
+                            ),
+                            issue_count=len(
+                                [
+                                    i
+                                    for i in github_activity
+                                    if i.get("activity_type") == "issues"
+                                ]
+                            ),
+                        ),
+                        system_prompt=system_prompt,
+                    )
+            except Exception as e:
+                print(f"⚠️  Error loading GitHub prompts, falling back to default: {e}")
+                # Fall back to default prompts
+                github_summary = self.llm.call_llm(
+                    prompt=(
+                        f"Summarize this GitHub activity data:\n\n"
+                        f"{combined_content[:4000]}"
+                    ),
+                    system_prompt=(
+                        "You are a technical project manager. Summarize GitHub "
+                        "development activity focusing on key changes, contributors, "
+                        "and trends. Keep it concise and actionable."
+                    ),
+                )
 
             print(f"    ✅ Generated GitHub briefing ({len(github_summary)} chars)")
 
@@ -365,21 +511,24 @@ class BriefingGenerator:
                         content = content[:500] + "..."
                     forum_content += f"- {post.get('author', 'Unknown')}: {content}\n"
 
-        # Generate AI briefing
+        # Generate AI briefing using period-aware prompts
         try:
-            forum_summary = self.llm.call_llm(
-                prompt=(
-                    f"Summarize this Discourse forum activity, focusing on key "
-                    f"discussions, technical topics, and community insights:\n\n"
-                    f"{forum_content[:4000]}"
-                ),
-                system_prompt=(
-                    "You are a community manager and technical analyst. Summarize "
-                    "forum discussions focusing on key technical topics, important "
-                    "questions, solutions shared, and community sentiment. "
-                    "Highlight any significant developments or trends."
-                ),
-            )
+            if self.period_summary:
+                forum_summary = self._generate_period_forum_briefing(forum_posts)
+            else:
+                forum_summary = self.llm.call_llm(
+                    prompt=(
+                        f"Summarize this Discourse forum activity, focusing on key "
+                        f"discussions, technical topics, and community insights:\n\n"
+                        f"{forum_content[:4000]}"
+                    ),
+                    system_prompt=(
+                        "You are a community manager and technical analyst. Summarize "
+                        "forum discussions focusing on key technical topics, important "
+                        "questions, solutions shared, and community sentiment. "
+                        "Highlight any significant developments or trends."
+                    ),
+                )
 
             print(f"    ✅ Generated forum briefing ({len(forum_summary)} chars)")
 
@@ -484,6 +633,8 @@ class BriefingGenerator:
 
         # Extract period metadata if in period summary mode
         period_metadata = self.extract_period_metadata(daily_data)
+        # Store period metadata for use in sub-methods
+        self._current_period_metadata = period_metadata
 
         briefing = {
             "date": date,
@@ -493,7 +644,7 @@ class BriefingGenerator:
                     daily_data["sources"].get("medium_articles", [])
                 ),
                 "github": self.generate_github_briefing(
-                    daily_data["sources"].get("github_activity", [])
+                    daily_data["sources"].get("github_activities", [])
                 ),
                 "telegram": {"summary": "Telegram processing not yet implemented."},
                 "discord": {"summary": "Discord processing not yet implemented."},
@@ -704,6 +855,131 @@ class BriefingGenerator:
             "article_count": len(articles),
             "period_metadata": period_metadata,
         }
+
+    def _generate_period_medium_briefing(self, articles: List[Dict]) -> Dict[str, Any]:
+        """Generate period-aware briefing for Medium articles."""
+        period_metadata = getattr(self, "_current_period_metadata", {})
+        duration_days = period_metadata.get("duration_days", 0)
+
+        # Select appropriate prompt based on duration
+        if isinstance(duration_days, int) and duration_days >= 28:
+            prompt_name = "generate_monthly_medium_summary"
+        else:
+            prompt_name = "generate_article_summary"
+
+        # Prepare content for monthly analysis
+        combined_content = ""
+        for i, article in enumerate(articles, 1):
+            combined_content += f"=== ARTICLE {i} ===\n"
+            combined_content += f"Title: {article['title']}\n"
+            combined_content += f"Author: {article['author']}\n"
+            combined_content += f"URL: {article['link']}\n"
+            combined_content += f"Content: {article['summary'][:2000]}...\n\n"
+
+        try:
+            if prompt_name == "generate_monthly_medium_summary":
+                prompt = prompt_loader.format_prompt(
+                    prompt_name,
+                    period_label=period_metadata.get("period_label", "Unknown"),
+                    start_date=period_metadata.get("start_date", "Unknown"),
+                    end_date=period_metadata.get("end_date", "Unknown"),
+                    duration_days=duration_days,
+                    total_items=len(articles),
+                    publication_count=len(
+                        set(
+                            article.get("publication", "Unknown")
+                            for article in articles
+                        )
+                    ),
+                    author_count=len(
+                        set(article.get("author", "Unknown") for article in articles)
+                    ),
+                    content_types="articles",
+                    activity_data=combined_content[:8000]
+                    + ("..." if len(combined_content) > 8000 else ""),
+                )
+            else:
+                prompt = combined_content[:4000] + (
+                    "..." if len(combined_content) > 4000 else ""
+                )
+
+            system_prompt = prompt_loader.get_system_prompt(prompt_name)
+            summary = self.llm.call_llm(
+                prompt=prompt,
+                system_prompt=system_prompt,
+            )
+        except Exception as e:
+            summary = f"[Period Medium briefing generation failed: {str(e)}]"
+
+        return {
+            "summary": summary,
+            "key_topics": [],
+            "article_summaries": [],
+            "article_count": len(articles),
+            "period_metadata": period_metadata,
+        }
+
+    def _generate_period_forum_briefing(self, posts: List[Dict]) -> str:
+        """Generate period-aware briefing for forum posts."""
+        period_metadata = getattr(self, "_current_period_metadata", {})
+        duration_days = period_metadata.get("duration_days", 0)
+
+        # Select appropriate prompt based on duration
+        if isinstance(duration_days, int) and duration_days >= 28:
+            prompt_name = "generate_monthly_forum_summary"
+        else:
+            # Use hardcoded prompt for daily/weekly
+            return self.llm.call_llm(
+                prompt=(
+                    f"Summarize this Discourse forum activity, focusing on key "
+                    f"discussions, technical topics, and community insights:\\n\\n"
+                    f"{str(posts)[:4000]}"
+                ),
+                system_prompt=(
+                    "You are a community manager and technical analyst. Summarize "
+                    "forum discussions focusing on key technical topics, important "
+                    "questions, solutions shared, and community sentiment. "
+                    "Highlight any significant developments or trends."
+                ),
+            )
+
+        # Prepare content for monthly analysis
+        combined_content = ""
+        for i, post in enumerate(posts, 1):
+            combined_content += f"=== POST {i} ===\n"
+            combined_content += f"Author: {post.get('author', 'Unknown')}\n"
+            combined_content += f"Topic: {post.get('topic_title', 'Unknown')}\n"
+            combined_content += f"Date: {post.get('date', 'Unknown')}\n"
+            content = post.get("raw_content") or post.get("content", "")
+            if content:
+                combined_content += f"Content: {content[:2000]}...\n\n"
+
+        try:
+            prompt = prompt_loader.format_prompt(
+                prompt_name,
+                period_label=period_metadata.get("period_label", "Unknown"),
+                start_date=period_metadata.get("start_date", "Unknown"),
+                end_date=period_metadata.get("end_date", "Unknown"),
+                duration_days=duration_days,
+                total_items=len(posts),
+                topic_count=len(set(post.get("topic_id", "Unknown") for post in posts)),
+                author_count=len(set(post.get("author", "Unknown") for post in posts)),
+                active_discussions=len(
+                    set(post.get("topic_id", "Unknown") for post in posts)
+                ),
+                activity_data=combined_content[:8000]
+                + ("..." if len(combined_content) > 8000 else ""),
+            )
+
+            system_prompt = prompt_loader.get_system_prompt(prompt_name)
+            summary = self.llm.call_llm(
+                prompt=prompt,
+                system_prompt=system_prompt,
+            )
+        except Exception as e:
+            summary = f"[Period forum briefing generation failed: {str(e)}]"
+
+        return summary
 
 
 def main():

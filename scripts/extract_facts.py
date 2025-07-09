@@ -15,6 +15,40 @@ from scripts.prompt_loader import prompt_loader
 
 
 class FactsExtractor:
+    def _get_activity_date(self, activity: Dict) -> str:
+        """Get the appropriate date field based on source type and activity type."""
+
+        # Handle GitHub activities first (they have activity_type)
+        activity_type = activity.get("activity_type", "")
+        if activity_type == "commits":
+            return activity.get("date", "")
+        elif activity_type in ["pull_requests", "issues"]:
+            return activity.get("created_at", activity.get("updated_at", ""))
+
+        # Handle Medium articles (have 'published' field)
+        if "published" in activity:
+            return activity.get("published", "")
+
+        # Handle Forum posts (have 'post_id' or 'topic_id')
+        if "post_id" in activity or "topic_id" in activity:
+            return activity.get("created_at", activity.get("date", ""))
+
+        # Handle Telegram messages (have 'message_id' and 'sender_username')
+        if "message_id" in activity and "sender_username" in activity:
+            return activity.get("date", "")
+
+        # Handle Discord messages (have 'author', 'content', 'channel')
+        if all(key in activity for key in ["author", "content", "channel"]):
+            return activity.get("date", activity.get("created_at", ""))
+
+        # Generic fallback with priority order
+        return activity.get(
+            "date",
+            activity.get(
+                "created_at", activity.get("published", activity.get("updated_at", ""))
+            ),
+        )
+
     def __init__(
         self,
         input_dir: str = "data/aggregated",
@@ -161,10 +195,15 @@ class FactsExtractor:
         if not self.period_summary:
             return "extract_kaspa_facts"
 
-        # For facts extraction, we use the same kaspa facts prompt
-        # but may enhance context. All period types use the same core
-        # facts extraction prompt
-        return "extract_kaspa_facts"
+        # Determine period-specific prompt based on duration
+        duration_days = period_metadata.get("duration_days", 0)
+
+        if isinstance(duration_days, int) and duration_days >= 28:
+            # Monthly or longer - use monthly facts prompt
+            return "extract_monthly_facts"
+        else:
+            # Weekly or shorter - use standard facts prompt with period context
+            return "extract_kaspa_facts"
 
     def extract_facts_from_content(
         self, content: str, source_info: Dict[str, Any]
@@ -181,17 +220,54 @@ class FactsExtractor:
                     self._current_period_metadata.get("period_label", "")
                 )
 
-            prompt = prompt_loader.format_prompt(
-                "extract_kaspa_facts",
-                source_type=enhanced_source_info["type"],
-                title=enhanced_source_info.get("title", "N/A"),
-                author=enhanced_source_info.get("author", "N/A"),
-                url=enhanced_source_info.get("url", "N/A"),
-                date=enhanced_source_info.get("date", "N/A"),
-                content=content[:4000] + ("..." if len(content) > 4000 else ""),
+            # Get period metadata and select appropriate prompt
+            period_metadata = getattr(self, "_current_period_metadata", {})
+            prompt_name = self.select_period_prompt(period_metadata)
+
+            # Include signal metadata if available
+            signal_info = ""
+            if "signal" in enhanced_source_info:
+                signal = enhanced_source_info["signal"]
+                signal_info = (
+                    f"\nSIGNAL METADATA: score={signal.get('final_score', 'N/A')}, "
+                    f"strength={signal.get('strength', 'N/A')}, "
+                    f"role={signal.get('contributor_role', 'N/A')}, "
+                    f"is_lead={signal.get('is_lead', False)}, "
+                    f"is_founder={signal.get('is_founder', False)}"
+                )
+
+            # Format content with signal metadata
+            enhanced_content = (
+                content[:4000] + ("..." if len(content) > 4000 else "") + signal_info
             )
 
-            system_prompt = prompt_loader.get_system_prompt("extract_kaspa_facts")
+            # Format the prompt based on prompt type
+            if prompt_name == "extract_monthly_facts":
+                # Use monthly prompt with period context
+                prompt = prompt_loader.format_prompt(
+                    prompt_name,
+                    period_label=period_metadata.get("period_label", "Unknown"),
+                    start_date=period_metadata.get("start_date", "Unknown"),
+                    end_date=period_metadata.get("end_date", "Unknown"),
+                    sources_processed=period_metadata.get(
+                        "sources_processed", "Unknown"
+                    ),
+                    total_items=period_metadata.get("total_items", 1),
+                    content=enhanced_content,
+                )
+            else:
+                # Use standard prompt
+                prompt = prompt_loader.format_prompt(
+                    prompt_name,
+                    source_type=enhanced_source_info["type"],
+                    title=enhanced_source_info.get("title", "N/A"),
+                    author=enhanced_source_info.get("author", "N/A"),
+                    url=enhanced_source_info.get("url", "N/A"),
+                    date=enhanced_source_info.get("date", "N/A"),
+                    content=enhanced_content,
+                )
+
+            system_prompt = prompt_loader.get_system_prompt(prompt_name)
             facts_response = self.llm.call_llm(
                 prompt=prompt,
                 system_prompt=system_prompt,
@@ -224,6 +300,18 @@ class FactsExtractor:
             batch_content += f"Author: {source_info.get('author', 'N/A')}\n"
             batch_content += f"Date: {source_info.get('date', 'N/A')}\n"
             batch_content += f"URL: {source_info.get('url', 'N/A')}\n"
+
+            # Include signal metadata if available
+            if "signal" in source_info:
+                signal = source_info["signal"]
+                batch_content += (
+                    f"SIGNAL: score={signal.get('final_score', 'N/A')}, "
+                    f"strength={signal.get('strength', 'N/A')}, "
+                    f"role={signal.get('contributor_role', 'N/A')}, "
+                    f"is_lead={signal.get('is_lead', False)}, "
+                    f"is_founder={signal.get('is_founder', False)}\n"
+                )
+
             truncated_content = content[:2000] + ("..." if len(content) > 2000 else "")
             batch_content += f"Content: {truncated_content}\n\n"
 
@@ -250,7 +338,10 @@ Focus on information that is technically relevant to Kaspa's development,
 ecosystem, or technology."""
             )
 
-            system_prompt = prompt_loader.get_system_prompt("extract_kaspa_facts")
+            # Use period-aware prompt for batch processing too
+            period_metadata = getattr(self, "_current_period_metadata", {})
+            prompt_name = self.select_period_prompt(period_metadata)
+            system_prompt = prompt_loader.get_system_prompt(prompt_name)
             facts_response = self.llm.call_llm(
                 prompt=prompt,
                 system_prompt=system_prompt,
@@ -340,7 +431,7 @@ ecosystem, or technology."""
                 "title": activity.get("title", ""),
                 "author": activity.get("author", "Unknown"),
                 "url": activity.get("url", ""),
-                "date": activity.get("date", ""),
+                "date": self._get_activity_date(activity),
                 "repository": activity.get("repo", ""),
             }
 

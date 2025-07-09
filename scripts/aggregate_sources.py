@@ -65,7 +65,7 @@ class SourcesAggregator:
         self.source_mappings = {
             "medium": "medium_articles",
             "telegram": "telegram_messages",
-            "github_summaries": "github_activity",
+            "github": "github_activities",
             "discord": "discord_messages",
             "forum": "forum_posts",
             "news": "news_articles",
@@ -283,37 +283,6 @@ class SourcesAggregator:
             )
 
         return all_messages
-
-    def load_github_summaries(self, date: str) -> List[Dict]:
-        """Load GitHub summaries from Markdown files for a given date."""
-        github_summaries_dir = self.sources_dir / "github_summaries"
-        summary_file = github_summaries_dir / f"{date}.md"
-
-        if not summary_file.exists():
-            print(f"No GitHub summaries found for {date}")
-            return []
-
-        try:
-            with open(summary_file, "r", encoding="utf-8") as f:
-                content = f.read()
-
-            # Convert Markdown content to a structured format for
-            # aggregation
-            summary_data = {
-                "type": "github_summary",
-                "date": date,
-                "content": content,
-                "format": "markdown",
-                "generated_at": datetime.now().isoformat(),
-                "source": "github_summaries",
-            }
-
-            print(f"Loaded GitHub summary ({len(content)} characters)")
-            return [summary_data]  # Return as single-item list for consistency
-
-        except Exception as e:
-            print(f"Error loading GitHub summaries: {e}")
-            return []
 
     def load_github_activities(self, date: str) -> List[Dict]:
         """Load processed GitHub activity data for a given date."""
@@ -603,7 +572,7 @@ class SourcesAggregator:
         date_field_mapping = {
             "medium": "published",
             "telegram": "date",
-            "github_summaries": "date",
+            "github": "created_at",
             "discord": "date",
             "forum": "created_at",
             "news": "date",
@@ -735,7 +704,10 @@ class SourcesAggregator:
                         )
 
                 # Load source data with resource management
-                source_data = self.load_source_data(source_name, date)
+                if source_name == "github":
+                    source_data = self.load_github_activities(date)
+                else:
+                    source_data = self.load_source_data(source_name, date)
 
                 if source_data:
                     # Process source data in chunks if it's large

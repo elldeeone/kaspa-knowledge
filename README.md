@@ -67,6 +67,29 @@ python scripts/run_pipeline.py ai
 python scripts/run_pipeline.py --date 2025-01-15
 ```
 
+### Backfill Mode
+
+The pipeline supports backfill mode with period-based processing for large datasets:
+
+```bash
+# Process all available historical data (period-based for ≥28 days)
+python scripts/run_pipeline.py --backfill
+
+# Process specific number of days back
+python scripts/run_pipeline.py --days-back 60
+
+# Force reprocessing of existing data
+python scripts/run_pipeline.py --backfill --force
+```
+
+**Backfill Features:**
+- **Period-based processing**: Large datasets (≥28 days) are processed in monthly chunks
+- **Monthly prompts**: Uses specialized monthly-aware prompts for period summaries
+- **Author attribution**: Enhanced contributor tracking across all data sources
+- **Resource management**: Memory monitoring and chunked processing for large temporal datasets
+- **Auto date detection**: Automatically detects date ranges from source files
+- **Progress tracking**: Real-time monitoring for long-running operations
+
 ## Documentation
 
 | Topic | Description |

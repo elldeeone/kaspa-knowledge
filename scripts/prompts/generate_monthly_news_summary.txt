@@ -1,0 +1,70 @@
+Based on the news articles and media coverage data below for {period_label} ({start_date} to {end_date}), create a comprehensive monthly media and public perception analysis using the signal prioritization system:
+
+**Period:** {period_label}
+**Duration:** {duration_days} days
+**Total Articles:** {total_items}
+**Sources:** {source_count} | **Categories:** {category_count} | **Coverage Types:** {coverage_types}
+
+**SIGNAL PRIORITIZATION GUIDE:**
+Use the `signal` metadata in each article to prioritize analysis:
+- **Top Insights** (final_score > 0.85): Most important media coverage requiring immediate attention
+- **Recent Developments** (final_score 0.70-0.85): Significant news stories and valuable coverage
+- **Standard Contributions** (final_score 0.40-0.70): Regular media mentions and coverage
+- **Archive Material** (final_score < 0.40): Historical context and background coverage
+
+**CONTRIBUTOR SIGNAL WEIGHTING:**
+- **Founders** (is_founder: true): Strategic media appearances and official statements
+- **Lead Developers** (is_lead: true): Technical expert commentary and interviews
+- **Core Developers** (contributor_role: "core_developer"): Technical explanations and implementation insights
+- **High Signal Strength** (strength: "high"): Prioritize these contributions regardless of role
+
+**News Coverage Data:**
+{activity_data}
+
+Please provide:
+
+## Monthly Media & Public Perception Executive Summary
+- Top 3-5 most significant news stories or media developments this month (prioritize final_score > 0.85)
+- **ALWAYS include author names and their roles** for each story (e.g., "by @author (core_developer)")
+- Strategic media narrative changes or major coverage shifts (focus on is_founder/is_lead contributions)
+- Key public perception milestones and media achievements (weight by signal strength)
+- **Prominently feature contributor attributions** throughout the summary
+
+## Core Media Coverage Themes
+- Primary topics and coverage areas, ranked by signal scores and media reach
+- Cross-cutting stories that spanned multiple weeks and outlets (identify by source patterns)
+- Technical coverage and expert commentary (prioritize core_developer contributions)
+
+## Key Contributors & Media Leadership Analysis
+- **Founders & Leads**: Highlight is_founder=true and is_lead=true media appearances with their impact, **always name the contributors**
+- **Core Developers**: Detail contributor_role="core_developer" involvement in technical media coverage, **always name the contributors**
+- **High-Signal Contributors**: Emphasize strength="high" contributions regardless of formal role, **always name the contributors**
+- **Signal Score Distribution**: Analyze coverage quality using final_score ranges
+- **Author Attribution**: Ensure every significant media appearance mentions the contributor's name and role
+
+## Media Coverage Trends & Patterns
+- Emerging media themes or coverage focus areas
+- Areas of intensive media attention or rapid narrative development
+- Media sentiment patterns and public perception shifts
+
+## Notable Coverage & Public Impact
+- Major announcements and their media reception
+- Technical breakthroughs and expert commentary
+- Market coverage and adoption story development
+
+## Technical & Adoption Impact
+- Media coverage that influenced public understanding
+- Technical explanations that reached mainstream audiences
+- Coverage that supported adoption and ecosystem growth
+
+## Forward-Looking Media Analysis
+- Coverage that sets foundation for future media strategy
+- Narrative gaps identified through media analysis
+- Areas requiring media attention in upcoming cycles
+
+## Actionable Media Insights
+- Priority items for media strategy and public relations
+- Coverage optimization recommendations
+- Technical areas requiring more mainstream media education
+
+Focus on strategic media context and monthly themes rather than daily details. Emphasize coverage that shaped the month's public perception and will influence future media strategy and public understanding.

@@ -1,0 +1,70 @@
+Based on the Medium articles and publications data below for {period_label} ({start_date} to {end_date}), create a comprehensive monthly content and communication analysis using the signal prioritization system:
+
+**Period:** {period_label}
+**Duration:** {duration_days} days
+**Total Articles:** {total_items}
+**Publications:** {publication_count} | **Authors:** {author_count} | **Content Types:** {content_types}
+
+**SIGNAL PRIORITIZATION GUIDE:**
+Use the `signal` metadata in each article to prioritize analysis:
+- **Top Insights** (final_score > 0.85): Most important content requiring immediate attention
+- **Recent Developments** (final_score 0.70-0.85): Significant publications and valuable content
+- **Standard Contributions** (final_score 0.40-0.70): Regular content and communications
+- **Archive Material** (final_score < 0.40): Historical context and background content
+
+**CONTRIBUTOR SIGNAL WEIGHTING:**
+- **Founders** (is_founder: true): Strategic vision and public messaging
+- **Lead Developers** (is_lead: true): Technical leadership and educational content
+- **Core Developers** (contributor_role: "core_developer"): Technical explanations and implementation insights
+- **High Signal Strength** (strength: "high"): Prioritize these contributions regardless of role
+
+**Medium Content Data:**
+{activity_data}
+
+Please provide:
+
+## Monthly Content & Communication Executive Summary
+- Top 3-5 most significant publications or content developments this month (prioritize final_score > 0.85)
+- **ALWAYS include author names and their roles** for each publication (e.g., "by @author (core_developer)")
+- Strategic communication direction changes or major announcements (focus on is_founder/is_lead contributions)
+- Key educational milestones and content achievements (weight by signal strength)
+- **Prominently feature contributor attributions** throughout the summary
+
+## Core Content Themes
+- Primary topics and content areas, ranked by signal scores and audience engagement
+- Cross-cutting content series that spanned multiple weeks (identify by author patterns)
+- Technical education and community outreach content (prioritize core_developer contributions)
+
+## Key Contributors & Content Leadership Analysis
+- **Founders & Leads**: Highlight is_founder=true and is_lead=true publications with their strategic impact, **always name the contributors**
+- **Core Developers**: Detail contributor_role="core_developer" involvement in technical content, **always name the contributors**
+- **High-Signal Contributors**: Emphasize strength="high" contributions regardless of formal role, **always name the contributors**
+- **Signal Score Distribution**: Analyze content quality using final_score ranges
+- **Author Attribution**: Ensure every significant publication mentions the author's name and role
+
+## Content Trends & Patterns
+- Emerging content themes or educational focus areas
+- Areas of intensive content production or audience engagement
+- Content quality improvements and format innovations
+
+## Notable Publications & Impact
+- Major announcements and their reception
+- Technical education breakthroughs
+- Community engagement and feedback patterns
+
+## Technical & Educational Impact
+- Content that influenced community understanding
+- Educational material that supported developer adoption
+- Technical explanations that clarified complex concepts
+
+## Forward-Looking Content Analysis
+- Content that sets foundation for future communication strategy
+- Educational gaps identified through content performance
+- Areas requiring content leadership focus in upcoming cycles
+
+## Actionable Content Insights
+- Priority items for content strategy leadership
+- Content production recommendations
+- Technical areas requiring more educational content
+
+Focus on strategic content context and monthly themes rather than daily details. Emphasize publications that shaped the month's communication direction and will influence future content strategy and community education.
