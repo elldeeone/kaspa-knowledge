@@ -1,0 +1,24 @@
+{
+  "output_dir": "../terah/docs",
+  "sources": {
+    "discourse": {
+      "enabled": true,
+      "categories": ["l1-l2"],
+      "forums": ["research.kas.pa"]
+    },
+    "github": {
+      "enabled": true,
+      "repos": ["kaspanet/rusty-kaspa"]
+    },
+    "telegram": {
+      "enabled": false,
+      "groups": ["all"]
+    },
+    "medium": {
+      "enabled": true,
+      "authors": ["all"]
+    }
+  },
+  "sync_interval_days": 7,
+  "full_history_on_first_run": true
+}

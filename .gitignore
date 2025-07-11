@@ -71,6 +71,9 @@ Pipfile.lock
 # PEP 582
 __pypackages__/
 
+# Terah sync state
+.terah/
+
 # Data and output files
 output/
 *.csv

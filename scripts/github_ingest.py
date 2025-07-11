@@ -491,14 +491,18 @@ def check_existing_data(date=None):
     return output_file.exists()
 
 
-def save_github_data(all_repo_data, date=None, full_history=False):
+def save_github_data(all_repo_data, date=None, full_history=False, output_path=None):
     """Save raw GitHub data to JSON files grouped by creation date"""
     if full_history:
         date_str = "full_history"
-        # Ensure output directory exists
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-        output_file = OUTPUT_DIR / f"{date_str}.json"
+        if output_path:
+            # Use custom output path if provided
+            output_file = Path(output_path)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Default behavior - unchanged
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            output_file = OUTPUT_DIR / f"{date_str}.json"
 
         # Create final data structure
         final_data = {}
@@ -533,10 +537,14 @@ def save_github_data(all_repo_data, date=None, full_history=False):
     elif date is not None:
         # Save to specific date file
         date_str = date
-        # Ensure output directory exists
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-        output_file = OUTPUT_DIR / f"{date_str}.json"
+        if output_path:
+            # Use custom output path if provided
+            output_file = Path(output_path)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Default behavior - unchanged
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            output_file = OUTPUT_DIR / f"{date_str}.json"
 
         # Check if this is a "no content" scenario
         has_content = bool(
@@ -924,6 +932,11 @@ regular operations, full-history for comprehensive backfill operations.
         action="store_true",
         help="Run validation after ingestion to verify data quality",
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Custom output file path (optional). Uses default location if not set",
+    )
 
     args = parser.parse_args()
 
@@ -1009,7 +1022,7 @@ regular operations, full-history for comprehensive backfill operations.
             print("ℹ️  Use --force flag to bypass deduplication if needed.")
 
             # Save empty file with metadata for consistency
-            save_github_data({}, args.date, args.full_history)
+            save_github_data({}, args.date, args.full_history, args.output)
 
             import sys
 
@@ -1021,7 +1034,7 @@ regular operations, full-history for comprehensive backfill operations.
         final_data = all_repo_data
 
     # Save all data
-    save_github_data(final_data, args.date, args.full_history)
+    save_github_data(final_data, args.date, args.full_history, args.output)
 
     # Optional validation step
     if args.validate:

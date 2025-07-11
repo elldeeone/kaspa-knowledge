@@ -1174,12 +1174,18 @@ def process_forum(
     return all_posts
 
 
-def save_forum_data(all_posts, date=None, full_history=False):
+def save_forum_data(all_posts, date=None, full_history=False, output_path=None):
     """Save forum posts data to dated JSON files grouped by creation date"""
     if full_history:
         date_str = "full_history"
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        output_file = OUTPUT_DIR / f"{date_str}.json"
+        if output_path:
+            # Use custom output path if provided
+            output_file = Path(output_path)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Default behavior - unchanged
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            output_file = OUTPUT_DIR / f"{date_str}.json"
 
         # Determine status based on data
         if all_posts:
@@ -1230,8 +1236,14 @@ def save_forum_data(all_posts, date=None, full_history=False):
     elif date is not None:
         # Save to specific date file
         date_str = date
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        output_file = OUTPUT_DIR / f"{date_str}.json"
+        if output_path:
+            # Use custom output path if provided
+            output_file = Path(output_path)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Default behavior - unchanged
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            output_file = OUTPUT_DIR / f"{date_str}.json"
 
         # Determine status based on data
         if all_posts:
@@ -1427,6 +1439,11 @@ def main():
             "(e.g., 'l1-l2,consensus'). Only works with --full-history"
         ),
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Custom output file path (optional). Uses default location if not set",
+    )
 
     args = parser.parse_args()
 
@@ -1452,7 +1469,7 @@ def main():
         print("   Please set DISCOURSE_API_USERNAME and DISCOURSE_API_KEY in .env")
         print("   Skipping forum ingestion.")
         # Still create an empty file for pipeline consistency
-        save_forum_data([], args.date, args.full_history)
+        save_forum_data([], args.date, args.full_history, args.output)
         sys.exit(2)  # Exit code 2 indicates "no new content"
 
     if DISCOURSE_API_USERNAME.startswith("your_") or DISCOURSE_API_KEY.startswith(
@@ -1461,14 +1478,14 @@ def main():
         print("⚠️ Discourse API credentials are placeholder values.")
         print("   Please configure real credentials in .env file")
         # Still create an empty file for pipeline consistency
-        save_forum_data([], args.date, args.full_history)
+        save_forum_data([], args.date, args.full_history, args.output)
         sys.exit(2)  # Exit code 2 indicates "no new content"
 
     # Load configuration
     forum_configs = load_discourse_config()
     if not forum_configs:
         print("⚠️ No enabled Discourse forums found in configuration")
-        save_forum_data([], args.date, args.full_history)
+        save_forum_data([], args.date, args.full_history, args.output)
         sys.exit(2)  # Exit code 2 indicates "no new content"
 
     # Load/reset state
@@ -1521,7 +1538,9 @@ def main():
             final_posts = all_posts
 
         # Save results
-        success = save_forum_data(final_posts, args.date, args.full_history)
+        success = save_forum_data(
+            final_posts, args.date, args.full_history, args.output
+        )
         if success:
             save_state(state)
             print("\n✅ Discourse ingestion completed successfully")

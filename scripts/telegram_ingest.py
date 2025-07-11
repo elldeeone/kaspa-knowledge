@@ -306,13 +306,16 @@ async def fetch_group_messages(client, group, last_id):
     return messages_data, new_last_id
 
 
-def save_raw_telegram_data(messages, force_save=False, full_history=False):
+def save_raw_telegram_data(
+    messages, force_save=False, full_history=False, output_path=None
+):
     """Save raw Telegram messages to group-specific daily files grouped by message date.
 
     Args:
         messages: List of messages to save
         force_save: If True, save empty file with metadata even when no messages
         full_history: If True, save to full_history.json instead of dated file
+        output_path: Optional custom output file path
     """
     if full_history:
         date_str = "full_history"
@@ -347,12 +350,19 @@ def save_raw_telegram_data(messages, force_save=False, full_history=False):
                 },
             }
 
-            output_path = sources_dir / f"{date_str}.json"
-            with open(output_path, "w", encoding="utf-8") as f:
+            if output_path:
+                # Use custom output path if provided
+                output_file = Path(output_path)
+                output_file.parent.mkdir(parents=True, exist_ok=True)
+            else:
+                # Default behavior
+                output_file = sources_dir / f"{date_str}.json"
+
+            with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(empty_data_with_metadata, f, indent=2, ensure_ascii=False)
 
-            print(f"📁 Saved empty data file to: {output_path}")
-            return [output_path]
+            print(f"📁 Saved empty data file to: {output_file}")
+            return [output_file]
 
         # Group messages by group name
         messages_by_group = {}
@@ -363,22 +373,61 @@ def save_raw_telegram_data(messages, force_save=False, full_history=False):
             messages_by_group[group_name].append(message)
 
         saved_files = []
-        for group_name, group_messages in messages_by_group.items():
-            # Create group-specific directory
-            group_dir = Path("sources/telegram") / group_name
-            group_dir.mkdir(parents=True, exist_ok=True)
 
-            # Save file in group directory
-            output_path = group_dir / f"{date_str}.json"
+        if output_path:
+            # When custom output is specified, save all messages to a single file
+            output_file = Path(output_path)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(group_messages, f, indent=2, ensure_ascii=False)
+            # Combine all messages with metadata
+            all_messages = []
+            for group_name, group_messages in messages_by_group.items():
+                # Add group info to each message if not already present
+                for msg in group_messages:
+                    if "group" not in msg:
+                        msg["group"] = group_name
+                    all_messages.extend(group_messages)
 
-            print(
-                f"✅ Saved {len(group_messages)} messages from {group_name} "
-                f"to: {output_path}"
-            )
-            saved_files.append(output_path)
+            # Create output structure similar to other ingest scripts
+            output_data = {
+                "date": date_str,
+                "generated_at": datetime.now().isoformat(),
+                "source": "telegram",
+                "status": "success",
+                "messages": all_messages,
+                "metadata": {
+                    "groups_processed": len(messages_by_group),
+                    "total_messages_fetched": len(all_messages),
+                    "credential_status": (
+                        "configured" if API_ID and API_HASH else "missing"
+                    ),
+                    "processing_mode": "full_history",
+                },
+            }
+
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(output_data, f, indent=2, ensure_ascii=False)
+
+            print(f"✅ Saved {len(all_messages)} messages to: {output_file}")
+            saved_files.append(output_file)
+        else:
+            # Default behavior - save to group-specific directories
+            for group_name, group_messages in messages_by_group.items():
+                # Create group-specific directory
+                group_dir = Path("sources/telegram") / group_name
+                group_dir.mkdir(parents=True, exist_ok=True)
+
+                # Save file in group directory
+                group_file = group_dir / f"{date_str}.json"
+
+                with open(group_file, "w", encoding="utf-8") as f:
+                    json.dump(group_messages, f, indent=2, ensure_ascii=False)
+
+                print(
+                    f"✅ Saved {len(group_messages)} messages from {group_name} "
+                    f"to: {group_file}"
+                )
+                saved_files.append(group_file)
 
         return saved_files
     else:
@@ -536,6 +585,11 @@ async def main():
         action="store_true",
         help="Force processing even if no new messages found " "(bypass deduplication)",
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Custom output file path (optional). Uses default location if not set",
+    )
     args = parser.parse_args()
 
     print("🔄 Starting Telegram message ingestion...")
@@ -543,7 +597,9 @@ async def main():
 
     if messages is None:  # This means we skipped due to missing credentials/config
         # Still save empty file with metadata for consistency
-        save_raw_telegram_data([], force_save=True, full_history=args.full_history)
+        save_raw_telegram_data(
+            [], force_save=True, full_history=args.full_history, output_path=args.output
+        )
         print("\n🎉 Telegram ingestion complete!")
         sys.exit(2)  # Exit code 2 indicates "no new content" like Medium
     elif messages:
@@ -566,7 +622,10 @@ async def main():
 
                 # Save empty file with metadata for consistency
                 save_raw_telegram_data(
-                    [], force_save=True, full_history=args.full_history
+                    [],
+                    force_save=True,
+                    full_history=args.full_history,
+                    output_path=args.output,
                 )
                 print("\n🎉 Telegram ingestion complete!")
                 sys.exit(2)  # Exit code 2 indicates "no new content"
@@ -576,7 +635,9 @@ async def main():
             print("⚠️  Force flag used - bypassing deduplication checks")
             final_messages = messages
 
-        save_raw_telegram_data(final_messages, full_history=args.full_history)
+        save_raw_telegram_data(
+            final_messages, full_history=args.full_history, output_path=args.output
+        )
 
         if not args.force and len(messages) > len(final_messages):
             print(
@@ -588,7 +649,9 @@ async def main():
         sys.exit(0)  # Success with new content
     else:
         # No messages found, but save empty file with metadata
-        save_raw_telegram_data([], force_save=True, full_history=args.full_history)
+        save_raw_telegram_data(
+            [], force_save=True, full_history=args.full_history, output_path=args.output
+        )
         print("\n🎉 Telegram ingestion complete!")
         sys.exit(2)  # No messages found, exit code 2 for "no new content"
 

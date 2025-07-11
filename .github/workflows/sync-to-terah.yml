@@ -1,0 +1,145 @@
+name: Sync to Terah
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Specific source to sync (leave empty for all)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - 'discourse'
+          - 'github'
+          - 'telegram'
+          - 'medium'
+      force:
+        description: 'Force full resync'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  sync-to-terah:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout kaspa-knowledge
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Configure Terah sync for temp directory
+      run: |
+        # Create temp directory for output files
+        mkdir -p terah-sync-output
+        
+        # Update the output directory to temp location
+        python -c "
+        import json
+        config_path = 'config/terah_sync.json'
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        config['output_dir'] = 'terah-sync-output'
+        with open(config_path, 'w') as f:
+            json.dump(config, f, indent=2)
+        "
+
+    - name: Run Terah sync
+      env:
+        # Pass through any required API keys
+        DISCOURSE_API_USERNAME: ${{ secrets.DISCOURSE_API_USERNAME }}
+        DISCOURSE_API_KEY: ${{ secrets.DISCOURSE_API_KEY }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+        TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+        MEDIUM_RSS_URLS: ${{ secrets.MEDIUM_RSS_URLS }}
+      run: |
+        # Build command based on inputs
+        SYNC_CMD="python scripts/sync_to_terah.py"
+        
+        # Add source if specified
+        if [ -n "${{ github.event.inputs.source }}" ]; then
+          SYNC_CMD="$SYNC_CMD --source ${{ github.event.inputs.source }}"
+        fi
+        
+        # Add force flag if specified
+        if [ "${{ github.event.inputs.force }}" == "true" ]; then
+          SYNC_CMD="$SYNC_CMD --force"
+        fi
+        
+        echo "Running: $SYNC_CMD"
+        $SYNC_CMD || EXIT_CODE=$?
+        
+        # Check exit code
+        if [ "${EXIT_CODE:-0}" -eq 2 ]; then
+          echo "No new content to sync"
+          echo "NO_NEW_CONTENT=true" >> $GITHUB_ENV
+        elif [ "${EXIT_CODE:-0}" -ne 0 ]; then
+          echo "Sync failed with exit code: $EXIT_CODE"
+          exit $EXIT_CODE
+        fi
+
+    - name: Push files to terah repo
+      if: env.NO_NEW_CONTENT != 'true'
+      run: |
+        # Configure git for push
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        
+        # Clone terah repo (shallow clone for speed)
+        git clone --depth 1 https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/elldeeone/terah.git terah-repo
+        
+        # Copy generated files to terah repo
+        cp -v terah-sync-output/*.json terah-repo/docs/ || true
+        
+        # Change to terah repo
+        cd terah-repo
+        
+        # Check for changes
+        if [ -n "$(git status --porcelain docs/)" ]; then
+          # Add changes
+          git add docs/
+          
+          # Create commit message
+          COMMIT_MSG="Update knowledge base documents"
+          if [ -n "${{ github.event.inputs.source }}" ]; then
+            COMMIT_MSG="Update ${{ github.event.inputs.source }} knowledge base documents"
+          fi
+          
+          # Get list of new files for commit message
+          NEW_FILES=$(git diff --cached --name-only docs/ | head -5)
+          if [ -n "$NEW_FILES" ]; then
+            COMMIT_MSG="$COMMIT_MSG
+            
+New/updated files:
+$NEW_FILES"
+          fi
+          
+          # Commit and push
+          git commit -m "$COMMIT_MSG"
+          git push
+          
+          echo "✅ Changes pushed to terah repository"
+        else
+          echo "📭 No changes to commit"
+        fi
+
+    - name: Upload sync state
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: terah-sync-state
+        path: .terah/
+        retention-days: 30

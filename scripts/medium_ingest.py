@@ -388,23 +388,27 @@ def fetch_articles_from_feed(rss_url, full_history=False, days_back=None):
         return []
 
 
-def save_raw_medium_data(articles, full_history=False):
+def save_raw_medium_data(articles, full_history=False, output_path=None):
     """
     Save raw Medium articles to sources/medium/ directory grouped by publication date.
     """
     if full_history:
         date_str = "full_history"
-        # Create sources/medium directory
-        sources_dir = Path("sources/medium")
-        sources_dir.mkdir(parents=True, exist_ok=True)
+        if output_path:
+            # Use custom output path if provided
+            output_file = Path(output_path)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Default behavior - unchanged
+            sources_dir = Path("sources/medium")
+            sources_dir.mkdir(parents=True, exist_ok=True)
+            output_file = sources_dir / f"{date_str}.json"
 
-        output_path = sources_dir / f"{date_str}.json"
-
-        with open(output_path, "w", encoding="utf-8") as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(articles, f, indent=2, ensure_ascii=False)
 
-        print(f"✅ Saved {len(articles)} raw articles to: {output_path}")
-        return output_path
+        print(f"✅ Saved {len(articles)} raw articles to: {output_file}")
+        return output_file
     else:
         # Group articles by publication date
         articles_by_date = {}
@@ -433,52 +437,72 @@ def save_raw_medium_data(articles, full_history=False):
                 articles_by_date[today_date] = []
             articles_by_date[today_date].extend(articles_with_unknown_date)
 
-        # Create sources/medium directory
-        sources_dir = Path("sources/medium")
-        sources_dir.mkdir(parents=True, exist_ok=True)
-
         saved_files = []
         total_articles = 0
 
-        for date_str, date_articles in articles_by_date.items():
-            output_path = sources_dir / f"{date_str}.json"
+        if output_path:
+            # When custom output is specified, save all articles to a single file
+            output_file = Path(output_path)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
 
-            # Load existing data if file exists
-            existing_articles = []
-            if output_path.exists():
-                try:
-                    with open(output_path, "r", encoding="utf-8") as f:
-                        existing_articles = json.load(f)
-                except (json.JSONDecodeError, IOError):
-                    existing_articles = []
-
-            # Combine with new articles, avoiding duplicates based on link
-            existing_links = {article.get("link") for article in existing_articles}
-            new_articles = [
-                article
-                for article in date_articles
-                if article.get("link") not in existing_links
-            ]
-
-            # Merge all articles
-            all_articles = existing_articles + new_articles
+            # Combine all articles
+            all_articles = []
+            for date_str, date_articles in articles_by_date.items():
+                all_articles.extend(date_articles)
 
             # Save to file
-            with open(output_path, "w", encoding="utf-8") as f:
+            with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(all_articles, f, indent=2, ensure_ascii=False)
 
-            if new_articles:
-                print(
-                    f"✅ Saved {len(new_articles)} new articles to: {output_path} "
-                    f"(total: {len(all_articles)})"
-                )
-            else:
-                print(
-                    f"📄 No new articles for {date_str} (existing: {len(all_articles)})"
-                )
+            print(f"✅ Saved {len(all_articles)} articles to: {output_file}")
+            saved_files.append(output_file)
+            total_articles = len(all_articles)
+        else:
+            # Default behavior - save to date-specific files
+            # Create sources/medium directory
+            sources_dir = Path("sources/medium")
+            sources_dir.mkdir(parents=True, exist_ok=True)
 
-            saved_files.append(output_path)
-            total_articles += len(new_articles)
+            for date_str, date_articles in articles_by_date.items():
+                output_path = sources_dir / f"{date_str}.json"
+
+                # Load existing data if file exists
+                existing_articles = []
+                if output_path.exists():
+                    try:
+                        with open(output_path, "r", encoding="utf-8") as f:
+                            existing_articles = json.load(f)
+                    except (json.JSONDecodeError, IOError):
+                        existing_articles = []
+
+                # Combine with new articles, avoiding duplicates based on link
+                existing_links = {article.get("link") for article in existing_articles}
+                new_articles = [
+                    article
+                    for article in date_articles
+                    if article.get("link") not in existing_links
+                ]
+
+                # Merge all articles
+                all_articles = existing_articles + new_articles
+
+                # Save to file
+                with open(output_path, "w", encoding="utf-8") as f:
+                    json.dump(all_articles, f, indent=2, ensure_ascii=False)
+
+                if new_articles:
+                    print(
+                        f"✅ Saved {len(new_articles)} new articles to: {output_path} "
+                        f"(total: {len(all_articles)})"
+                    )
+                else:
+                    print(
+                        f"📄 No new articles for {date_str} "
+                        f"(existing: {len(all_articles)})"
+                    )
+
+                saved_files.append(output_path)
+                total_articles += len(new_articles)
 
         print(
             f"📊 Total new articles saved: {total_articles} "
@@ -536,6 +560,11 @@ regular operations, full-history for comprehensive backfill operations.
         "--force",
         action="store_true",
         help="Force processing even if no new articles found (bypass deduplication).",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Custom output file path (optional). Uses default location if not set",
     )
     args = parser.parse_args()
 
@@ -774,7 +803,9 @@ regular operations, full-history for comprehensive backfill operations.
         print(f"  ... and {len(final_articles) - display_limit} more articles")
 
     # Save the articles
-    output_paths = save_raw_medium_data(final_articles, full_history=args.full_history)
+    output_paths = save_raw_medium_data(
+        final_articles, full_history=args.full_history, output_path=args.output
+    )
 
     print("\n🎉 Medium ingestion complete!")
     if isinstance(output_paths, list):
