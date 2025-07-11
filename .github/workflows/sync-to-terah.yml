@@ -101,6 +101,10 @@ jobs:
         # Clone terah repo (shallow clone for speed)
         git clone --depth 1 https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/elldeeone/terah.git terah-repo
         
+        # Debug: List generated files
+        echo "📁 Generated files:"
+        ls -la terah-sync-output/
+        
         # Copy generated files to terah repo
         cp -v terah-sync-output/*.json terah-repo/docs/ || true
         
