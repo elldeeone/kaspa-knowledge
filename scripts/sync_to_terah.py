@@ -211,6 +211,7 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
         str(days_back),
         "--output",
         str(output_file),
+        "--force",  # Always use force to ensure file creation
     ]
 
     logger.info(f"Running GitHub sync: {' '.join(cmd)}")
@@ -227,6 +228,9 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
             return str(output_file)
         elif result.returncode == 2:
             logger.info("📭 No new GitHub content found")
+            # Even with no content, the file should exist with metadata
+            if output_file.exists():
+                return str(output_file)
             return None
         else:
             logger.error(f"❌ GitHub sync failed: {result.stderr}")
