@@ -121,10 +121,7 @@ jobs:
           # Get list of new files for commit message
           NEW_FILES=$(git diff --cached --name-only docs/ | head -5)
           if [ -n "$NEW_FILES" ]; then
-            COMMIT_MSG="$COMMIT_MSG
-            
-New/updated files:
-$NEW_FILES"
+            COMMIT_MSG="${COMMIT_MSG} - New/updated files: $(echo $NEW_FILES | tr '\n' ', ')"
           fi
           
           # Commit and push
