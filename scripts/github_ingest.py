@@ -554,7 +554,6 @@ def save_github_data(all_repo_data, date=None, full_history=False, output_path=N
         if not has_content:
             # Create metadata structure for no content scenario
             # (consistent with other sources)
-            from datetime import datetime, timezone
 
             no_content_data = {
                 "date": date_str,
