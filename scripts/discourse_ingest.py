@@ -874,7 +874,9 @@ def fetch_topics_by_search(forum_config, search_query="", date_range=None):
     return all_topics
 
 
-def fetch_comprehensive_topics(forum_config, state, full_history=False):
+def fetch_comprehensive_topics(
+    forum_config, state, full_history=False, target_categories=None
+):
     """
     Comprehensive topic discovery using multiple strategies for complete historical
     coverage:
@@ -947,6 +949,27 @@ def fetch_comprehensive_topics(forum_config, state, full_history=False):
         print("\n📁 Strategy 4: Category-based traversal")
         categories = fetch_all_categories(forum_config)
         category_additions = 0
+
+        # Filter categories if target_categories is specified
+        if target_categories:
+            print(
+                f"   🎯 Filtering for specific categories: "
+                f"{', '.join(target_categories)}"
+            )
+            filtered_categories = []
+            for category in categories:
+                if category["slug"] in target_categories:
+                    filtered_categories.append(category)
+                    print(
+                        f"   ✅ Found target category: {category['name']} "
+                        f"(slug: {category['slug']})"
+                    )
+            if not filtered_categories:
+                print(
+                    f"   ⚠️ Warning: No matching categories found for: "
+                    f"{', '.join(target_categories)}"
+                )
+            categories = filtered_categories
 
         for category in categories:
             category_slug = category["slug"]
@@ -1098,7 +1121,9 @@ def fetch_new_posts_for_topic(
     return new_posts, highest_post_number
 
 
-def process_forum(forum_config, state, full_history=False, days_back=None):
+def process_forum(
+    forum_config, state, full_history=False, days_back=None, target_categories=None
+):
     """Process a single Discourse forum"""
     forum_name = forum_config.get("name", "unknown")
     base_url = forum_config["base_url"]
@@ -1109,7 +1134,9 @@ def process_forum(forum_config, state, full_history=False, days_back=None):
     forum_state = state.setdefault(base_url, {"topics": {}})
 
     # Fetch comprehensive topics
-    comprehensive_topics = fetch_comprehensive_topics(forum_config, state, full_history)
+    comprehensive_topics = fetch_comprehensive_topics(
+        forum_config, state, full_history, target_categories
+    )
     if not comprehensive_topics:
         print(f"   ⚠️ No topics found for {forum_name}")
         return []
@@ -1392,6 +1419,14 @@ def main():
         action="store_true",
         help="Force processing even if no new posts found (bypass deduplication)",
     )
+    parser.add_argument(
+        "--categories",
+        type=str,
+        help=(
+            "Comma-separated list of category slugs to fetch "
+            "(e.g., 'l1-l2,consensus'). Only works with --full-history"
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -1400,6 +1435,16 @@ def main():
 
     if args.days_back:
         print(f"📅 Date filtering: Only posts from the last {args.days_back} days")
+
+    # Parse category filter if provided
+    target_categories = None
+    if args.categories:
+        if not args.full_history:
+            print("⚠️ Warning: --categories flag only works with --full-history mode")
+            print("   Category filtering will be ignored.")
+        else:
+            target_categories = [cat.strip() for cat in args.categories.split(",")]
+            print(f"🎯 Category filtering enabled: {', '.join(target_categories)}")
 
     # Check API credentials
     if not DISCOURSE_API_USERNAME or not DISCOURSE_API_KEY:
@@ -1447,7 +1492,11 @@ def main():
     try:
         for forum_config in forum_configs:
             forum_posts = process_forum(
-                forum_config, state, args.full_history, args.days_back
+                forum_config,
+                state,
+                args.full_history,
+                args.days_back,
+                target_categories,
             )
             all_posts.extend(forum_posts)
 
