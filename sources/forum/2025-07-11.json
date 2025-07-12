@@ -1,0 +1,44 @@
+{
+  "date": "2025-07-11",
+  "generated_at": "2025-07-12T03:53:42.584608+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 600,
+      "post_number": 1,
+      "topic_id": 375,
+      "topic_title": "Data Availability Concerns",
+      "topic_slug": "data-availability-concerns",
+      "content": "Introduction Kaspa is pursuing an ambitious architectural goal: moving its entire execution layer off-chain into enshrined roll-ups secured by zk-proofs. Rather than persisting state and calldata on-chain indefinitely, Kaspa\u2019s Layer 1 (L1) is designed to prune historical data and serve primarily as a data dissemination and anchoring layer. In this system, roll-ups periodically submit zk-commitments that: Prove the correctness of off-chain execution. Enable indirect communication between independent roll-ups through verifiable state transitions. This reimagining of L1 functionality creates a separation of concerns that brings both promising benefits and challenging implications. The good From an L1 perspective, Kaspa\u2019s approach is elegant and efficient: Avoids state bloat: By not storing all execution data on-chain, the protocol avoids the ever-growing state size that burdens full nodes in many other smart contract platforms. Lightweight infrastructure: Users and nodes not interested in specific roll-ups are not forced to store or process their data. Correctness without replication: Thanks to zk-proofs, correctness can be independently verified without everyone re-executing everything. Selective participation: Only those interested in a particular roll-up need to follow and replicate it, reducing unnecessary overhead for the rest of the network. In essence, the system aligns computational effort with actual interest, while still preserving security and verifiability through cryptographic proofs. The bad However, these benefits come with non-trivial trade-offs: No full reconstruction from L1: Since the L1 prunes state, it cannot serve as a canonical archive. Reconstructing a roll-up\u2019s latest state requires cooperation from actors who have preserved it. Withholding risks: If those who hold or mirror roll-up state become inactive or malicious, users may lose access to their funds or be unable to prove ownership/state transitions. Fragmented DA assumptions: With many independent roll-ups, each potentially operated by different entities, users cannot easily assess the data availability guarantees of the roll-up they\u2019re interacting with. This introduces a form of informational asymmetry - users may trust a roll-up without realizing that their ability to access their funds depends on the unstated behavior of off-chain actors. For instance, a user interacting with Rollup A may assume it\u2019s as robustly available as Rollup B, not realizing that the latter is backed by a commercial DA service while the former depends on a small, volunteer-run mirror without much community participation. And the ugly At the heart of the data availability (DA) issue lies a game-theoretic dilemma, not just a technical one: In most traditional blockchains, shared smart contract state is treated as a common good - all nodes replicate it by default, ensuring broad availability. In Kaspa\u2019s model, state replication is voluntary. Users choose which roll-ups to follow, and by extension, which data to retain. This makes the system highly flexible but also fragile. Even if a roll-up has sufficient replication today, this could deteriorate over time if interest wanes, or actors exit the network. This leads us into a classic tragedy of the commons like scenario: Everyone benefits from someone maintaining data, but no one is individually incentivized to do so for the collective good - especially if they are not directly impacted. Note: Unlike traditional commons problems, this isn\u2019t just free-riding - it\u2019s structural. Actors may act perfectly rationally by not storing what doesn\u2019t affect them, yet the cumulative result is fragility. Because there is no global consensus on what data matters or how long it should persist, availability becomes subject to social consensus and economic incentives, not protocol guarantees. Conclusion and open questions Kaspa introduces a fascinating shift in blockchain design - from a model of forced consensus and replication to one of voluntary association and market-driven state tracking. But this raises critical open questions: How can users trust that state will remain available without mandatory replication? What incentives (or penalties) can ensure long-term DA without undermining Kaspa\u2019s lean L1 goals? How will users evaluate the reliability of roll-ups without transparent visibility into their DA infrastructure? These are non-trivial coordination problems that extend beyond code into social behavior, governance, and incentive design and solving them will (at least in my opinion) be key to Kaspa\u2019s long-term success as a zk-secured, off-chain smart contract platform. PS: I am going to propose a concrete solution to this problem but since the research post I am writing about this covers a lot of ground and is still expanding in scope, I thought that it makes sense to separate the problem statement from the proposal (and post it already) so they can be discussed independently - maybe somebody has elegant answers that are completely unrelated to my line of thought.",
+      "raw_content": "",
+      "author": "Hans_Moog",
+      "created_at": "2025-07-11T07:26:08.031Z",
+      "updated_at": "2025-07-11T07:26:08.031Z",
+      "reply_count": 1,
+      "url": "https://research.kas.pa/t/data-availability-concerns/375/1",
+      "category_id": 11
+    },
+    {
+      "post_id": 601,
+      "post_number": 2,
+      "topic_id": 375,
+      "topic_title": "Data Availability Concerns",
+      "topic_slug": "data-availability-concerns",
+      "content": "Hans_Moog: In most traditional blockchains, shared smart contract state is treated as a common good - all nodes replicate it by default, ensuring broad availability. In Kaspa\u2019s model, state replication is voluntary. Users choose which roll-ups to follow, and by extension, which data to retain. This makes the system highly flexible but also fragile. Welcome aboard ser! In the common good setup state replication is voluntary too. Perhaps you mean that users will opt in to state replication rather than opt out as in the default setup? If so, notice that this too is a design choice, and the default L2 client can/should be set up in the same manner we set an L1 node \u2013 to save the available state. I agree pruning provides a new flavour to the state-availability challenge, I disagree that it is a newly introduced challenge, or that the reliance on social consensus is a new assumption that Kaspa introduces. Cryptographic proofs-of-replication can be baked into the protocol, alleviating the reliance on social consensus. While this does not guarantee real time retrievability (replicas can still refuse to share the state on demand), this problem appears everywhere in crypto (eg L1 miners refusing to share the UTXO). P.S. Ideally the platform would be rollup-unfriendly, so maybe we should use another term. In the past we used logic-zones as placeholder, and now I propose vApps from Succinct\u2019s white paper. I mean, the entire design efforts are in order to counter rollups, defined (hereby) as logic zones optimized for more vapps joining under their own state, state commitment / proving; as opposed to vapps which are apps with defined logic which will naturally optimize for interoping with other vapps. Eg Arbitrum vs Aave. Perhaps we should elaborate more on the inherent L1-rollup misalignment, for now referring to this quick comment https://x.com/hashdag/status/1886191148533944366",
+      "raw_content": "",
+      "author": "hashdag",
+      "created_at": "2025-07-11T08:02:14.406Z",
+      "updated_at": "2025-07-11T08:02:14.406Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/data-availability-concerns/375/2",
+      "category_id": 11
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 2,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}

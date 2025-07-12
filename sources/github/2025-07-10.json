@@ -1,0 +1,32 @@
+{
+  "kaspanet/rusty-kaspa": {
+    "commits": [],
+    "pull_requests": [],
+    "issues": [
+      {
+        "number": 705,
+        "title": "perf-metrics port 7000 conflict on Windows: No way to configure alternative port (svchost.exe often claims 7000)",
+        "body": "**Describe the bug**\nWhen running Kaspad v1.0.1 (Windows 10, official binary), enabling the --perf-metrics flag causes Kaspad to always bind the Prometheus metrics server to 0.0.0.0:7000. On Windows, this port is often already occupied by system processes (commonly svchost.exe), resulting in the inability to access metrics and (sometimes) node startup failure.\nThere is currently no CLI flag or config file option to specify an alternative metrics port.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. On Windows, ensure any process (like svchost.exe) is listening on port 7000\n2. Launch Kaspad with --perf-metrics\n3. Observe that Kaspad tries to bind 0.0.0.0:7000, but the port is occupied\n4. Metrics endpoint is unavailable and/or node startup fails\n\n\n\n**Expected behavior**\nKaspad should provide a way to specify a custom port for the Prometheus metrics endpoint, either by CLI argument (such as --metrics-addr) or config file.\n\nAt a minimum, the software should warn the user or fail gracefully, rather than silently being inaccessible.\n\n\n**Screenshots**\nNot applicable (but happy to provide if needed).\n\n**Desktop (please complete the following information):**\n-OS: Windows 10 (x64, build 26100.4652)\n-Kaspad version: v1.0.1 (latest)\n-Install type: official release binary\n\n\n\n**Additional context**\nTried launching with possible options like --metrics-addr and via TOML config file; Kaspad either errors with “unexpected argument” or ignores config key.\n\nChecked open/closed issues and changelog; there is no workaround described for metrics port conflicts.\n\nNetstat confirms port 7000 is held by Windows services (svchost.exe), which is default behavior on some Windows installations.\n\nMetrics endpoint is not accessible, breaking Prometheus monitoring.\n\nRequest\nPlease implement a CLI flag and/or config file option to set the Prometheus metrics port, e.g. --metrics-addr=0.0.0.0:7010 or equivalent.\nAlternatively, if such a setting already exists, please clarify its usage in documentation.\n\nThank you!\n",
+        "state": "open",
+        "author": "TheCEOCoreGroupMining",
+        "created_at": "2025-07-10T23:50:52+00:00",
+        "updated_at": "2025-07-11T00:00:52+00:00",
+        "closed_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/705",
+        "labels": [],
+        "assignees": [],
+        "comments": 1,
+        "all_comments": [
+          {
+            "id": 3059604637,
+            "body": "Additional Context and Version Comparison\n\nI’d like to clarify that this issue with the metrics port being unavailable due to a conflict with svchost.exe on Windows did not occur in version 1.0.0. My configuration, scripts, and Windows environment have remained unchanged between upgrading from v1.0.0 to v1.0.1.\n\nv1.0.0 behavior:\n\nRunning kaspad.exe --perf-metrics started the node normally.\n\nMetrics endpoint was available on port 7000 without any port conflict or errors.\n\nNo svchost.exe conflict observed on port 7000.\n\nv1.0.1 behavior:\n\nRunning kaspad.exe --perf-metrics causes the node to fail if port 7000 is already bound by svchost.exe.\n\nChanging the port via CLI arguments like --metrics-addr results in an “unexpected argument” error, suggesting it is not currently supported or documented.\n\nThere is no documentation or config option to change the metrics port in the latest release, as far as I can tell.\n\nSummary:\nThis appears to be a regression or change introduced in v1.0.1 related to port binding, CLI parsing, or Windows compatibility for the metrics endpoint. If you need any logs, further testing, or environment details, I’m happy to provide them.\n\nThank you for your attention to this!",
+            "author": "TheCEOCoreGroupMining",
+            "created_at": "2025-07-11T00:00:52+00:00",
+            "updated_at": "2025-07-11T00:00:52+00:00",
+            "url": "https://github.com/kaspanet/rusty-kaspa/issues/705#issuecomment-3059604637"
+          }
+        ]
+      }
+    ]
+  }
+}
