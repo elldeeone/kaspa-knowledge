@@ -30,6 +30,14 @@ jobs:
     - name: Checkout kaspa-knowledge
       uses: actions/checkout@v4
 
+    - name: Restore sync state cache
+      uses: actions/cache@v4
+      with:
+        path: .terah/
+        key: terah-sync-state-${{ github.run_number }}
+        restore-keys: |
+          terah-sync-state-
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -61,7 +69,7 @@ jobs:
         # Pass through any required API keys
         DISCOURSE_API_USERNAME: ${{ secrets.DISCOURSE_API_USERNAME }}
         DISCOURSE_API_KEY: ${{ secrets.DISCOURSE_API_KEY }}
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
         TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
         MEDIUM_RSS_URLS: ${{ secrets.MEDIUM_RSS_URLS }}
@@ -105,8 +113,14 @@ jobs:
         echo "📁 Generated files:"
         ls -la terah-sync-output/
         
-        # Copy generated files to terah repo
-        cp -v terah-sync-output/*.json terah-repo/docs/ || true
+        # Ensure all JSON files exist before copying
+        if ls terah-sync-output/*.json 1> /dev/null 2>&1; then
+          echo "Found JSON files to copy"
+          cp -v terah-sync-output/*.json terah-repo/docs/
+        else
+          echo "⚠️ No JSON files found in terah-sync-output/"
+          exit 1
+        fi
         
         # Change to terah repo
         cd terah-repo
@@ -137,10 +151,8 @@ jobs:
           echo "📭 No changes to commit"
         fi
 
-    - name: Upload sync state
-      uses: actions/upload-artifact@v4
+    - name: Save sync state for next run
       if: always()
-      with:
-        name: terah-sync-state
-        path: .terah/
-        retention-days: 30
+      run: |
+        # The cache action will automatically save the .terah/ directory
+        echo "Sync state will be cached for next run"

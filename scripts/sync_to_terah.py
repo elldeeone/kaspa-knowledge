@@ -113,7 +113,8 @@ def run_discourse_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[
         logger.warning("No Discourse categories configured")
         return None
 
-    # Determine if we need full history
+    # Determine sync mode
+    sync_mode = discourse_config.get("sync_mode", "incremental")
     last_sync = state.get("discourse", {}).get("last_sync")
     is_first_run = last_sync is None
     use_full_history = is_first_run and config.get("full_history_on_first_run", True)
@@ -123,8 +124,12 @@ def run_discourse_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[
     if is_first_run:
         start_date = "2023-01-01"  # Kaspa research forum started around this time
     else:
-        # Sync from last sync date
-        start_date = last_sync
+        if sync_mode == "incremental":
+            # Sync from last sync date (daily incremental)
+            start_date = last_sync
+        else:
+            # Default to last sync
+            start_date = last_sync
 
     # Build output filename
     source_id = get_source_identifier("discourse_research-kas-pa", categories)
@@ -180,17 +185,23 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
         logger.warning("No GitHub repositories configured")
         return None
 
-    # For GitHub, we'll use the regular sync mode
-    # (full-history for all repos would be too large)
+    # Determine sync mode
+    sync_mode = github_config.get("sync_mode", "rolling")
+    rolling_days = github_config.get("rolling_days", 7)
 
     # Calculate date range
     end_date = datetime.now().strftime("%Y-%m-%d")
     last_sync = state.get("github", {}).get("last_sync")
 
-    if last_sync:
-        # Calculate days back from last sync
+    if sync_mode == "rolling":
+        # Always sync the last N days
+        days_back = rolling_days
+        start_date = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
+    elif last_sync:
+        # Incremental mode - sync from last sync date
         last_sync_date = datetime.strptime(last_sync, "%Y-%m-%d")
         days_back = (datetime.now() - last_sync_date).days + 1
+        start_date = last_sync
     else:
         # First run - get last 30 days
         days_back = 30
@@ -199,7 +210,7 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
     # Build output filename
     repo_names = [r.split("/")[-1] for r in repos[:2]]  # First 2 repo names
     source_id = get_source_identifier("github", repo_names)
-    date_range = get_date_range(start_date if not last_sync else last_sync, end_date)
+    date_range = get_date_range(start_date, end_date)
     output_file = output_dir / f"{source_id}_{date_range}.json"
 
     # Build command
@@ -213,6 +224,9 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
         str(output_file),
         "--force",  # Always use force to ensure file creation
     ]
+    
+    # Log the sync mode being used
+    logger.info(f"Using {sync_mode} sync mode for GitHub (days_back={days_back})")
 
     logger.info(f"Running GitHub sync: {' '.join(cmd)}")
 
@@ -300,7 +314,8 @@ def run_medium_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
         logger.info("Medium sync disabled in configuration")
         return None
 
-    # Determine if we need full history
+    # Determine sync mode
+    sync_mode = medium_config.get("sync_mode", "incremental")
     last_sync = state.get("medium", {}).get("last_sync")
     is_first_run = last_sync is None
     use_full_history = is_first_run and config.get("full_history_on_first_run", True)
@@ -310,7 +325,11 @@ def run_medium_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
     if is_first_run:
         start_date = "2023-01-01"
     else:
-        start_date = last_sync
+        if sync_mode == "incremental":
+            # For incremental, we'll let the ingest script handle date filtering
+            start_date = last_sync
+        else:
+            start_date = last_sync
 
     # Build output filename
     source_id = "medium_kaspa-authors"
@@ -322,7 +341,10 @@ def run_medium_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
 
     if use_full_history:
         cmd.append("--full-history")
-
+    elif not is_first_run and sync_mode == "incremental":
+        # For incremental updates after first run, don't use full-history
+        logger.info(f"Using incremental sync mode for Medium from {start_date}")
+    
     logger.info(f"Running Medium sync: {' '.join(cmd)}")
 
     try:

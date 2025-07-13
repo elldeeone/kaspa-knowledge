@@ -4,21 +4,26 @@
     "discourse": {
       "enabled": true,
       "categories": ["l1-l2"],
-      "forums": ["research.kas.pa"]
+      "forums": ["research.kas.pa"],
+      "sync_mode": "incremental"
     },
     "github": {
       "enabled": true,
-      "repos": ["kaspanet/rusty-kaspa"]
+      "repos": ["kaspanet/rusty-kaspa"],
+      "sync_mode": "rolling",
+      "rolling_days": 7
     },
     "telegram": {
       "enabled": false,
-      "groups": ["all"]
+      "groups": ["all"],
+      "sync_mode": "incremental"
     },
     "medium": {
       "enabled": true,
-      "authors": ["all"]
+      "authors": ["all"],
+      "sync_mode": "incremental"
     }
   },
-  "sync_interval_days": 7,
+  "sync_interval_days": 1,
   "full_history_on_first_run": true
 }
