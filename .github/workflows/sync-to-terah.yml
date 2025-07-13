@@ -69,7 +69,7 @@ jobs:
         # Pass through any required API keys
         DISCOURSE_API_USERNAME: ${{ secrets.DISCOURSE_API_USERNAME }}
         DISCOURSE_API_KEY: ${{ secrets.DISCOURSE_API_KEY }}
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
         TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
         TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
         MEDIUM_RSS_URLS: ${{ secrets.MEDIUM_RSS_URLS }}

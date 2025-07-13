@@ -5,7 +5,8 @@
       "enabled": true,
       "categories": ["l1-l2"],
       "forums": ["research.kas.pa"],
-      "sync_mode": "incremental"
+      "sync_mode": "incremental",
+      "use_category_only_strategy": true
     },
     "github": {
       "enabled": true,

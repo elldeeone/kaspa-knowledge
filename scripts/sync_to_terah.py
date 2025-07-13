@@ -147,8 +147,15 @@ def run_discourse_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[
         str(output_file),
     ]
 
-    if use_full_history:
+    if use_full_history and not categories:
+        # Only use full-history if no specific categories are requested
         cmd.append("--full-history")
+    elif use_full_history and categories:
+        # When categories are specified, don't use full-history as it pulls everything
+        logger.info(
+            "Note: Not using --full-history mode since "
+            "specific categories are requested"
+        )
 
     logger.info(f"Running Discourse sync: {' '.join(cmd)}")
 
@@ -229,17 +236,26 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
     logger.info(f"Using {sync_mode} sync mode for GitHub (days_back={days_back})")
 
     logger.info(f"Running GitHub sync: {' '.join(cmd)}")
+    logger.info(f"Expected output file: {output_file}")
 
     try:
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
-            logger.info(f"✅ GitHub sync successful: {output_file}")
-            # Update state
-            if "github" not in state:
-                state["github"] = {}
-            state["github"]["last_sync"] = end_date
-            state["github"]["last_output"] = str(output_file)
-            return str(output_file)
+            # Verify the file actually exists before declaring success
+            if output_file.exists():
+                logger.info(f"✅ GitHub sync successful: {output_file}")
+                # Update state
+                if "github" not in state:
+                    state["github"] = {}
+                state["github"]["last_sync"] = end_date
+                state["github"]["last_output"] = str(output_file)
+                return str(output_file)
+            else:
+                logger.error(
+                    f"❌ GitHub sync reported success but output file not found: "
+                    f"{output_file}"
+                )
+                return None
         elif result.returncode == 2:
             logger.info("📭 No new GitHub content found")
             # Even with no content, the file should exist with metadata
