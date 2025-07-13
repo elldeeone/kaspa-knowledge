@@ -260,7 +260,10 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
                 return None
         elif result.returncode == 2:
             logger.info("📭 No new GitHub content found")
-            # Don't include empty files for terah sync
+            # Remove any metadata file that was created
+            if output_file.exists():
+                output_file.unlink()
+                logger.debug(f"Removed empty metadata file: {output_file}")
             return None
         else:
             logger.error(f"❌ GitHub sync failed: {result.stderr}")
