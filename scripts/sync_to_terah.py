@@ -260,9 +260,7 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
                 return None
         elif result.returncode == 2:
             logger.info("📭 No new GitHub content found")
-            # Even with no content, the file should exist with metadata
-            if output_file.exists():
-                return str(output_file)
+            # Don't include empty files for terah sync
             return None
         else:
             logger.error(f"❌ GitHub sync failed: {result.stderr}")
@@ -360,8 +358,15 @@ def run_medium_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
     if use_full_history:
         cmd.append("--full-history")
     elif not is_first_run and sync_mode == "incremental":
-        # For incremental updates after first run, don't use full-history
-        logger.info(f"Using incremental sync mode for Medium from {start_date}")
+        # For incremental updates, add days_back filter
+        last_sync_date = datetime.strptime(last_sync, "%Y-%m-%d")
+        days_back = (datetime.now() - last_sync_date).days
+        if days_back == 0:
+            days_back = 1  # Minimum 1 day
+        cmd.extend(["--days-back", str(days_back)])
+        logger.info(
+            f"Using incremental sync mode for Medium with {days_back} days filter"
+        )
 
     logger.info(f"Running Medium sync: {' '.join(cmd)}")
 

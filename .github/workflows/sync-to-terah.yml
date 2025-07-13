@@ -99,8 +99,19 @@ jobs:
           exit $EXIT_CODE
         fi
 
+    - name: Check if any files were generated
+      id: check_files
+      run: |
+        if ls terah-sync-output/*.json 1> /dev/null 2>&1; then
+          echo "FILES_EXIST=true" >> $GITHUB_OUTPUT
+          echo "✅ Found JSON files to sync"
+        else
+          echo "FILES_EXIST=false" >> $GITHUB_OUTPUT
+          echo "📭 No new content to sync - skipping push"
+        fi
+
     - name: Push files to terah repo
-      if: env.NO_NEW_CONTENT != 'true'
+      if: steps.check_files.outputs.FILES_EXIST == 'true'
       run: |
         # Configure git for push
         git config --global user.email "github-actions[bot]@users.noreply.github.com"

@@ -10,7 +10,7 @@
     },
     "github": {
       "enabled": true,
-      "repos": ["kaspanet/rusty-kaspa"],
+      "repos": ["kaspanet/rusty-kaspa", "kaspanet/kips"],
       "sync_mode": "incremental"
     },
     "telegram": {
