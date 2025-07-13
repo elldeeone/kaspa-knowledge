@@ -224,7 +224,7 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
         str(output_file),
         "--force",  # Always use force to ensure file creation
     ]
-    
+
     # Log the sync mode being used
     logger.info(f"Using {sync_mode} sync mode for GitHub (days_back={days_back})")
 
@@ -344,7 +344,7 @@ def run_medium_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
     elif not is_first_run and sync_mode == "incremental":
         # For incremental updates after first run, don't use full-history
         logger.info(f"Using incremental sync mode for Medium from {start_date}")
-    
+
     logger.info(f"Running Medium sync: {' '.join(cmd)}")
 
     try:
