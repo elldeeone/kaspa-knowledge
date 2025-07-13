@@ -947,6 +947,10 @@ regular operations, full-history for comprehensive backfill operations.
             f"{args.days_back} days (2 years)"
         )
 
+    # Set date for non-full-history mode
+    if not args.full_history:
+        args.date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
     print("🚀 Starting GitHub repository ingestion...")
 
     if args.full_history:
