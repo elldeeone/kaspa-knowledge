@@ -11,8 +11,7 @@
     "github": {
       "enabled": true,
       "repos": ["kaspanet/rusty-kaspa"],
-      "sync_mode": "rolling",
-      "rolling_days": 7
+      "sync_mode": "incremental"
     },
     "telegram": {
       "enabled": false,

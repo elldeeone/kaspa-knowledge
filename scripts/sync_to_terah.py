@@ -204,14 +204,16 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
         # Always sync the last N days
         days_back = rolling_days
         start_date = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
-    elif last_sync:
-        # Incremental mode - sync from last sync date
+    elif sync_mode == "incremental" and last_sync:
+        # Incremental mode - sync only since last sync (typically 1 day)
         last_sync_date = datetime.strptime(last_sync, "%Y-%m-%d")
-        days_back = (datetime.now() - last_sync_date).days + 1
+        days_back = (datetime.now() - last_sync_date).days
+        if days_back == 0:
+            days_back = 1  # Minimum 1 day
         start_date = last_sync
     else:
-        # First run - get last 30 days
-        days_back = 30
+        # First run - get last 7 days for initial sync
+        days_back = 7
         start_date = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
 
     # Build output filename
