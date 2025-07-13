@@ -231,7 +231,7 @@ def run_github_sync(config: Dict, state: Dict, output_dir: Path) -> Optional[str
         str(days_back),
         "--output",
         str(output_file),
-        "--force",  # Always use force to ensure file creation
+        # Don't use --force for incremental syncs, so deduplication works
     ]
 
     # Log the sync mode being used
