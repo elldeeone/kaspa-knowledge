@@ -1,0 +1,42 @@
+{
+  "date": "2025-07-14",
+  "generated_at": "2025-07-14T04:02:08.244042",
+  "sources": {
+    "medium_articles": [],
+    "telegram_messages": [],
+    "github_activities": [],
+    "discord_messages": [],
+    "forum_posts": [
+      {
+        "post_id": 602,
+        "post_number": 3,
+        "topic_id": 375,
+        "topic_title": "Data Availability Concerns",
+        "topic_slug": "data-availability-concerns",
+        "content": "hashdag: In the common good setup state replication is voluntary too. Perhaps you mean that users will opt in to state replication rather than opt out as in the default setup? In other networks, opting out of replicating historical data is usually supported but replicating the entire smart contract state is actually mandatory for nodes to be able to efficiently validate blocks. Making data retention the default mode of operation also goes a long way as it is not unreasonable to assume that at least some actors are lazy or altruistic enough to just follow best practices and retain data even if they theoretically don’t have to (especially if the underlying protocol limits state-growth to support this mode of operation). If so, notice that this too is a design choice, and the default L2 client can/should be set up in the same manner we set an L1 node – to save the available state. I am not saying that this is a show-stopper and you are right that just defaulting to the rule that everybody tracks everything forever like all other networks do would be an easy and straight forward solution. But this “solution” also means that you inherit the same limitations around state-growth and scalability as all other networks and I was actually assuming that Kaspa was planning to leverage its modularity to build a more scalable and fluid system where it is no longer necessary for “everybody to just globally store and execute everything” (even if separating execution from the L1). I agree pruning provides a new flavour to the state-availability challenge, I disagree that it is a newly introduced challenge, or that the reliance on social consensus is a new assumption that Kaspa introduces. I didn’t say that DA is a “new challenge” - what I am saying is that our system is “modular enough” to make this become a problem if we want to fully leverage our modularity and allow actors to only store and execute parts of the global load (that is somehow relevant for them). Cryptographic proofs-of-replication can be baked into the protocol, alleviating the reliance on social consensus. While this does not guarantee real time retrievability (replicas can still refuse to share the state on demand), this problem appears everywhere in crypto (eg L1 miners refusing to share the UTXO). What kind of proofs do you envision as this is usually done with things like data availability sampling and data availability committees (utilizing threshold signatures to attest to the availability of data) which seems to not translate well into the realm of PoW. And, yes you are absolutely right - it is in fact very related to things like mining attacks that withhold data to prevent others from being able to extend the latest chain (i.e. [1912.07497] BDoS: Blockchain Denial of Service). What makes this tricky is the fact, that this can now be done by a user rather than a miner (who is at least bound by economic incentives to keep its own statements extendable and eventually reveal the missing data to stay relevant for the mining algorithm). Imagine I spawn up a new logic zone that nobody else tracks (and for which historic data is eventually lost) and then I compose my state with yours (paying whatever fee is necessary to pay for the assumed “externalities” to make this operation dynamically possible) while never revealing my input data / state to anybody else. This not only makes me the only person on the planet that can prove correct execution and advance the state commitment on the L1 but it also means that if I decide to never reveal the missing input data then everybody else will forever be locked out of accessing that shared state again. P.S. Ideally the platform would be rollup-unfriendly, so maybe we should use another term. In the past we used logic-zones as placeholder, and now I propose vApps from Succinct’s white paper. I mean, the entire design efforts are in order to counter rollups, defined (hereby) as logic zones optimized for more vapps joining under their own state, state commitment / proving; as opposed to vapps which are apps with defined logic which will naturally optimize for interoping with other vapps. Eg Arbitrum vs Aave. Perhaps we should elaborate more on the inherent L1-rollup misalignment, for now referring to this quick comment https://x.com/hashdag/status/1886191148533944366 I agree that we should optimize for decentralization rather than specialized infra providers but tbh. I don’t really care how we call things in our discussions as long as we recognize that Kaspas design choices and default parameters result in unique challenges that need to be addressed if we want to securely leverage our modularity. And what I am furthermore claiming is that solving these problems algorithmically does not work - but they “have to be solved on the social consensus layer” which means that the moment somebody launches a “vApp” that is supposed to be composable with other “vApps” (at some point in the future) then there needs to be a mechanism in place (backed by strong game-theoretic guarantees) that ensures that the state of that vApp is tracked by a sufficiently large group of actors (that will “never” forget its latest state). Establishing the social consensus that everybody just tracks everything forever absolutely solves this but if that is the goal / basic assumption for L2 nodes then I don’t understand why we even discuss things like atomic sync composability since if everybody is assumed to have access to the state of all other vApps then they can just natively call into each other? PS: I think that we can do orders of magnitude better than this and actually “solve” not just some but all of the hardest problems around smart contract enabled chains (scalability, state growth and state expiry) but we first need to recognize the problem and the fact that possible solutions will significantly influence and constrain the “open questions” we are currently trying to answer.",
+        "raw_content": "",
+        "author": "Hans_Moog",
+        "created_at": "2025-07-14T01:24:25.302Z",
+        "updated_at": "2025-07-14T01:24:25.302Z",
+        "reply_count": 0,
+        "url": "https://research.kas.pa/t/data-availability-concerns/375/3",
+        "category_id": 11
+      }
+    ],
+    "news_articles": [],
+    "onchain_data": {},
+    "documentation": []
+  },
+  "metadata": {
+    "total_items": 1,
+    "sources_processed": [
+      "forum: 1 items"
+    ],
+    "resource_usage": {
+      "peak_memory_gb": 0.014556884765625,
+      "memory_status": "OK",
+      "disk_status": "OK",
+      "processing_time": 0.002297639846801758
+    }
+  }
+}

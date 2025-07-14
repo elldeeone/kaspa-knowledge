@@ -1,0 +1,123 @@
+{
+  "date": "2025-07-14",
+  "generated_at": "2025-07-14T04:02:17.672159",
+  "facts": [
+    {
+      "fact": "Kaspa’s protocol is modular enough to potentially enable a system where not all nodes are required to globally store and execute the entire state; actors can be configured to only store and execute subsets of the global state relevant to them.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "This contribution outlines that Kaspa's architecture allows for selective state storage and execution, which could impact scalability, data availability, and the way clients are implemented.",
+      "source": {
+        "type": "forum_post",
+        "title": "Data Availability Concerns",
+        "author": "Hans_Moog",
+        "url": "https://research.kas.pa/t/data-availability-concerns/375/3",
+        "date": "2025-07-14T01:24:25.302Z"
+      },
+      "extracted_at": "2025-07-14T04:02:17.672110"
+    },
+    {
+      "fact": "In other blockchain networks, it is standard for nodes to be required to replicate the entire smart contract state to efficiently validate blocks, and data retention is the default, but pruning state growth is a significant scalability bottleneck.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "This context compares Kaspa’s potential approach with industry standards, noting the tradeoff between data retention defaults and scalability—relevant as Kaspa investigates more modular and potentially more scalable alternatives.",
+      "source": {
+        "type": "forum_post",
+        "title": "Data Availability Concerns",
+        "author": "Hans_Moog",
+        "url": "https://research.kas.pa/t/data-availability-concerns/375/3",
+        "date": "2025-07-14T01:24:25.302Z"
+      },
+      "extracted_at": "2025-07-14T04:02:17.672128"
+    },
+    {
+      "fact": "Pruning (removing unneeded state data) changes the nature of the state-availability challenge in Kaspa, affecting how state and data availability are handled but does not introduce a fundamentally new challenge compared to other networks.",
+      "category": "technical",
+      "impact": "medium",
+      "context": "Indicates that while pruning introduces new considerations for state availability, reliance on social consensus and concerns about data availability are not unique to Kaspa, but may play out differently due to Kapsa’s modularity.",
+      "source": {
+        "type": "forum_post",
+        "title": "Data Availability Concerns",
+        "author": "Hans_Moog",
+        "url": "https://research.kas.pa/t/data-availability-concerns/375/3",
+        "date": "2025-07-14T01:24:25.302Z"
+      },
+      "extracted_at": "2025-07-14T04:02:17.672133"
+    }
+  ],
+  "facts_by_category": {
+    "technical": [
+      {
+        "fact": "Kaspa’s protocol is modular enough to potentially enable a system where not all nodes are required to globally store and execute the entire state; actors can be configured to only store and execute subsets of the global state relevant to them.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "This contribution outlines that Kaspa's architecture allows for selective state storage and execution, which could impact scalability, data availability, and the way clients are implemented.",
+        "source": {
+          "type": "forum_post",
+          "title": "Data Availability Concerns",
+          "author": "Hans_Moog",
+          "url": "https://research.kas.pa/t/data-availability-concerns/375/3",
+          "date": "2025-07-14T01:24:25.302Z"
+        },
+        "extracted_at": "2025-07-14T04:02:17.672110"
+      },
+      {
+        "fact": "In other blockchain networks, it is standard for nodes to be required to replicate the entire smart contract state to efficiently validate blocks, and data retention is the default, but pruning state growth is a significant scalability bottleneck.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "This context compares Kaspa’s potential approach with industry standards, noting the tradeoff between data retention defaults and scalability—relevant as Kaspa investigates more modular and potentially more scalable alternatives.",
+        "source": {
+          "type": "forum_post",
+          "title": "Data Availability Concerns",
+          "author": "Hans_Moog",
+          "url": "https://research.kas.pa/t/data-availability-concerns/375/3",
+          "date": "2025-07-14T01:24:25.302Z"
+        },
+        "extracted_at": "2025-07-14T04:02:17.672128"
+      },
+      {
+        "fact": "Pruning (removing unneeded state data) changes the nature of the state-availability challenge in Kaspa, affecting how state and data availability are handled but does not introduce a fundamentally new challenge compared to other networks.",
+        "category": "technical",
+        "impact": "medium",
+        "context": "Indicates that while pruning introduces new considerations for state availability, reliance on social consensus and concerns about data availability are not unique to Kaspa, but may play out differently due to Kapsa’s modularity.",
+        "source": {
+          "type": "forum_post",
+          "title": "Data Availability Concerns",
+          "author": "Hans_Moog",
+          "url": "https://research.kas.pa/t/data-availability-concerns/375/3",
+          "date": "2025-07-14T01:24:25.302Z"
+        },
+        "extracted_at": "2025-07-14T04:02:17.672133"
+      }
+    ]
+  },
+  "statistics": {
+    "total_facts": 3,
+    "by_category": {
+      "technical": 3
+    },
+    "by_impact": {
+      "high": 0,
+      "medium": 3,
+      "low": 0
+    },
+    "by_source": {
+      "medium": 0,
+      "github": 0,
+      "telegram": 0,
+      "discord": 0,
+      "forum": 3,
+      "news": 0,
+      "documentation": 0
+    }
+  },
+  "metadata": {
+    "extractor_version": "2.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "total_sources_processed": 1,
+    "sources_with_data": [
+      "forum_posts"
+    ],
+    "is_period_summary": false
+  }
+}
