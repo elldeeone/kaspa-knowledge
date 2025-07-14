@@ -117,8 +117,8 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
         
-        # Clone terah repo (shallow clone for speed)
-        git clone --depth 1 https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/elldeeone/terah.git terah-repo
+        # Clone terah repo (shallow clone for speed, checkout dev branch)
+        git clone --depth 1 --branch dev https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/elldeeone/terah.git terah-repo
         
         # Debug: List generated files
         echo "📁 Generated files:"
@@ -153,9 +153,9 @@ jobs:
             COMMIT_MSG="${COMMIT_MSG} - New/updated files: $(echo $NEW_FILES | tr '\n' ', ')"
           fi
           
-          # Commit and push
+          # Commit and push to dev branch
           git commit -m "$COMMIT_MSG"
-          git push
+          git push origin dev
           
           echo "✅ Changes pushed to terah repository"
         else
