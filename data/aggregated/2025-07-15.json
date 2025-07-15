@@ -1,0 +1,67 @@
+{
+  "date": "2025-07-15",
+  "generated_at": "2025-07-15T03:59:15.152778",
+  "sources": {
+    "medium_articles": [],
+    "telegram_messages": [],
+    "github_activities": [
+      {
+        "number": 707,
+        "title": "Update README.md",
+        "body": "Removed the spaces in front of and behind the \"=\" to ensure the wRPC commands run correctly within the command line interface.",
+        "state": "open",
+        "author": "KaspaSilver",
+        "created_at": "2025-07-15T02:33:47+00:00",
+        "updated_at": "2025-07-15T02:33:47+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/707",
+        "draft": false,
+        "mergeable": true,
+        "additions": 4,
+        "deletions": 4,
+        "changed_files": 1,
+        "commits": 1,
+        "labels": [],
+        "all_comments": [],
+        "repo": "kaspanet/rusty-kaspa",
+        "activity_type": "pull_requests",
+        "content": "Removed the spaces in front of and behind the \"=\" to ensure the wRPC commands run correctly within the command line interface."
+      },
+      {
+        "sha": "2a77c954b2241bce7954ba5fecad0ac7694ce195",
+        "message": "update kip statuses and create readme table",
+        "author": "Michael Sutton",
+        "author_email": "msutton@cs.huji.ac.il",
+        "date": "2025-07-14T10:54:33+00:00",
+        "url": "https://github.com/kaspanet/kips/commit/2a77c954b2241bce7954ba5fecad0ac7694ce195",
+        "stats": {
+          "additions": 27,
+          "deletions": 11,
+          "total": 38
+        },
+        "files_changed": 10,
+        "repo": "kaspanet/kips",
+        "activity_type": "commits",
+        "title": "update kip statuses and create readme table",
+        "content": "update kip statuses and create readme table"
+      }
+    ],
+    "discord_messages": [],
+    "forum_posts": [],
+    "news_articles": [],
+    "onchain_data": {},
+    "documentation": []
+  },
+  "metadata": {
+    "total_items": 2,
+    "sources_processed": [
+      "github: 2 items"
+    ],
+    "resource_usage": {
+      "peak_memory_gb": 0.01467132568359375,
+      "memory_status": "OK",
+      "disk_status": "OK",
+      "processing_time": 0.0020966529846191406
+    }
+  }
+}
