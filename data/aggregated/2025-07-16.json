@@ -1,0 +1,49 @@
+{
+  "date": "2025-07-16",
+  "generated_at": "2025-07-16T03:57:57.087018",
+  "sources": {
+    "medium_articles": [],
+    "telegram_messages": [],
+    "github_activities": [
+      {
+        "number": 708,
+        "title": "feat: Add smart contract infrastructure proof-of-concept",
+        "body": "This commit implements a comprehensive smart contract system for Kaspa that integrates with the existing txscript and consensus architecture:\r\n\r\n## Core Components\r\n\r\n### Transaction Script Extensions\r\n- Extended TxScriptEngine with kip15_enabled flag for smart contract activation\r\n- Added infrastructure for future smart contract opcodes (currently as OpUnknown240-245)\r\n- Updated all TxScriptEngine call sites to support the new parameter\r\n\r\n### Contract State Management\r\n- New ContractStateStore trait and DbContractStateStore implementation\r\n- Contract state storage integrated with existing UTXO database architecture\r\n- Custom DbContractStateKey wrapper for database compatibility\r\n\r\n### Contract Validation Pipeline\r\n- ContractValidator trait with BasicContractValidator implementation\r\n- Integration with existing transaction validation pipeline\r\n- WASM contract execution environment foundation\r\n\r\n### WASM Runtime Integration\r\n- Contract runtime module for executing WASM-compiled smart contracts\r\n- JavaScript/TypeScript bindings for contract interaction\r\n- Integration with existing WASM infrastructure\r\n\r\n### Documentation and Examples\r\n- Comprehensive technical design document (docs/smart-contracts-design.md)\r\n- Example smart contracts in Rust and WASM formats\r\n- Integration test framework for contract functionality\r\n\r\n## Architecture Decisions\r\n\r\n- Extends existing txscript system rather than replacing it\r\n- Maintains compatibility with Kaspa's UTXO model\r\n- Uses hardfork activation pattern (KIP-15) for network upgrades\r\n- Leverages WASM for cross-language contract development\r\n\r\n## Testing\r\n\r\n- All existing txscript tests pass (70/70)\r\n- New integration test framework for contract functionality\r\n- Maintains backward compatibility with existing codebase\r\n\r\nThis implementation provides a solid foundation for smart contract development on Kaspa while preserving the network's performance characteristics and security model.\r\n\r\nRequested by: @bmw-m340i\r\nLink to Devin run: https://app.devin.ai/sessions/fe17130e93d24c9fb622b0c66b327740",
+        "state": "open",
+        "author": "bmw-m340i",
+        "created_at": "2025-07-15T09:15:21+00:00",
+        "updated_at": "2025-07-15T09:15:21+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/708",
+        "draft": false,
+        "mergeable": true,
+        "additions": 1023,
+        "deletions": 25,
+        "changed_files": 24,
+        "commits": 1,
+        "labels": [],
+        "all_comments": [],
+        "repo": "kaspanet/rusty-kaspa",
+        "activity_type": "pull_requests",
+        "content": "This commit implements a comprehensive smart contract system for Kaspa that integrates with the existing txscript and consensus architecture:\r\n\r\n## Core Components\r\n\r\n### Transaction Script Extensions\r\n- Extended TxScriptEngine with kip15_enabled flag for smart contract activation\r\n- Added infrastructure for future smart contract opcodes (currently as OpUnknown240-245)\r\n- Updated all TxScriptEngine call sites to support the new parameter\r\n\r\n### Contract State Management\r\n- New ContractStateStore trait and DbContractStateStore implementation\r\n- Contract state storage integrated with existing UTXO database architecture\r\n- Custom DbContractStateKey wrapper for database compatibility\r\n\r\n### Contract Validation Pipeline\r\n- ContractValidator trait with BasicContractValidator implementation\r\n- Integration with existing transaction validation pipeline\r\n- WASM contract execution environment foundation\r\n\r\n### WASM Runtime Integration\r\n- Contract runtime module for executing WASM-compiled smart contracts\r\n- JavaScript/TypeScript bindings for contract interaction\r\n- Integration with existing WASM infrastructure\r\n\r\n### Documentation and Examples\r\n- Comprehensive technical design document (docs/smart-contracts-design.md)\r\n- Example smart contracts in Rust and WASM formats\r\n- Integration test framework for contract functionality\r\n\r\n## Architecture Decisions\r\n\r\n- Extends existing txscript system rather than replacing it\r\n- Maintains compatibility with Kaspa's UTXO model\r\n- Uses hardfork activation pattern (KIP-15) for network upgrades\r\n- Leverages WASM for cross-language contract development\r\n\r\n## Testing\r\n\r\n- All existing txscript tests pass (70/70)\r\n- New integration test framework for contract functionality\r\n- Maintains backward compatibility with existing codebase\r\n\r\nThis implementation provides a solid foundation for smart contract development on Kaspa while preserving the network's performance characteristics and security model.\r\n\r\nRequested by: @bmw-m340i\r\nLink to Devin run: https://app.devin.ai/sessions/fe17130e93d24c9fb622b0c66b327740"
+      }
+    ],
+    "discord_messages": [],
+    "forum_posts": [],
+    "news_articles": [],
+    "onchain_data": {},
+    "documentation": []
+  },
+  "metadata": {
+    "total_items": 1,
+    "sources_processed": [
+      "github: 1 items"
+    ],
+    "resource_usage": {
+      "peak_memory_gb": 0.0145721435546875,
+      "memory_status": "OK",
+      "disk_status": "OK",
+      "processing_time": 0.0021309852600097656
+    }
+  }
+}
