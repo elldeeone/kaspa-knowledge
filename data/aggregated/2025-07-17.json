@@ -1,0 +1,45 @@
+{
+  "date": "2025-07-17",
+  "generated_at": "2025-07-17T03:57:42.992829",
+  "sources": {
+    "medium_articles": [],
+    "telegram_messages": [],
+    "github_activities": [
+      {
+        "sha": "4ab0017fba9fb1603e7b584500aa1b253ddce06f",
+        "message": "Update README.md (#707)\n\nRemoved the spaces in front of and behind the \"=\" to ensure the wRPC commands run correctly within the command line interface.",
+        "author": "KaspaSilver",
+        "author_email": "130880893+KaspaSilver@users.noreply.github.com",
+        "date": "2025-07-16T08:20:47+00:00",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/4ab0017fba9fb1603e7b584500aa1b253ddce06f",
+        "stats": {
+          "additions": 4,
+          "deletions": 4,
+          "total": 8
+        },
+        "files_changed": 1,
+        "repo": "kaspanet/rusty-kaspa",
+        "activity_type": "commits",
+        "title": "Update README.md (#707)\n\nRemoved the spaces in front of and behind the \"=\" to ensure the wRPC commands run correctly within the command line interface.",
+        "content": "Update README.md (#707)\n\nRemoved the spaces in front of and behind the \"=\" to ensure the wRPC commands run correctly within the command line interface."
+      }
+    ],
+    "discord_messages": [],
+    "forum_posts": [],
+    "news_articles": [],
+    "onchain_data": {},
+    "documentation": []
+  },
+  "metadata": {
+    "total_items": 1,
+    "sources_processed": [
+      "github: 1 items"
+    ],
+    "resource_usage": {
+      "peak_memory_gb": 0.01457977294921875,
+      "memory_status": "OK",
+      "disk_status": "OK",
+      "processing_time": 0.002119302749633789
+    }
+  }
+}
