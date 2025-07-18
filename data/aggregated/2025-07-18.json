@@ -1,0 +1,45 @@
+{
+  "date": "2025-07-18",
+  "generated_at": "2025-07-18T03:59:22.769244",
+  "sources": {
+    "medium_articles": [],
+    "telegram_messages": [],
+    "github_activities": [
+      {
+        "number": 709,
+        "title": "Everlasting cryptographic receipts using sequencing commitment",
+        "body": "Kaspa's pruning means without external data full nodes cannot be used to prove a specific historical transaction was accepted to the DAG.\n\nInstead an alternate paradigm needs to be adopted where users are responsible to create and store cryptographic receipts of transactions they potentially care about. If the need arises, these receipts could be verified by full nodes at any point in time.\n\nPreviously [KIP6](https://github.com/kaspanet/kips/blob/master/kip-0006.md) was meant to allow the creation of light weight receipts (via a logarithmic shortcut), however the required changes were left out of the crescendo HF and will not be incorporated in the near future if at all.\n\n[KIP15](https://github.com/kaspanet/kips/blob/master/kip-0015.md) (already implemented) however does allow for similar functionality, which would be useful to support explicitly: \nSay a user wishes to create a receipt for tx0, which was accepted at chain block B, and let C=Post_posterity(B) be the first pruning block at the future of B (which is stored  to eternity). the fact that tx0 was accepted on B can be forever testified to by providing:\n(a) all accepted transactions Merkle roots en route from B to C, i.e. the hashes needed to recreate the sequencing commitment of C from that of B.\n(b) the Merkle witnness of tx0 in the sequencing commitment of B.\n(c) tx0 data itself\n\n**Comparison with KIP6 cryptographic receipts**\n\nKIP6 was not only for transaction receipts per-se but also allowed for a more general primitive called proof of chain membership, which could have had other usages. In particular creating proofs of publication (for unaccepted transactions) as mentioned in KIP6 is not possible via the KIP15 sequencing commitment.\n\nSize wise the logarithmic shortcut was very parsimonious, and KIP6 receipts were expected to be no larger than a few kilobytes in size. KIP15 receipts will not be competitive with that but the net result is still good due to the need to only store hashes and not headers:\nIf we assume a very conservative lower bound of the average DAG width being 2, there are 144000 chain blocks per pruning period, so the size of the receipts would be a maximum of \n32bytes*144000=4.60800MB + miniscule terms regarding the tx data itself and the Merkle witness for its acceptance in the eventual block. In practice it will be significantly lower.\n\nIn the future it may be worthwhile to increase the frequency of \"posterity blocks\" to further decrease this size, as well as improve the wait time required to be able to create a receipt.\n\n**Previous Implementation**\nIn implementing this feature, one may base their work or take inspiration from the now obsolete (partial) PR on KIP6:\nhttps://github.com/kaspanet/rusty-kaspa/pull/609\n\nHowever the task at hand is much simpler, and much of the logic can and should be simplified substantially.",
+        "state": "open",
+        "author": "freshair18",
+        "created_at": "2025-07-17T15:31:42+00:00",
+        "updated_at": "2025-07-17T15:31:42+00:00",
+        "closed_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/709",
+        "labels": [],
+        "assignees": [],
+        "comments": 0,
+        "all_comments": [],
+        "repo": "kaspanet/rusty-kaspa",
+        "activity_type": "issues",
+        "content": "Kaspa's pruning means without external data full nodes cannot be used to prove a specific historical transaction was accepted to the DAG.\n\nInstead an alternate paradigm needs to be adopted where users are responsible to create and store cryptographic receipts of transactions they potentially care about. If the need arises, these receipts could be verified by full nodes at any point in time.\n\nPreviously [KIP6](https://github.com/kaspanet/kips/blob/master/kip-0006.md) was meant to allow the creation of light weight receipts (via a logarithmic shortcut), however the required changes were left out of the crescendo HF and will not be incorporated in the near future if at all.\n\n[KIP15](https://github.com/kaspanet/kips/blob/master/kip-0015.md) (already implemented) however does allow for similar functionality, which would be useful to support explicitly: \nSay a user wishes to create a receipt for tx0, which was accepted at chain block B, and let C=Post_posterity(B) be the first pruning block at the future of B (which is stored  to eternity). the fact that tx0 was accepted on B can be forever testified to by providing:\n(a) all accepted transactions Merkle roots en route from B to C, i.e. the hashes needed to recreate the sequencing commitment of C from that of B.\n(b) the Merkle witnness of tx0 in the sequencing commitment of B.\n(c) tx0 data itself\n\n**Comparison with KIP6 cryptographic receipts**\n\nKIP6 was not only for transaction receipts per-se but also allowed for a more general primitive called proof of chain membership, which could have had other usages. In particular creating proofs of publication (for unaccepted transactions) as mentioned in KIP6 is not possible via the KIP15 sequencing commitment.\n\nSize wise the logarithmic shortcut was very parsimonious, and KIP6 receipts were expected to be no larger than a few kilobytes in size. KIP15 receipts will not be competitive with that but the net result is still good due to the need to only store hashes and not headers:\nIf we assume a very conservative lower bound of the average DAG width being 2, there are 144000 chain blocks per pruning period, so the size of the receipts would be a maximum of \n32bytes*144000=4.60800MB + miniscule terms regarding the tx data itself and the Merkle witness for its acceptance in the eventual block. In practice it will be significantly lower.\n\nIn the future it may be worthwhile to increase the frequency of \"posterity blocks\" to further decrease this size, as well as improve the wait time required to be able to create a receipt.\n\n**Previous Implementation**\nIn implementing this feature, one may base their work or take inspiration from the now obsolete (partial) PR on KIP6:\nhttps://github.com/kaspanet/rusty-kaspa/pull/609\n\nHowever the task at hand is much simpler, and much of the logic can and should be simplified substantially."
+      }
+    ],
+    "discord_messages": [],
+    "forum_posts": [],
+    "news_articles": [],
+    "onchain_data": {},
+    "documentation": []
+  },
+  "metadata": {
+    "total_items": 1,
+    "sources_processed": [
+      "github: 1 items"
+    ],
+    "resource_usage": {
+      "peak_memory_gb": 0.014560699462890625,
+      "memory_status": "OK",
+      "disk_status": "OK",
+      "processing_time": 0.002161264419555664
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "date": "2025-07-18",
+  "generated_at": "2025-07-18T03:59:30.669262",
+  "facts": [
+    {
+      "fact": "The changes required for KIP6, which would have enabled light-weight (logarithmic size) transaction or chain membership receipts, were left out of the crescendo hard fork and will not be incorporated in the near future, if at all.",
+      "category": "technical",
+      "impact": "high",
+      "context": "This statement sets the canonical protocol roadmap regarding KIP6 receipt implementation: it is not planned for near-term adoption, signaling to developers and users that solutions depending on KIP6 primitives should not be expected soon.",
+      "source": {
+        "type": "issues",
+        "title": "Everlasting cryptographic receipts using sequencing commitment",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/709",
+        "date": "2025-07-17T15:31:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-18T03:59:30.669189"
+    },
+    {
+      "fact": "Kaspa’s KIP15 sequencing commitment (already implemented) enables the construction of everlasting cryptographic receipts for historical transactions but is limited compared to what KIP6 would have provided.",
+      "category": "technical",
+      "impact": "high",
+      "context": "With KIP15 already in place, Kaspa can provide receipts proving transaction inclusion by having users store the necessary Merkle data, but this does not offer generalized proofs (such as proofs of publication for unaccepted transactions) possible with KIP6.",
+      "source": {
+        "type": "issues",
+        "title": "Everlasting cryptographic receipts using sequencing commitment",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/709",
+        "date": "2025-07-17T15:31:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-18T03:59:30.669222"
+    },
+    {
+      "fact": "The method for proving a transaction’s historical acceptance using KIP15 requires the following data: (a) all accepted transactions Merkle roots from the containing block to its pruning successor, (b) the Merkle witness for the transaction in the original block, and (c) the transaction data itself.",
+      "category": "technical",
+      "impact": "high",
+      "context": "This specifies the concrete data and process needed for a user to produce and verify a perpetual receipt of transaction inclusion in the Kaspa DAG, according to the now-canonical KIP15 mechanism.",
+      "source": {
+        "type": "issues",
+        "title": "Everlasting cryptographic receipts using sequencing commitment",
+        "author": "freshair18",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/709",
+        "date": "2025-07-17T15:31:42+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-18T03:59:30.669229"
+    }
+  ],
+  "facts_by_category": {
+    "technical": [
+      {
+        "fact": "The changes required for KIP6, which would have enabled light-weight (logarithmic size) transaction or chain membership receipts, were left out of the crescendo hard fork and will not be incorporated in the near future, if at all.",
+        "category": "technical",
+        "impact": "high",
+        "context": "This statement sets the canonical protocol roadmap regarding KIP6 receipt implementation: it is not planned for near-term adoption, signaling to developers and users that solutions depending on KIP6 primitives should not be expected soon.",
+        "source": {
+          "type": "issues",
+          "title": "Everlasting cryptographic receipts using sequencing commitment",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/709",
+          "date": "2025-07-17T15:31:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-18T03:59:30.669189"
+      },
+      {
+        "fact": "Kaspa’s KIP15 sequencing commitment (already implemented) enables the construction of everlasting cryptographic receipts for historical transactions but is limited compared to what KIP6 would have provided.",
+        "category": "technical",
+        "impact": "high",
+        "context": "With KIP15 already in place, Kaspa can provide receipts proving transaction inclusion by having users store the necessary Merkle data, but this does not offer generalized proofs (such as proofs of publication for unaccepted transactions) possible with KIP6.",
+        "source": {
+          "type": "issues",
+          "title": "Everlasting cryptographic receipts using sequencing commitment",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/709",
+          "date": "2025-07-17T15:31:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-18T03:59:30.669222"
+      },
+      {
+        "fact": "The method for proving a transaction’s historical acceptance using KIP15 requires the following data: (a) all accepted transactions Merkle roots from the containing block to its pruning successor, (b) the Merkle witness for the transaction in the original block, and (c) the transaction data itself.",
+        "category": "technical",
+        "impact": "high",
+        "context": "This specifies the concrete data and process needed for a user to produce and verify a perpetual receipt of transaction inclusion in the Kaspa DAG, according to the now-canonical KIP15 mechanism.",
+        "source": {
+          "type": "issues",
+          "title": "Everlasting cryptographic receipts using sequencing commitment",
+          "author": "freshair18",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/709",
+          "date": "2025-07-17T15:31:42+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-18T03:59:30.669229"
+      }
+    ]
+  },
+  "statistics": {
+    "total_facts": 3,
+    "by_category": {
+      "technical": 3
+    },
+    "by_impact": {
+      "high": 3,
+      "medium": 0,
+      "low": 0
+    },
+    "by_source": {
+      "medium": 0,
+      "github": 3,
+      "telegram": 0,
+      "discord": 0,
+      "forum": 0,
+      "news": 0,
+      "documentation": 0
+    }
+  },
+  "metadata": {
+    "extractor_version": "2.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "total_sources_processed": 1,
+    "sources_with_data": [
+      "github_activities"
+    ],
+    "is_period_summary": false
+  }
+}
