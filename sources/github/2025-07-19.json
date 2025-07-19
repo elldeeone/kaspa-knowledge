@@ -1,0 +1,71 @@
+{
+  "kaspanet/rusty-kaspa": {
+    "commits": [],
+    "pull_requests": [
+      {
+        "number": 711,
+        "title": "Patch 1",
+        "body": "",
+        "state": "open",
+        "author": "cokybit",
+        "created_at": "2025-07-18T16:09:33+00:00",
+        "updated_at": "2025-07-18T16:09:33+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/711",
+        "draft": false,
+        "mergeable": false,
+        "additions": 21301,
+        "deletions": 7823,
+        "changed_files": 397,
+        "commits": 241,
+        "labels": [],
+        "all_comments": []
+      },
+      {
+        "number": 710,
+        "title": "Create datadog-synthetics.yml",
+        "body": "",
+        "state": "open",
+        "author": "cokybit",
+        "created_at": "2025-07-18T14:36:47+00:00",
+        "updated_at": "2025-07-18T14:36:47+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/710",
+        "draft": false,
+        "mergeable": true,
+        "additions": 38,
+        "deletions": 0,
+        "changed_files": 1,
+        "commits": 1,
+        "labels": [],
+        "all_comments": []
+      }
+    ],
+    "issues": []
+  },
+  "kaspanet/kips": {
+    "commits": [],
+    "pull_requests": [
+      {
+        "number": 28,
+        "title": "Update README.md to improve readability",
+        "body": "Add missing information like Submission process and improve formatting",
+        "state": "open",
+        "author": "bitcoinsSG",
+        "created_at": "2025-07-19T03:18:47+00:00",
+        "updated_at": "2025-07-19T03:18:47+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/kips/pull/28",
+        "draft": false,
+        "mergeable": true,
+        "additions": 42,
+        "deletions": 1,
+        "changed_files": 1,
+        "commits": 1,
+        "labels": [],
+        "all_comments": []
+      }
+    ],
+    "issues": []
+  }
+}

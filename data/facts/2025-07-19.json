@@ -1,0 +1,69 @@
+{
+  "date": "2025-07-19",
+  "generated_at": "2025-07-19T03:52:37.970571",
+  "facts": [
+    {
+      "fact": "The README.md file of the Kaspa Improvement Proposals (KIPs) repository has been updated to add previously missing details about the submission process and to improve the formatting.",
+      "category": "governance",
+      "impact": "low",
+      "context": "This change increases the clarity and accessibility of governance documentation, supporting better community understanding and participation in protocol improvements.",
+      "source": {
+        "type": "pull_requests",
+        "title": "Update README.md to improve readability",
+        "author": "bitcoinsSG",
+        "url": "https://github.com/kaspanet/kips/pull/28",
+        "date": "2025-07-19T03:18:47+00:00",
+        "repository": "kaspanet/kips"
+      },
+      "extracted_at": "2025-07-19T03:52:37.970526"
+    }
+  ],
+  "facts_by_category": {
+    "governance": [
+      {
+        "fact": "The README.md file of the Kaspa Improvement Proposals (KIPs) repository has been updated to add previously missing details about the submission process and to improve the formatting.",
+        "category": "governance",
+        "impact": "low",
+        "context": "This change increases the clarity and accessibility of governance documentation, supporting better community understanding and participation in protocol improvements.",
+        "source": {
+          "type": "pull_requests",
+          "title": "Update README.md to improve readability",
+          "author": "bitcoinsSG",
+          "url": "https://github.com/kaspanet/kips/pull/28",
+          "date": "2025-07-19T03:18:47+00:00",
+          "repository": "kaspanet/kips"
+        },
+        "extracted_at": "2025-07-19T03:52:37.970526"
+      }
+    ]
+  },
+  "statistics": {
+    "total_facts": 1,
+    "by_category": {
+      "governance": 1
+    },
+    "by_impact": {
+      "high": 0,
+      "medium": 0,
+      "low": 1
+    },
+    "by_source": {
+      "medium": 0,
+      "github": 1,
+      "telegram": 0,
+      "discord": 0,
+      "forum": 0,
+      "news": 0,
+      "documentation": 0
+    }
+  },
+  "metadata": {
+    "extractor_version": "2.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "total_sources_processed": 1,
+    "sources_with_data": [
+      "github_activities"
+    ],
+    "is_period_summary": false
+  }
+}
