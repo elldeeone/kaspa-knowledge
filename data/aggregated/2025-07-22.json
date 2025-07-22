@@ -1,0 +1,81 @@
+{
+  "date": "2025-07-22",
+  "generated_at": "2025-07-22T03:59:40.620417",
+  "sources": {
+    "medium_articles": [],
+    "telegram_messages": [],
+    "github_activities": [
+      {
+        "sha": "6911175fe3ba9cc82478d8b8f39e36348ade29bf",
+        "message": "Remove DNS seeders managed by H@H upon his request (#690)",
+        "author": "supertypo",
+        "author_email": "suprtypo@pm.me",
+        "date": "2025-07-22T00:24:34+00:00",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/6911175fe3ba9cc82478d8b8f39e36348ade29bf",
+        "stats": {
+          "additions": 0,
+          "deletions": 4,
+          "total": 4
+        },
+        "files_changed": 1,
+        "repo": "kaspanet/rusty-kaspa",
+        "activity_type": "commits",
+        "title": "Remove DNS seeders managed by H@H upon his request (#690)",
+        "content": "Remove DNS seeders managed by H@H upon his request (#690)"
+      },
+      {
+        "sha": "9902ba491cafd8a8ca54741c5a4ec52a97946119",
+        "message": "Wasm utxo return address (#704)\n\n* fix wasm builds\n\n* generate wasm binding to support GetUtxoReturnAddress RPC request",
+        "author": "Maxim",
+        "author_email": "59533214+biryukovmaxim@users.noreply.github.com",
+        "date": "2025-07-21T17:12:54+00:00",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/9902ba491cafd8a8ca54741c5a4ec52a97946119",
+        "stats": {
+          "additions": 42,
+          "deletions": 0,
+          "total": 42
+        },
+        "files_changed": 3,
+        "repo": "kaspanet/rusty-kaspa",
+        "activity_type": "commits",
+        "title": "Wasm utxo return address (#704)\n\n* fix wasm builds\n\n* generate wasm binding to support GetUtxoReturnAddress RPC request",
+        "content": "Wasm utxo return address (#704)\n\n* fix wasm builds\n\n* generate wasm binding to support GetUtxoReturnAddress RPC request"
+      },
+      {
+        "sha": "b3edc695ee329e532043ec896270ccd2c1caee1f",
+        "message": "fix wasm builds (#691)",
+        "author": "Maxim",
+        "author_email": "59533214+biryukovmaxim@users.noreply.github.com",
+        "date": "2025-07-21T04:50:48+00:00",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/b3edc695ee329e532043ec896270ccd2c1caee1f",
+        "stats": {
+          "additions": 12,
+          "deletions": 4,
+          "total": 16
+        },
+        "files_changed": 3,
+        "repo": "kaspanet/rusty-kaspa",
+        "activity_type": "commits",
+        "title": "fix wasm builds (#691)",
+        "content": "fix wasm builds (#691)"
+      }
+    ],
+    "discord_messages": [],
+    "forum_posts": [],
+    "news_articles": [],
+    "onchain_data": {},
+    "documentation": []
+  },
+  "metadata": {
+    "total_items": 3,
+    "sources_processed": [
+      "github: 3 items"
+    ],
+    "resource_usage": {
+      "peak_memory_gb": 0.01457977294921875,
+      "memory_status": "OK",
+      "disk_status": "OK",
+      "processing_time": 0.002243518829345703
+    }
+  }
+}

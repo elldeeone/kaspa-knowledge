@@ -1,0 +1,50 @@
+{
+  "kaspanet/rusty-kaspa": {
+    "commits": [
+      {
+        "sha": "6911175fe3ba9cc82478d8b8f39e36348ade29bf",
+        "message": "Remove DNS seeders managed by H@H upon his request (#690)",
+        "author": "supertypo",
+        "author_email": "suprtypo@pm.me",
+        "date": "2025-07-22T00:24:34+00:00",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/6911175fe3ba9cc82478d8b8f39e36348ade29bf",
+        "stats": {
+          "additions": 0,
+          "deletions": 4,
+          "total": 4
+        },
+        "files_changed": 1
+      },
+      {
+        "sha": "9902ba491cafd8a8ca54741c5a4ec52a97946119",
+        "message": "Wasm utxo return address (#704)\n\n* fix wasm builds\n\n* generate wasm binding to support GetUtxoReturnAddress RPC request",
+        "author": "Maxim",
+        "author_email": "59533214+biryukovmaxim@users.noreply.github.com",
+        "date": "2025-07-21T17:12:54+00:00",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/9902ba491cafd8a8ca54741c5a4ec52a97946119",
+        "stats": {
+          "additions": 42,
+          "deletions": 0,
+          "total": 42
+        },
+        "files_changed": 3
+      },
+      {
+        "sha": "b3edc695ee329e532043ec896270ccd2c1caee1f",
+        "message": "fix wasm builds (#691)",
+        "author": "Maxim",
+        "author_email": "59533214+biryukovmaxim@users.noreply.github.com",
+        "date": "2025-07-21T04:50:48+00:00",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/b3edc695ee329e532043ec896270ccd2c1caee1f",
+        "stats": {
+          "additions": 12,
+          "deletions": 4,
+          "total": 16
+        },
+        "files_changed": 3
+      }
+    ],
+    "pull_requests": [],
+    "issues": []
+  }
+}

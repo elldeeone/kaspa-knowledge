@@ -1,0 +1,132 @@
+{
+  "date": "2025-07-22",
+  "generated_at": "2025-07-22T03:59:50.153739",
+  "facts": [
+    {
+      "fact": "DNS seeders managed by H@H have been removed from the Kaspa codebase, following a specific request from H@H.",
+      "category": "governance",
+      "impact": "medium",
+      "context": "This change alters the set of DNS seeders used for network bootstrapping, which can affect network connectivity and peer discovery, but does not directly change protocol rules.",
+      "source": {
+        "type": "commits",
+        "title": "Wasm utxo return address (#704)\n\n* fix wasm builds\n\n* generate wasm binding to support GetUtxoReturnAddress RPC request",
+        "author": "Maxim",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/9902ba491cafd8a8ca54741c5a4ec52a97946119",
+        "date": "2025-07-21T17:12:54+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-22T03:59:50.153676"
+    },
+    {
+      "fact": "WebAssembly (WASM) builds of Kaspa now generate a binding to support the GetUtxoReturnAddress RPC request.",
+      "category": "development",
+      "impact": "high",
+      "context": "Enabling this RPC in the WASM interface expands programmatic access to UTXO-related operations in browser and cross-platform environments, potentially broadening developer use-cases.",
+      "source": {
+        "type": "commits",
+        "title": "fix wasm builds (#691)",
+        "author": "Maxim",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/b3edc695ee329e532043ec896270ccd2c1caee1f",
+        "date": "2025-07-21T04:50:48+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-22T03:59:50.153696"
+    },
+    {
+      "fact": "WASM builds for the Kaspa project have been fixed to resolve prior build issues.",
+      "category": "development",
+      "impact": "high",
+      "context": "Functional WASM builds are essential for maintaining browser compatibility and supporting cross-platform development; issues in this area can inhibit key developer and user experiences.",
+      "source": {
+        "type": "commits",
+        "title": "fix wasm builds (#691)",
+        "author": "Maxim",
+        "url": "https://github.com/kaspanet/rusty-kaspa/commit/b3edc695ee329e532043ec896270ccd2c1caee1f",
+        "date": "2025-07-21T04:50:48+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-22T03:59:50.153702"
+    }
+  ],
+  "facts_by_category": {
+    "governance": [
+      {
+        "fact": "DNS seeders managed by H@H have been removed from the Kaspa codebase, following a specific request from H@H.",
+        "category": "governance",
+        "impact": "medium",
+        "context": "This change alters the set of DNS seeders used for network bootstrapping, which can affect network connectivity and peer discovery, but does not directly change protocol rules.",
+        "source": {
+          "type": "commits",
+          "title": "Wasm utxo return address (#704)\n\n* fix wasm builds\n\n* generate wasm binding to support GetUtxoReturnAddress RPC request",
+          "author": "Maxim",
+          "url": "https://github.com/kaspanet/rusty-kaspa/commit/9902ba491cafd8a8ca54741c5a4ec52a97946119",
+          "date": "2025-07-21T17:12:54+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-22T03:59:50.153676"
+      }
+    ],
+    "development": [
+      {
+        "fact": "WebAssembly (WASM) builds of Kaspa now generate a binding to support the GetUtxoReturnAddress RPC request.",
+        "category": "development",
+        "impact": "high",
+        "context": "Enabling this RPC in the WASM interface expands programmatic access to UTXO-related operations in browser and cross-platform environments, potentially broadening developer use-cases.",
+        "source": {
+          "type": "commits",
+          "title": "fix wasm builds (#691)",
+          "author": "Maxim",
+          "url": "https://github.com/kaspanet/rusty-kaspa/commit/b3edc695ee329e532043ec896270ccd2c1caee1f",
+          "date": "2025-07-21T04:50:48+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-22T03:59:50.153696"
+      },
+      {
+        "fact": "WASM builds for the Kaspa project have been fixed to resolve prior build issues.",
+        "category": "development",
+        "impact": "high",
+        "context": "Functional WASM builds are essential for maintaining browser compatibility and supporting cross-platform development; issues in this area can inhibit key developer and user experiences.",
+        "source": {
+          "type": "commits",
+          "title": "fix wasm builds (#691)",
+          "author": "Maxim",
+          "url": "https://github.com/kaspanet/rusty-kaspa/commit/b3edc695ee329e532043ec896270ccd2c1caee1f",
+          "date": "2025-07-21T04:50:48+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-22T03:59:50.153702"
+      }
+    ]
+  },
+  "statistics": {
+    "total_facts": 3,
+    "by_category": {
+      "governance": 1,
+      "development": 2
+    },
+    "by_impact": {
+      "high": 2,
+      "medium": 1,
+      "low": 0
+    },
+    "by_source": {
+      "medium": 0,
+      "github": 3,
+      "telegram": 0,
+      "discord": 0,
+      "forum": 0,
+      "news": 0,
+      "documentation": 0
+    }
+  },
+  "metadata": {
+    "extractor_version": "2.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "total_sources_processed": 1,
+    "sources_with_data": [
+      "github_activities"
+    ],
+    "is_period_summary": false
+  }
+}
