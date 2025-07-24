@@ -1,0 +1,27 @@
+{
+  "kaspanet/rusty-kaspa": {
+    "commits": [],
+    "pull_requests": [
+      {
+        "number": 712,
+        "title": "WIP: New VirtualChainFromBlockV2 endpoint. ",
+        "body": "work in progress...",
+        "state": "open",
+        "author": "D-Stacks",
+        "created_at": "2025-07-23T20:14:18+00:00",
+        "updated_at": "2025-07-23T20:51:18+00:00",
+        "merged_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/pull/712",
+        "draft": true,
+        "mergeable": true,
+        "additions": 4666,
+        "deletions": 1309,
+        "changed_files": 60,
+        "commits": 4,
+        "labels": [],
+        "all_comments": []
+      }
+    ],
+    "issues": []
+  }
+}
