@@ -1,0 +1,23 @@
+{
+  "kaspanet/rusty-kaspa": {
+    "commits": [],
+    "pull_requests": [],
+    "issues": [
+      {
+        "number": 713,
+        "title": "Ops - Kaspad - Allow args to be consumed from environment variables",
+        "body": "**Is your feature request related to a problem? Please describe.**\nWhen I want to setup a Kaspa node in a cloud-native environment, I have to define command line argument which are painful to manage independently.\n\n**Describe the solution you'd like**\nI'd like parapeters populated from `clap` to consume corresponding environment variable as a fallback.\n\n**Describe alternatives you've considered**\nManage parameters as a CLI arguments\n\n**Additional context**\nThere is a built-in `clap` method, [document here](https://docs.rs/clap/latest/clap/struct.Arg.html#method.env) that allows that use-case\n",
+        "state": "open",
+        "author": "IzioDev",
+        "created_at": "2025-07-24T14:01:21+00:00",
+        "updated_at": "2025-07-24T14:01:21+00:00",
+        "closed_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/713",
+        "labels": [],
+        "assignees": [],
+        "comments": 0,
+        "all_comments": []
+      }
+    ]
+  }
+}

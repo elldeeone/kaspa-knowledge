@@ -1,0 +1,69 @@
+{
+  "date": "2025-07-25",
+  "generated_at": "2025-07-25T03:59:52.097396",
+  "facts": [
+    {
+      "fact": "There is a feature request to allow Kaspa node configuration parameters to be sourced from environment variables as a fallback to command line arguments, by utilizing the built-in clap method `env`.",
+      "category": "development",
+      "impact": "medium",
+      "context": "This enhancement would improve deployment flexibility and operational simplicity, especially in cloud-native environments where managing environment variables is standard practice. It proposes leveraging existing functionality within the `clap` crate.",
+      "source": {
+        "type": "issues",
+        "title": "Ops - Kaspad - Allow args to be consumed from environment variables",
+        "author": "IzioDev",
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/713",
+        "date": "2025-07-24T14:01:21+00:00",
+        "repository": "kaspanet/rusty-kaspa"
+      },
+      "extracted_at": "2025-07-25T03:59:52.097357"
+    }
+  ],
+  "facts_by_category": {
+    "development": [
+      {
+        "fact": "There is a feature request to allow Kaspa node configuration parameters to be sourced from environment variables as a fallback to command line arguments, by utilizing the built-in clap method `env`.",
+        "category": "development",
+        "impact": "medium",
+        "context": "This enhancement would improve deployment flexibility and operational simplicity, especially in cloud-native environments where managing environment variables is standard practice. It proposes leveraging existing functionality within the `clap` crate.",
+        "source": {
+          "type": "issues",
+          "title": "Ops - Kaspad - Allow args to be consumed from environment variables",
+          "author": "IzioDev",
+          "url": "https://github.com/kaspanet/rusty-kaspa/issues/713",
+          "date": "2025-07-24T14:01:21+00:00",
+          "repository": "kaspanet/rusty-kaspa"
+        },
+        "extracted_at": "2025-07-25T03:59:52.097357"
+      }
+    ]
+  },
+  "statistics": {
+    "total_facts": 1,
+    "by_category": {
+      "development": 1
+    },
+    "by_impact": {
+      "high": 0,
+      "medium": 1,
+      "low": 0
+    },
+    "by_source": {
+      "medium": 0,
+      "github": 1,
+      "telegram": 0,
+      "discord": 0,
+      "forum": 0,
+      "news": 0,
+      "documentation": 0
+    }
+  },
+  "metadata": {
+    "extractor_version": "2.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "total_sources_processed": 1,
+    "sources_with_data": [
+      "github_activities"
+    ],
+    "is_period_summary": false
+  }
+}
