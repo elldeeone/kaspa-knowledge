@@ -1,0 +1,23 @@
+{
+  "kaspanet/rusty-kaspa": {
+    "commits": [],
+    "pull_requests": [],
+    "issues": [
+      {
+        "number": 714,
+        "title": "Panic - Ghostdag store - uppon accessible an unexisting key",
+        "body": "**Describe the bug**\nI'm not sure what RPC calls, with what parameters caused this panic, but it panicked upon trying to access a non-existent store key. \n\n**Logs**\n```\n2025-07-27 14:05:28.029+00:00 [INFO ] Accepted 12 blocks ...14d01a25feb23d83d8f8bc53f2068c9838852cfbd3ec58ea3fd633276e54e440 via relay\n2025-07-27 14:05:28.529+00:00 [ERROR] thread 'tokio-runtime-worker' panicked at consensus/src/model/stores/ghostdag.rs:124:67: called `Result::unwrap()` on an `Err` value: KeyNotFound(GhostdagCompact/0/7e252aef5f000b761446988eca57e5e76608dec5048182294d2080c24fca0d5d)\nExiting...\nthread 'tokio-runtime-worker' panicked at consensus/src/model/stores/ghostdag.rs:124:67:\ncalled `Result::unwrap()` on an `Err` value: KeyNotFound(GhostdagCompact/0/7e252aef5f000b761446988eca57e5e76608dec5048182294d2080c24fca0d5d)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n```\n\n**Expected behavior**\nI expect the node not to crash.\n\n**Desktop (please complete the following information):**\n - OS: Debian\n - Kaspad version: v1\n",
+        "state": "open",
+        "author": "IzioDev",
+        "created_at": "2025-07-27T16:24:29+00:00",
+        "updated_at": "2025-07-27T16:24:29+00:00",
+        "closed_at": null,
+        "url": "https://github.com/kaspanet/rusty-kaspa/issues/714",
+        "labels": [],
+        "assignees": [],
+        "comments": 0,
+        "all_comments": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "date": "2025-07-28",
+  "generated_at": "2025-07-28T04:05:41.915390",
+  "sources": {
+    "medium": {
+      "summary": "No Medium articles found for this date.",
+      "key_topics": [],
+      "article_summaries": []
+    },
+    "github": {
+      "summary": "# kaspanet repositories Activity Summary  \n**Period:** Last 1 day (Collected: 2025-07-28)\n\n---\n\n## Recent Commits (0)\n- No commits recorded during this period.\n\n---\n\n## Pull Requests (0)\n- No new or updated pull requests during this period.\n\n---\n\n## Issues (1)\n\n### Bugs\n- **Panic - Ghostdag store - upon accessing a non-existing key**  \n  - **Author:** IzioDev  \n  - **Repository:** kaspanet/rusty-kaspa  \n  - **Date Opened:** 2025-07-27  \n  - **Summary:** Reported a bug where the application panicked after trying to access a non-existent store key. The specific RPC calls and parameters causing the issue are unknown.  \n  - [View Issue #714](https://github.com/kaspanet/rusty-kaspa/issues/714)\n\n---\n\n## Activity Overview\n\n- **Overall Activity:**  \n  - Very low activity; only 1 new bug issue reported.\n- **Key Contributors:**  \n  - IzioDev (reported a new issue)\n- **Trends:**  \n  - No code changes or pull requests.  \n  - Focus during this period is on stability, with a critical bug (panic related to store access) highlighted for attention.",
+      "repositories": 1,
+      "activity_summary": {
+        "summaries_processed": 1,
+        "repositories_covered": 1
+      }
+    },
+    "telegram": {
+      "summary": "Telegram processing not yet implemented."
+    },
+    "discord": {
+      "summary": "Discord processing not yet implemented."
+    },
+    "forum": {
+      "summary": "No forum activity found for this date.",
+      "post_count": 0,
+      "topics": [],
+      "key_discussions": []
+    },
+    "news": {
+      "summary": "News articles processing not yet implemented."
+    }
+  },
+  "metadata": {
+    "total_sources_processed": 1,
+    "briefing_version": "1.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "is_period_summary": false
+  }
+}
