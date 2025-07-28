@@ -1,0 +1,71 @@
+# Core Python dependencies for Kaspa Knowledge Hub
+
+# Web scraping and HTTP requests
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+selenium>=4.15.0
+aiohttp>=3.9.0
+
+# RSS and feed parsing
+feedparser>=6.0.10
+
+# Discord API integration
+discord.py>=2.3.0
+
+# Telegram API integration
+telethon>=1.34.0
+
+# GitHub API integration
+PyGithub>=1.59.0
+
+# Data processing and manipulation
+pandas>=2.1.0
+numpy>=1.24.0
+python-dateutil>=2.8.0
+
+# JSON and data serialization
+pydantic>=2.5.0
+jsonschema>=4.20.0
+
+# AI and OpenAI integration (via OpenRouter)
+openai>=1.3.0
+anthropic>=0.7.0
+
+# Configuration and environment
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Async file operations
+aiofiles>=23.2.0
+
+# Rate limiting
+ratelimit>=2.2.1
+
+# Logging and monitoring
+structlog>=23.2.0
+
+# System resource monitoring
+psutil>=5.9.0
+
+# Image generation and processing
+Pillow>=10.1.0
+requests-oauthlib>=1.3.1
+
+# Date and time handling
+pytz>=2023.3
+
+# Web automation (for complex scraping)
+playwright>=1.40.0
+
+# Data validation and cleaning
+validators>=0.22.0
+
+# Markdown processing
+markdown>=3.5.0
+
+# Testing dependencies
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# OpenRouter API client and supporting libraries
+tenacity>=8.2.0 
