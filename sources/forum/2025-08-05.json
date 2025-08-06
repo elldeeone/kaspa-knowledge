@@ -1,0 +1,29 @@
+{
+  "date": "2025-08-05",
+  "generated_at": "2025-08-06T04:05:05.485682+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 612,
+      "post_number": 2,
+      "topic_id": 323,
+      "topic_title": "A Basic Framework For Proofs Stitching",
+      "topic_slug": "a-basic-framework-for-proofs-stitching",
+      "content": "A few remarks: I don\u2019t think it is enough to prove the correct execution from arbitrary input data to output but for every input, we also need to prove that it is correctly sourced from the previous output to ensure that they were not made up and retain a connection to the DAG of state transitions that lead to the input having that specific value - so while it might not be necessary to do a full zk-proof, we still need to produce a commitment that aggregates the produced output values under i.e. a merkle tree that allows us to then create a proof that a specific input value was sourced from that output / result of the previous subtransaction. A logic zone can not continue to process further transactions until it learns about the result of the composable transactions, because it needs to eventually roll-back the state transition before applying further changes (atomicity in composable transactions requires information to flow in both directions - forward and backward). This means that settling intermediary proofs on the L1 with delayed stitching will block the logic zone until that stitching result becomes available + it might complicate the act of advancing the commitment on the L1 because we need to prove that the previously committed value was rolled back. SP1 does not support runtime modularity / i.e. invoking other programs and working on their result but inputs need to be known upfront, which implies a 2-layer separation of first proving subtransactions and then aggregating the existing results to produce actual commitments to the aggregate effects which has to be a separate zk circuit. Would it maybe make more sense to only attest to finalized / stitched transactions on the L1 to not have to deal with rollbacks on the L1 and delegate that logic to the proof of the stitcher?",
+      "raw_content": "",
+      "author": "Hans_Moog",
+      "created_at": "2025-08-05T13:14:34.820Z",
+      "updated_at": "2025-08-05T13:14:34.820Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/a-basic-framework-for-proofs-stitching/323/2",
+      "category_id": 11
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 1,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}
