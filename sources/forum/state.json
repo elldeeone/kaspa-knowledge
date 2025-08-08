@@ -194,6 +194,11 @@
         "last_post_number": 3,
         "topic_title": "Data Availability Concerns",
         "last_updated": "2025-07-14T04:01:07.982252+00:00"
+      },
+      "387": {
+        "last_post_number": 1,
+        "topic_title": "Concrete proposal for a synchronously compsoable verifiable programs architecture",
+        "last_updated": "2025-08-08T04:03:45.998446+00:00"
       }
     }
   }
