@@ -1,0 +1,29 @@
+{
+  "date": "2025-08-09",
+  "generated_at": "2025-08-10T04:03:20.310797+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 625,
+      "post_number": 3,
+      "topic_id": 387,
+      "topic_title": "Concrete proposal for a synchronously composable verifiable programs architecture",
+      "topic_slug": "concrete-proposal-for-a-synchronously-composable-verifiable-programs-architecture",
+      "content": "Hey. Love how this design keeps vProgs fully sovereign while enabling native sync composability \u2014 a beautiful way to avoid rollup lock-in while unifying L1 liquidity. Which do you see as the bigger challenge in practice: low proof latency, controlling witness/scope size, or standardizing cross-vProg rules \u2014 and how will you tackle it? BR",
+      "raw_content": "",
+      "author": "dcof",
+      "created_at": "2025-08-09T18:01:35.209Z",
+      "updated_at": "2025-08-09T18:01:35.209Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/concrete-proposal-for-a-synchronously-composable-verifiable-programs-architecture/387/3",
+      "category_id": 11
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 1,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}
