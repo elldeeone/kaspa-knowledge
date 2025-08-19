@@ -1,0 +1,44 @@
+{
+  "date": "2025-08-18",
+  "generated_at": "2025-08-19T03:41:14.265840+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 646,
+      "post_number": 6,
+      "topic_id": 407,
+      "topic_title": "Zoom-in: A formal backbone model for the vProg computation DAG",
+      "topic_slug": "zoom-in-a-formal-backbone-model-for-the-vprog-computation-dag",
+      "content": "There\u2019s still some mismatch between text and drawing but the general point is understood \u2013 that the past of vp contains elements on which it is stateless (here B_{t-3},B_{t-4}).",
+      "raw_content": "",
+      "author": "hashdag",
+      "created_at": "2025-08-18T10:18:07.451Z",
+      "updated_at": "2025-08-18T10:52:37.473Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/zoom-in-a-formal-backbone-model-for-the-vprog-computation-dag/407/6",
+      "category_id": 11
+    },
+    {
+      "post_id": 648,
+      "post_number": 7,
+      "topic_id": 407,
+      "topic_title": "Zoom-in: A formal backbone model for the vProg computation DAG",
+      "topic_slug": "zoom-in-a-formal-backbone-model-for-the-vprog-computation-dag",
+      "content": "Below is a short extension to the above regarding the gas design as I currently see it. I focused on the execution aspect for now though parts of the discussion may apply to other resources such as permanent/transient storage. Gas Scaling Factor GS(i) denotes the gas scale associated with VProg i. This reflects differences in proving environments across VProgs: distinct proving stacks may vary substantially in cost per unit of computation. Further, individual VProgs may wish to impose differing caps on their total proof resource usage. For simplicity, I will assume this scaling factor is transparent to L1. Proof Gas Vector PG(x) is the (unscaled) proof gas vector for transaction x. This is a sparse vector indexed by vProgs i such that x writes to i, where each entry PG\u1d62(x) denotes an upper bound on the prover-side cost of including x in the execution trace of VProg i. The intended role of PG(x) is: To support L1-enforced caps on the total proving load submitted per block for a VProg (adjusted to the gas scale) To enable reimbursement of provers within L2s, compensating them for their contributions according to the actual proving burden. Previously we assumed the raw computation per tx consumed by a VProg (\u201clogic zone\u201d in older jargon) was in direct proportion to the proof costs and hence the two aspects could be capped as one. This is no longer the case, as we now expect VProg provers (and VProg users) to execute but not prove the transactions in their missing scope, which could result in substantial overhead which cannot be disregarded. Execution Mass To retain execution feasibility in light of the above, we must separately constrain the execution load. EM(x) - the execution mass vector of transaction x, with each coordinate EM_v(x) representing the execution burden of x from the perspective of VProg v. This execution mass of x is defined as: EM_v(x)=\\sum_{y\\in scope(x,v)}\\sum_i PG_i(y)\u22c5GS(i)+\u2211PGi(x)\u22c5GS(i) That is, a follower of v must execute all transactions in the scope of x (as needed to compute x) as well as x itself. This expression defines a static upper bound on the compute burden placed on v, derivable solely from the DAG structure and the declared PG values, which can be inferred without execution of the transactions. If L1 is made aware of the DAG structure, then EM(x) can be deterministically computed by miners, similar to transaction masses today. Otherwise, transaction issuers should include within the transaction an upper bound for the execution mass commitment (per VProg), where a transaction is only considered \u201cvalid\u201d if the commitment exceeds the true value on all coordinates. Validity could be determined by a dedicated enshrined VProg aware of the Dag structure, for example. In either case, it is L1 that enforces a cap on the masses (or their commitments). Potential Issue: DoS via Proof Gas Overestimation To best illustrate this issue, consider a vProg v that is rarely written to, but frequently read from. A malicious transaction that writes to v with a vastly overstated PG_v will inflate EM_u(x) for the \u201cnext\u201d transaction on all reading VProgs u, degrading execution performance. While this impact is limited in to circa one transaction per u, it is cheap and can be repeated indefinitely if unconsummated gas is returned to the user. Some mechanism for discouraging overestimation may be necessary.",
+      "raw_content": "",
+      "author": "FreshAir08",
+      "created_at": "2025-08-18T16:01:18.309Z",
+      "updated_at": "2025-08-18T23:16:18.151Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/zoom-in-a-formal-backbone-model-for-the-vprog-computation-dag/407/7",
+      "category_id": 11
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 2,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}
