@@ -1,0 +1,29 @@
+{
+  "date": "2025-08-19",
+  "generated_at": "2025-08-20T03:39:53.140428+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 649,
+      "post_number": 8,
+      "topic_id": 407,
+      "topic_title": "Zoom-in: A formal backbone model for the vProg computation DAG",
+      "topic_slug": "zoom-in-a-formal-backbone-model-for-the-vprog-computation-dag",
+      "content": "Following offline discussions I have fixed the definition of a scope from using the past relation to using the routable definition. See above. Essentially using the past relation was wrong here as seen in the example above.",
+      "raw_content": "",
+      "author": "michaelsutton",
+      "created_at": "2025-08-19T11:09:19.499Z",
+      "updated_at": "2025-08-19T11:09:19.499Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/zoom-in-a-formal-backbone-model-for-the-vprog-computation-dag/407/8",
+      "category_id": 11
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 1,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}

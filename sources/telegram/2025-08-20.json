@@ -1,0 +1,13 @@
+{
+  "date": "2025-08-20",
+  "generated_at": "2025-08-20T03:38:53.280714",
+  "source": "telegram",
+  "status": "no_new_content",
+  "messages": [],
+  "metadata": {
+    "groups_processed": 0,
+    "total_messages_fetched": 0,
+    "credential_status": "placeholder_values",
+    "processing_mode": "daily_sync"
+  }
+}
