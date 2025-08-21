@@ -204,6 +204,11 @@
         "last_post_number": 8,
         "topic_title": "Zoom-in: A formal backbone model for the vProg computation DAG",
         "last_updated": "2025-08-20T03:39:00.518290+00:00"
+      },
+      "410": {
+        "last_post_number": 1,
+        "topic_title": "# On transaction scopes and the visibility of the object DAG",
+        "last_updated": "2025-08-21T03:38:25.114881+00:00"
       }
     }
   }
