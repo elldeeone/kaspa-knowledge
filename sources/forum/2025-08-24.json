@@ -1,0 +1,29 @@
+{
+  "date": "2025-08-24",
+  "generated_at": "2025-08-25T03:46:14.802435+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 652,
+      "post_number": 3,
+      "topic_id": 323,
+      "topic_title": "A Basic Framework For Proofs Stitching",
+      "topic_slug": "a-basic-framework-for-proofs-stitching",
+      "content": "It is the responsibility of the transaction stitcher to ensure the correct sourcing of transactions. I assumed the intermediaries are easily derivable, and a merkle tree within the commitment is indeed a natural choice for that. I consider this important discussion to be part of point 3. if it knows by independent execution that the transaction succeeded , or even if it trusts others attesting to that (and the result of the transaction), it can proceed processing locally. I previously indeed thought of the latter scenario as an optimistic case (prover network), but now with the VProg architecture I tend to the former as standard which I think you are more comfortable with? The way I saw it the \u201csettled state\u201d commitment however should not move until it has been fully stitched, because an outside observer has no way of verifying the state progression until that. Of course there are also other commitments for conditional \u201csegments\u201d already partially proven. These kind of things form a metastate enveloping the settled state, but \u201crolling back\u201d the settled state shouldn\u2019t be hard if it has never actually moved. If I understood correctly this is the way I imagined things work and correspondingly I am not sure if I\u2019m bothered by this. Regardless I believe we must first decide what we believe is the correct solution and then find ways to mediate the gap between existing tools and theory. i.e. offchain stitching. This might make certain aspects simpler but loses the autonomy of provers to only prove segments on their own, on their own pace, and make them very codependent of each other. Depending on how you imagine it (was not clear enough to me exactly) it might also force architectural changes to the utxo covenants as they are. If you do not move the \u201csettled\u201d state there is no real difference to me in how to deal with rollbacks.",
+      "raw_content": "",
+      "author": "FreshAir08",
+      "created_at": "2025-08-24T16:15:41.815Z",
+      "updated_at": "2025-08-24T16:16:12.980Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/a-basic-framework-for-proofs-stitching/323/3",
+      "category_id": 11
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 1,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}
