@@ -1,0 +1,29 @@
+{
+  "date": "2025-09-04",
+  "generated_at": "2025-09-05T03:29:44.992044+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 665,
+      "post_number": 5,
+      "topic_id": 375,
+      "topic_title": "Data Availability Concerns",
+      "topic_slug": "data-availability-concerns",
+      "content": "Thanks for raising these points. Let me clarify how Igra addresses them: EVM Compatibility \u2013 we\u2019re using Reth with modifications for Kaspa\u2019s reorgs. Our data component handles L1 \u2192 L2 translation, while maintaining standard Ethereum RPC interfaces. Users interact normally through MetaMask, so everything else is compatible. In terms of known temporary limitations, there is 20 kBytes limit for payloads. Reorgs. Kaspa\u2019s frequent shallow reorgs are handled by following L1\u2019s canonical chain. When L1 reorgs, L2 follows. We\u2019ve implemented this in our Reth fork to handle Kaspa\u2019s specific DAG structure. RPC Decentralization. Anyone can run an Igra node and provide RPC endpoints. There\u2019s no centralized relayer \u2013 reading from L1 and serve RPC requests are two independent processes. Handling congestion is a very valid concern. It would be a good problem to have thought. L2 fees naturally flow to L1 miners since all sequencing happens on Kaspa. High-priority transactions pay higher L1 fees, maintaining proper incentives. In line with Fees and throughput regulation dynamics - #4 by hashdag",
+      "raw_content": "",
+      "author": "Pavel_Emdin",
+      "created_at": "2025-09-04T17:55:08.339Z",
+      "updated_at": "2025-09-04T17:55:08.339Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/data-availability-concerns/375/5",
+      "category_id": 11
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 1,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}
