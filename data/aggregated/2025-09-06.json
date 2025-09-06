@@ -1,0 +1,24 @@
+{
+  "date": "2025-09-06",
+  "generated_at": "2025-09-06T03:25:16.588940",
+  "sources": {
+    "medium_articles": [],
+    "telegram_messages": [],
+    "github_activities": [],
+    "discord_messages": [],
+    "forum_posts": [],
+    "news_articles": [],
+    "onchain_data": {},
+    "documentation": []
+  },
+  "metadata": {
+    "total_items": 0,
+    "sources_processed": [],
+    "resource_usage": {
+      "peak_memory_gb": 0.014537811279296875,
+      "memory_status": "OK",
+      "disk_status": "OK",
+      "processing_time": 0.0021903514862060547
+    }
+  }
+}
