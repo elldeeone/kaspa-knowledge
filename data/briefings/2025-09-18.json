@@ -1,0 +1,37 @@
+{
+  "date": "2025-09-18",
+  "generated_at": "2025-09-18T03:29:35.820396",
+  "sources": {
+    "medium": {
+      "summary": "No Medium articles found for this date.",
+      "key_topics": [],
+      "article_summaries": []
+    },
+    "github": {
+      "summary": "No GitHub activity found for this date.",
+      "repositories": [],
+      "activity_summary": {}
+    },
+    "telegram": {
+      "summary": "Telegram processing not yet implemented."
+    },
+    "discord": {
+      "summary": "Discord processing not yet implemented."
+    },
+    "forum": {
+      "summary": "No forum activity found for this date.",
+      "post_count": 0,
+      "topics": [],
+      "key_discussions": []
+    },
+    "news": {
+      "summary": "News articles processing not yet implemented."
+    }
+  },
+  "metadata": {
+    "total_sources_processed": 0,
+    "briefing_version": "1.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "is_period_summary": false
+  }
+}
