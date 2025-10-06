@@ -1,0 +1,29 @@
+{
+  "date": "2025-10-05",
+  "generated_at": "2025-10-06T03:19:42.719045+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 691,
+      "post_number": 2,
+      "topic_id": 429,
+      "topic_title": "Random Linear Network Coding For Scalable BlockDAG",
+      "topic_slug": "random-linear-network-coding-for-scalable-blockdag",
+      "content": "Apologies for a belated response. Its great to see such an initiative. I realize part of this is background that I may be missing - but I wish for a more thorough explanation on the proposed scheme - for example - what exactly are the packets? are these random sections of data or do they correspond to something concrete (transactions/header hashes)? Ignoring mempool, redundancy on Kaspa blockdag proper has two main sources: a transaction is often shared by several \u201cparallel\u201d blocks in the header, parents\u2019 (direct and indirect hashes) are shared and repeated by many many blocks. It has not been clear enough to me if this is what we are trying to optimize or something else. If that is it, please help us understand in detail how the reconstruction of a block looks like. On practical terms - I believe the most substantial place where something like this could be employed is during IBD.",
+      "raw_content": "",
+      "author": "FreshAir08",
+      "created_at": "2025-10-05T15:18:11.246Z",
+      "updated_at": "2025-10-05T15:18:11.246Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/random-linear-network-coding-for-scalable-blockdag/429/2",
+      "category_id": 1
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 1,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}
