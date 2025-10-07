@@ -1,0 +1,29 @@
+{
+  "date": "2025-10-06",
+  "generated_at": "2025-10-07T03:15:53.701832+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 692,
+      "post_number": 3,
+      "topic_id": 429,
+      "topic_title": "Random Linear Network Coding For Scalable BlockDAG",
+      "topic_slug": "random-linear-network-coding-for-scalable-blockdag",
+      "content": "Could a malicious actor perform a DoS attack by crafting blocks with intentionally flawed encodings? For example, by generating shreds where the linear combinations are dependent or designed such that no shred (or combination of shreds) includes/reveals a specific critical piece of the block data. This could cause nodes across the network to receive and store \u201calmost complete\u201d blocks in memory indefinitely while waiting for sufficient independent shreds to decode, but never actually succeeding. Repeating this for multiple blocks could exhaust memory resources network-wide. Is this feasible under the proposed RLNC scheme? What mitigations could prevent it?",
+      "raw_content": "",
+      "author": "biryukovmaxim",
+      "created_at": "2025-10-06T08:38:04.535Z",
+      "updated_at": "2025-10-06T08:38:04.535Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/random-linear-network-coding-for-scalable-blockdag/429/3",
+      "category_id": 1
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 1,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}
