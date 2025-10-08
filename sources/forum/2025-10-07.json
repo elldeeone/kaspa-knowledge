@@ -1,0 +1,44 @@
+{
+  "date": "2025-10-07",
+  "generated_at": "2025-10-08T03:15:40.663972+00:00",
+  "source": "discourse_forum",
+  "status": "success",
+  "forum_posts": [
+    {
+      "post_id": 694,
+      "post_number": 4,
+      "topic_id": 429,
+      "topic_title": "Random Linear Network Coding For Scalable BlockDAG",
+      "topic_slug": "random-linear-network-coding-for-scalable-blockdag",
+      "content": "FreshAir08: Apologies for a belated response. Its great to see such an initiative. I realize part of this is background that I may be missing - but I wish for a more thorough explanation on the proposed scheme - for example - what exactly are the packets? are these random sections of data or do they correspond to something concrete (transactions/header hashes)? Ignoring mempool, redundancy on Kaspa blockdag proper has two main sources: a transaction is often shared by several \u201cparallel\u201d blocks in the header, parents\u2019 (direct and indirect hashes) are shared and repeated by many many blocks. It has not been clear enough to me if this is what we are trying to optimize or something else. If that is it, please help us understand in detail how the reconstruction of a block looks like. On practical terms - I believe the most substantial place where something like this could be employed is during IBD. FreshAir08, thanks reading my post. A Kaspa block is conceptually similar to a Bitcoin block, but adapted for parallel DAG consensus. Each block encapsulates a set of transactions and references multiple parents instead of a single previous block. This enables high-throughput, low-latency block production while maintaining eventual ordering. Basic block structure Each block consists of: \u2022 Header core \u2014 version, timestamp, nonce, difficulty, and Merkle roots for transactions and accepted parents. \u2022 Parent hashes \u2014 a list of one or more parent block references (Kaspa typically 1\u20133). \u2022 Transaction list \u2014 user transactions selected by the miner. \u2022 Blue score / selected parent hash \u2014 values used in consensus to define ordering and cumulative work. \u2022 Subnetwork data (optional) \u2014 extra fields reserved for extensions like proof-of-stake, virtual programs, or L2 metadata. In simplified pseudocode: Block { Header { Version Timestamp Difficulty MerkleRootTx MerkleRootParents SelectedParentHash BlueScore Nonce } Parents[] = { hashA, hashB, ... } Transactions[] = { tx1, tx2, ... } } How it\u2019s propagated Unlike Bitcoin\u2019s strictly linear chain, Kaspa nodes can receive and validate multiple blocks concurrently. Each block declares its set of parents, allowing it to \u201cattach\u201d to the DAG even before all tips are fully synced. This makes parallel IBD and asynchronous validation possible. Relation to RLNC-based IBD Because a Kaspa block\u2019s payload (header + parents + txs) can be partially redundant with others in the same DAG layer, it\u2019s a good candidate for coded propagation. My recent simulation demonstrates how Random Linear Network Coding (RLNC) could exploit this redundancy for faster and more resilient IBD. Experiment repo: https://github.com/gordonmurray-coding/rlnc-kaspa-ibd-demo The model factors the block payload into: Header core (constant-size bytes) Parent-hash items (shared among overlapping tips) Transaction bytes (with configurable overlap probability) By treating each of these as linear symbols over GF(2) or GF(256), RLNC achieves up to 40\u201350 % byte savings compared to na\u00efve full-block transfer, while remaining loss-tolerant under high packet drop rates. Key takeaway Kaspa blocks are composable objects; header, parent references, and transactions, forming the vertices of a global DAG. Their partial redundancy between tips makes Kaspa a natural candidate for coded networking approaches like RLNC, which can reduce bandwidth and improve IBD convergence even under lossy conditions. This is in reply to Maxim\u2019s question about DoS. I\u2019ve created a MATLAB-based simulation to examine this issue; whether dependent or malformed coded packets could realistically cause a DoS-style stall in an RLNC-based IBD process. The model emulates a Kaspa-like blockDAG with configurable: Level width and parent fan-in Sliding-window IBD with caching Per-peer bandwidth, RTT, and packet loss GF(2) and GF(256) fields Rateless RLNC with feedback and repair batches Each window compares three strategies: Full-block transfer (no deduplication) Unique pull (ideal de-dup baseline) RLNC coded download (loss-aware, adaptive) Result summary (20 Mbps / 5 peers / 20 % loss): RLNC reduced bytes by \u2248 40\u201350 % vs full-block IBD Time savings \u2248 30\u201340 % All windows reached full rank = K before timeout GF(256) more stable under loss demo console DoS feasibility A malicious node could indeed craft dependent combinations to stall decoding, but this can be bounded and detected: \u2022 Rank-growth monitoring: reject peers whose packets stop increasing rank \u2022 Per-window repair limits: cap accepted coded packets to \u2264 K (1 + \u03b5 + margin) \u2022 Deterministic coefficient seeds: tie each packet\u2019s coefficients to its hash/seed for verification \u2022 Rank-feedback gossip: allow peers to cross-validate decoding progress without exposing payloads These mitigations keep memory bounded and prevent indefinite waiting on undecodable shards. Next steps Integrate rank-aware feedback into the simulation Quantify computational cost of rank checks in live node context Explore coded relay / partial sub-DAG propagation Integrate with rusty-kaspa-simpa for modeling & simulation Would appreciate feedback on practical validation overheads or other mitigation primitives that could coexist with Kaspa\u2019s concurrency model.",
+      "raw_content": "",
+      "author": "Gordon_Murray",
+      "created_at": "2025-10-07T04:52:57.699Z",
+      "updated_at": "2025-10-07T04:55:20.652Z",
+      "reply_count": 1,
+      "url": "https://research.kas.pa/t/random-linear-network-coding-for-scalable-blockdag/429/4",
+      "category_id": 1
+    },
+    {
+      "post_id": 695,
+      "post_number": 5,
+      "topic_id": 429,
+      "topic_title": "Random Linear Network Coding For Scalable BlockDAG",
+      "topic_slug": "random-linear-network-coding-for-scalable-blockdag",
+      "content": "we can skip Kaspa premiers - for the record parent hashes is not only direct parents but also indirect parents which is why its not \u201c1-3\u201d (that too, I think, is more like 7 since crescendo), rather several hundred hashes and is a major part of redundancy. But lets just focus on block data (transactions) - assume for now header data is propagated us usual. The part I\u2019m unfamiliar with is RLNC - I tried reading but I\u2019m not sure how this works - it sounded to me like this is something that is good for lossy scenarios not so much for inherent redundancy. I could be wrong - but I need you to explain it. Please get into and explain (not code!) the scheme you are suggesting in practice to the highest degree of detail as well as what it pertains to solve.",
+      "raw_content": "",
+      "author": "FreshAir08",
+      "created_at": "2025-10-07T21:54:24.731Z",
+      "updated_at": "2025-10-07T21:58:20.760Z",
+      "reply_count": 0,
+      "url": "https://research.kas.pa/t/random-linear-network-coding-for-scalable-blockdag/429/5",
+      "category_id": 1
+    }
+  ],
+  "metadata": {
+    "forums_processed": 1,
+    "total_posts_fetched": 2,
+    "credential_status": "configured",
+    "processing_mode": "topic_centric"
+  }
+}
