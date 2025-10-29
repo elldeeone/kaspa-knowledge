@@ -1,0 +1,14 @@
+{
+  "date": "2025-10-29",
+  "generated_at": "2025-10-29T03:25:54.593591+00:00",
+  "source": "medium",
+  "status": "no_new_content",
+  "articles": [],
+  "metadata": {
+    "total_articles_fetched": 0,
+    "feeds_processed": 1,
+    "successful_feeds": 0,
+    "processing_mode": "daily_sync",
+    "credential_status": "rss_feeds"
+  }
+}
