@@ -1,0 +1,31 @@
+{
+  "date": "2025-11-23",
+  "generated_at": "2025-11-23T03:33:16.101965",
+  "facts": [],
+  "facts_by_category": {},
+  "statistics": {
+    "total_facts": 0,
+    "by_category": {},
+    "by_impact": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "by_source": {
+      "medium": 0,
+      "github": 0,
+      "telegram": 0,
+      "discord": 0,
+      "forum": 0,
+      "news": 0,
+      "documentation": 0
+    }
+  },
+  "metadata": {
+    "extractor_version": "2.0.0",
+    "llm_model": "openai/gpt-4.1",
+    "total_sources_processed": 0,
+    "sources_with_data": [],
+    "is_period_summary": false
+  }
+}
