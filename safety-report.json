@@ -1,0 +1,1434 @@
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
+{
+    "report_meta": {
+        "scan_target": "files",
+        "scanned": [
+            "requirements.txt"
+        ],
+        "scanned_full_path": [
+            "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+        ],
+        "target_languages": [
+            "python"
+        ],
+        "policy_file": null,
+        "policy_file_source": "local",
+        "audit_and_monitor": false,
+        "api_key": false,
+        "account": "",
+        "local_database_path": null,
+        "safety_version": "3.7.0",
+        "timestamp": "2025-12-01 09:10:03",
+        "packages_found": 89,
+        "vulnerabilities_found": 0,
+        "vulnerabilities_ignored": 0,
+        "remediations_recommended": 0,
+        "telemetry": {
+            "safety_options": {
+                "files": {
+                    "-r": 1
+                },
+                "json": {
+                    "--json": 1
+                }
+            },
+            "safety_version": "3.7.0",
+            "safety_source": "cli",
+            "os_type": "Linux",
+            "os_release": "6.11.0-1018-azure",
+            "os_description": "Linux-6.11.0-1018-azure-x86_64-with-glibc2.39",
+            "python_version": "3.9.25",
+            "safety_command": "check"
+        },
+        "git": {
+            "branch": "main",
+            "tag": "",
+            "commit": "9ba07f86a4fd0f8e6c7c2bf16833c5f4287dece9",
+            "dirty": "True",
+            "origin": "https://github.com/elldeeone/kaspa-knowledge"
+        },
+        "project": null,
+        "json_version": "1.1",
+        "remediations_attempted": 0,
+        "remediations_completed": 0,
+        "remediation_mode": "NON_INTERACTIVE"
+    },
+    "scanned_packages": {
+        "aiofiles": {
+            "name": "aiofiles",
+            "version": "25.1.0",
+            "requirements": [
+                {
+                    "raw": "aiofiles==25.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiofiles",
+                    "specifier": "==25.1.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "aiohappyeyeballs": {
+            "name": "aiohappyeyeballs",
+            "version": "2.6.1",
+            "requirements": [
+                {
+                    "raw": "aiohappyeyeballs==2.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiohappyeyeballs",
+                    "specifier": "==2.6.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "aiohttp": {
+            "name": "aiohttp",
+            "version": "3.13.2",
+            "requirements": [
+                {
+                    "raw": "aiohttp==3.13.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiohttp",
+                    "specifier": "==3.13.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "aiosignal": {
+            "name": "aiosignal",
+            "version": "1.4.0",
+            "requirements": [
+                {
+                    "raw": "aiosignal==1.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiosignal",
+                    "specifier": "==1.4.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "annotated-types": {
+            "name": "annotated-types",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "annotated-types==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "annotated-types",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "anthropic": {
+            "name": "anthropic",
+            "version": "0.75.0",
+            "requirements": [
+                {
+                    "raw": "anthropic==0.75.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "anthropic",
+                    "specifier": "==0.75.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "anyio": {
+            "name": "anyio",
+            "version": "4.12.0",
+            "requirements": [
+                {
+                    "raw": "anyio==4.12.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "anyio",
+                    "specifier": "==4.12.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "async-timeout": {
+            "name": "async-timeout",
+            "version": "5.0.1",
+            "requirements": [
+                {
+                    "raw": "async-timeout==5.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "async-timeout",
+                    "specifier": "==5.0.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "attrs": {
+            "name": "attrs",
+            "version": "25.4.0",
+            "requirements": [
+                {
+                    "raw": "attrs==25.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "attrs",
+                    "specifier": "==25.4.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "backports-asyncio-runner": {
+            "name": "backports-asyncio-runner",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "backports-asyncio-runner==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "backports-asyncio-runner",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "beautifulsoup4": {
+            "name": "beautifulsoup4",
+            "version": "4.14.3",
+            "requirements": [
+                {
+                    "raw": "beautifulsoup4==4.14.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "beautifulsoup4",
+                    "specifier": "==4.14.3",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "certifi": {
+            "name": "certifi",
+            "version": "2025.11.12",
+            "requirements": [
+                {
+                    "raw": "certifi==2025.11.12",
+                    "extras": [],
+                    "marker": null,
+                    "name": "certifi",
+                    "specifier": "==2025.11.12",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "cffi": {
+            "name": "cffi",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "cffi==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cffi",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "charset-normalizer": {
+            "name": "charset-normalizer",
+            "version": "3.4.4",
+            "requirements": [
+                {
+                    "raw": "charset-normalizer==3.4.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "charset-normalizer",
+                    "specifier": "==3.4.4",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "cryptography": {
+            "name": "cryptography",
+            "version": "46.0.3",
+            "requirements": [
+                {
+                    "raw": "cryptography==46.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cryptography",
+                    "specifier": "==46.0.3",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "discord-py": {
+            "name": "discord-py",
+            "version": "2.6.4",
+            "requirements": [
+                {
+                    "raw": "discord-py==2.6.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "discord-py",
+                    "specifier": "==2.6.4",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "distro": {
+            "name": "distro",
+            "version": "1.9.0",
+            "requirements": [
+                {
+                    "raw": "distro==1.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "distro",
+                    "specifier": "==1.9.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "docstring-parser": {
+            "name": "docstring-parser",
+            "version": "0.17.0",
+            "requirements": [
+                {
+                    "raw": "docstring-parser==0.17.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "docstring-parser",
+                    "specifier": "==0.17.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "exceptiongroup": {
+            "name": "exceptiongroup",
+            "version": "1.3.1",
+            "requirements": [
+                {
+                    "raw": "exceptiongroup==1.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "exceptiongroup",
+                    "specifier": "==1.3.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "feedparser": {
+            "name": "feedparser",
+            "version": "6.0.12",
+            "requirements": [
+                {
+                    "raw": "feedparser==6.0.12",
+                    "extras": [],
+                    "marker": null,
+                    "name": "feedparser",
+                    "specifier": "==6.0.12",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "frozenlist": {
+            "name": "frozenlist",
+            "version": "1.8.0",
+            "requirements": [
+                {
+                    "raw": "frozenlist==1.8.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "frozenlist",
+                    "specifier": "==1.8.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "greenlet": {
+            "name": "greenlet",
+            "version": "3.2.4",
+            "requirements": [
+                {
+                    "raw": "greenlet==3.2.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "greenlet",
+                    "specifier": "==3.2.4",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "h11": {
+            "name": "h11",
+            "version": "0.16.0",
+            "requirements": [
+                {
+                    "raw": "h11==0.16.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "h11",
+                    "specifier": "==0.16.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "httpcore": {
+            "name": "httpcore",
+            "version": "1.0.9",
+            "requirements": [
+                {
+                    "raw": "httpcore==1.0.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpcore",
+                    "specifier": "==1.0.9",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "httpx": {
+            "name": "httpx",
+            "version": "0.28.1",
+            "requirements": [
+                {
+                    "raw": "httpx==0.28.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpx",
+                    "specifier": "==0.28.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "idna": {
+            "name": "idna",
+            "version": "3.11",
+            "requirements": [
+                {
+                    "raw": "idna==3.11",
+                    "extras": [],
+                    "marker": null,
+                    "name": "idna",
+                    "specifier": "==3.11",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "importlib-metadata": {
+            "name": "importlib-metadata",
+            "version": "8.7.0",
+            "requirements": [
+                {
+                    "raw": "importlib-metadata==8.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "importlib-metadata",
+                    "specifier": "==8.7.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "iniconfig": {
+            "name": "iniconfig",
+            "version": "2.1.0",
+            "requirements": [
+                {
+                    "raw": "iniconfig==2.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "iniconfig",
+                    "specifier": "==2.1.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "jiter": {
+            "name": "jiter",
+            "version": "0.12.0",
+            "requirements": [
+                {
+                    "raw": "jiter==0.12.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jiter",
+                    "specifier": "==0.12.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "jsonschema": {
+            "name": "jsonschema",
+            "version": "4.25.1",
+            "requirements": [
+                {
+                    "raw": "jsonschema==4.25.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jsonschema",
+                    "specifier": "==4.25.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "jsonschema-specifications": {
+            "name": "jsonschema-specifications",
+            "version": "2025.9.1",
+            "requirements": [
+                {
+                    "raw": "jsonschema-specifications==2025.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jsonschema-specifications",
+                    "specifier": "==2025.9.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "markdown": {
+            "name": "markdown",
+            "version": "3.9",
+            "requirements": [
+                {
+                    "raw": "markdown==3.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markdown",
+                    "specifier": "==3.9",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "multidict": {
+            "name": "multidict",
+            "version": "6.7.0",
+            "requirements": [
+                {
+                    "raw": "multidict==6.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "multidict",
+                    "specifier": "==6.7.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "numpy": {
+            "name": "numpy",
+            "version": "2.0.2",
+            "requirements": [
+                {
+                    "raw": "numpy==2.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "numpy",
+                    "specifier": "==2.0.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "oauthlib": {
+            "name": "oauthlib",
+            "version": "3.3.1",
+            "requirements": [
+                {
+                    "raw": "oauthlib==3.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "oauthlib",
+                    "specifier": "==3.3.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "openai": {
+            "name": "openai",
+            "version": "2.8.1",
+            "requirements": [
+                {
+                    "raw": "openai==2.8.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "openai",
+                    "specifier": "==2.8.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "outcome": {
+            "name": "outcome",
+            "version": "1.3.0.post0",
+            "requirements": [
+                {
+                    "raw": "outcome==1.3.0.post0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "outcome",
+                    "specifier": "==1.3.0.post0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "packaging": {
+            "name": "packaging",
+            "version": "25.0",
+            "requirements": [
+                {
+                    "raw": "packaging==25.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "packaging",
+                    "specifier": "==25.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pandas": {
+            "name": "pandas",
+            "version": "2.3.3",
+            "requirements": [
+                {
+                    "raw": "pandas==2.3.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pandas",
+                    "specifier": "==2.3.3",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pillow": {
+            "name": "pillow",
+            "version": "11.3.0",
+            "requirements": [
+                {
+                    "raw": "pillow==11.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pillow",
+                    "specifier": "==11.3.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "playwright": {
+            "name": "playwright",
+            "version": "1.56.0",
+            "requirements": [
+                {
+                    "raw": "playwright==1.56.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "playwright",
+                    "specifier": "==1.56.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pluggy": {
+            "name": "pluggy",
+            "version": "1.6.0",
+            "requirements": [
+                {
+                    "raw": "pluggy==1.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pluggy",
+                    "specifier": "==1.6.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "propcache": {
+            "name": "propcache",
+            "version": "0.4.1",
+            "requirements": [
+                {
+                    "raw": "propcache==0.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "propcache",
+                    "specifier": "==0.4.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "psutil": {
+            "name": "psutil",
+            "version": "7.1.3",
+            "requirements": [
+                {
+                    "raw": "psutil==7.1.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "psutil",
+                    "specifier": "==7.1.3",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pyaes": {
+            "name": "pyaes",
+            "version": "1.6.1",
+            "requirements": [
+                {
+                    "raw": "pyaes==1.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyaes",
+                    "specifier": "==1.6.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pyasn1": {
+            "name": "pyasn1",
+            "version": "0.6.1",
+            "requirements": [
+                {
+                    "raw": "pyasn1==0.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyasn1",
+                    "specifier": "==0.6.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pycparser": {
+            "name": "pycparser",
+            "version": "2.23",
+            "requirements": [
+                {
+                    "raw": "pycparser==2.23",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pycparser",
+                    "specifier": "==2.23",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pydantic": {
+            "name": "pydantic",
+            "version": "2.12.5",
+            "requirements": [
+                {
+                    "raw": "pydantic==2.12.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic",
+                    "specifier": "==2.12.5",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pydantic-core": {
+            "name": "pydantic-core",
+            "version": "2.41.5",
+            "requirements": [
+                {
+                    "raw": "pydantic-core==2.41.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic-core",
+                    "specifier": "==2.41.5",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pyee": {
+            "name": "pyee",
+            "version": "13.0.0",
+            "requirements": [
+                {
+                    "raw": "pyee==13.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyee",
+                    "specifier": "==13.0.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pygithub": {
+            "name": "pygithub",
+            "version": "2.8.1",
+            "requirements": [
+                {
+                    "raw": "pygithub==2.8.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pygithub",
+                    "specifier": "==2.8.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pygments": {
+            "name": "pygments",
+            "version": "2.19.2",
+            "requirements": [
+                {
+                    "raw": "pygments==2.19.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pygments",
+                    "specifier": "==2.19.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pyjwt": {
+            "name": "pyjwt",
+            "version": "2.10.1",
+            "requirements": [
+                {
+                    "raw": "pyjwt[crypto]==2.10.1",
+                    "extras": [
+                        "crypto"
+                    ],
+                    "marker": null,
+                    "name": "pyjwt",
+                    "specifier": "==2.10.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pynacl": {
+            "name": "pynacl",
+            "version": "1.6.1",
+            "requirements": [
+                {
+                    "raw": "pynacl==1.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pynacl",
+                    "specifier": "==1.6.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pysocks": {
+            "name": "pysocks",
+            "version": "1.7.1",
+            "requirements": [
+                {
+                    "raw": "pysocks==1.7.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pysocks",
+                    "specifier": "==1.7.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pytest": {
+            "name": "pytest",
+            "version": "8.4.2",
+            "requirements": [
+                {
+                    "raw": "pytest==8.4.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest",
+                    "specifier": "==8.4.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pytest-asyncio": {
+            "name": "pytest-asyncio",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "pytest-asyncio==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest-asyncio",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "python-dateutil": {
+            "name": "python-dateutil",
+            "version": "2.9.0.post0",
+            "requirements": [
+                {
+                    "raw": "python-dateutil==2.9.0.post0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-dateutil",
+                    "specifier": "==2.9.0.post0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "python-dotenv": {
+            "name": "python-dotenv",
+            "version": "1.2.1",
+            "requirements": [
+                {
+                    "raw": "python-dotenv==1.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-dotenv",
+                    "specifier": "==1.2.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pytz": {
+            "name": "pytz",
+            "version": "2025.2",
+            "requirements": [
+                {
+                    "raw": "pytz==2025.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytz",
+                    "specifier": "==2025.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "pyyaml": {
+            "name": "pyyaml",
+            "version": "6.0.3",
+            "requirements": [
+                {
+                    "raw": "pyyaml==6.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyyaml",
+                    "specifier": "==6.0.3",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "ratelimit": {
+            "name": "ratelimit",
+            "version": "2.2.1",
+            "requirements": [
+                {
+                    "raw": "ratelimit==2.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ratelimit",
+                    "specifier": "==2.2.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "referencing": {
+            "name": "referencing",
+            "version": "0.36.2",
+            "requirements": [
+                {
+                    "raw": "referencing==0.36.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "referencing",
+                    "specifier": "==0.36.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "requests": {
+            "name": "requests",
+            "version": "2.32.5",
+            "requirements": [
+                {
+                    "raw": "requests==2.32.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "requests",
+                    "specifier": "==2.32.5",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "requests-oauthlib": {
+            "name": "requests-oauthlib",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "requests-oauthlib==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "requests-oauthlib",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "rpds-py": {
+            "name": "rpds-py",
+            "version": "0.27.1",
+            "requirements": [
+                {
+                    "raw": "rpds-py==0.27.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rpds-py",
+                    "specifier": "==0.27.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "rsa": {
+            "name": "rsa",
+            "version": "4.9.1",
+            "requirements": [
+                {
+                    "raw": "rsa==4.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rsa",
+                    "specifier": "==4.9.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "selenium": {
+            "name": "selenium",
+            "version": "4.36.0",
+            "requirements": [
+                {
+                    "raw": "selenium==4.36.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "selenium",
+                    "specifier": "==4.36.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "sgmllib3k": {
+            "name": "sgmllib3k",
+            "version": "1.0.0",
+            "requirements": [
+                {
+                    "raw": "sgmllib3k==1.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sgmllib3k",
+                    "specifier": "==1.0.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "six": {
+            "name": "six",
+            "version": "1.17.0",
+            "requirements": [
+                {
+                    "raw": "six==1.17.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "six",
+                    "specifier": "==1.17.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "sniffio": {
+            "name": "sniffio",
+            "version": "1.3.1",
+            "requirements": [
+                {
+                    "raw": "sniffio==1.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sniffio",
+                    "specifier": "==1.3.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "sortedcontainers": {
+            "name": "sortedcontainers",
+            "version": "2.4.0",
+            "requirements": [
+                {
+                    "raw": "sortedcontainers==2.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sortedcontainers",
+                    "specifier": "==2.4.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "soupsieve": {
+            "name": "soupsieve",
+            "version": "2.8",
+            "requirements": [
+                {
+                    "raw": "soupsieve==2.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "soupsieve",
+                    "specifier": "==2.8",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "structlog": {
+            "name": "structlog",
+            "version": "25.5.0",
+            "requirements": [
+                {
+                    "raw": "structlog==25.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "structlog",
+                    "specifier": "==25.5.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "telethon": {
+            "name": "telethon",
+            "version": "1.42.0",
+            "requirements": [
+                {
+                    "raw": "telethon==1.42.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "telethon",
+                    "specifier": "==1.42.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "tenacity": {
+            "name": "tenacity",
+            "version": "9.1.2",
+            "requirements": [
+                {
+                    "raw": "tenacity==9.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tenacity",
+                    "specifier": "==9.1.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "tomli": {
+            "name": "tomli",
+            "version": "2.3.0",
+            "requirements": [
+                {
+                    "raw": "tomli==2.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomli",
+                    "specifier": "==2.3.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "tqdm": {
+            "name": "tqdm",
+            "version": "4.67.1",
+            "requirements": [
+                {
+                    "raw": "tqdm==4.67.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tqdm",
+                    "specifier": "==4.67.1",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "trio": {
+            "name": "trio",
+            "version": "0.31.0",
+            "requirements": [
+                {
+                    "raw": "trio==0.31.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trio",
+                    "specifier": "==0.31.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "trio-websocket": {
+            "name": "trio-websocket",
+            "version": "0.12.2",
+            "requirements": [
+                {
+                    "raw": "trio-websocket==0.12.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trio-websocket",
+                    "specifier": "==0.12.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "typing-extensions": {
+            "name": "typing-extensions",
+            "version": "4.15.0",
+            "requirements": [
+                {
+                    "raw": "typing-extensions==4.15.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing-extensions",
+                    "specifier": "==4.15.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "typing-inspection": {
+            "name": "typing-inspection",
+            "version": "0.4.2",
+            "requirements": [
+                {
+                    "raw": "typing-inspection==0.4.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing-inspection",
+                    "specifier": "==0.4.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "tzdata": {
+            "name": "tzdata",
+            "version": "2025.2",
+            "requirements": [
+                {
+                    "raw": "tzdata==2025.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tzdata",
+                    "specifier": "==2025.2",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "urllib3": {
+            "name": "urllib3",
+            "version": "2.5.0",
+            "requirements": [
+                {
+                    "raw": "urllib3[socks]==2.5.0",
+                    "extras": [
+                        "socks"
+                    ],
+                    "marker": null,
+                    "name": "urllib3",
+                    "specifier": "==2.5.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "validators": {
+            "name": "validators",
+            "version": "0.35.0",
+            "requirements": [
+                {
+                    "raw": "validators==0.35.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "validators",
+                    "specifier": "==0.35.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "websocket-client": {
+            "name": "websocket-client",
+            "version": "1.9.0",
+            "requirements": [
+                {
+                    "raw": "websocket-client==1.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "websocket-client",
+                    "specifier": "==1.9.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "wsproto": {
+            "name": "wsproto",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "wsproto==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wsproto",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "yarl": {
+            "name": "yarl",
+            "version": "1.22.0",
+            "requirements": [
+                {
+                    "raw": "yarl==1.22.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "yarl",
+                    "specifier": "==1.22.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        },
+        "zipp": {
+            "name": "zipp",
+            "version": "3.23.0",
+            "requirements": [
+                {
+                    "raw": "zipp==3.23.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "zipp",
+                    "specifier": "==3.23.0",
+                    "url": null,
+                    "found": "/home/runner/work/kaspa-knowledge/kaspa-knowledge/requirements.txt"
+                }
+            ]
+        }
+    },
+    "affected_packages": {},
+    "announcements": [],
+    "vulnerabilities": [],
+    "ignored_vulnerabilities": [],
+    "remediations": {},
+    "remediations_results": {
+        "vulnerabilities_fixed": [],
+        "remediations_applied": {},
+        "remediations_skipped": {}
+    }
+}
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
